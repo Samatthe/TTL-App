@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/led_static_ui">
+
+    <RelativeLayout
+        android:id="@+id/static_link_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/LED_static_link_check"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:layout_marginLeft="11dp"
+            android:onClick="onCheckboxClicked"
+            android:buttonTint="#EFEFEF"/>
+
+        <TextView
+            android:id="@+id/LED_static_link_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:gravity="center_vertical"
+            android:text="Link LED Colors"
+            android:paddingLeft="17dp"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/settings_text_size"
+            android:layout_toRightOf="@id/LED_static_link_check"/>
+
+    </RelativeLayout>
+
+    <TextView android:id="@+id/left_LED_text"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:text="Left LED Color"
+        android:layout_below="@id/static_link_layout"/>
+
+    <View android:id="@+id/led_static_spacer1"
+        android:layout_width="match_parent"
+        android:layout_height="1.25dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="6dp"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/view_spacer_1"
+        android:layout_below="@id/left_LED_text" />
+
+    <TextView android:id="@+id/left_red_text"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:layout_below="@id/led_static_spacer1"
+        android:text="Red:"/>
+
+    <TextView android:id="@+id/left_red_number"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:minEms="2"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:paddingRight="@dimen/settings_left_pad"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/led_static_spacer1"
+        android:text="50"/>
+
+    <TextView android:id="@+id/left_green_text"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:layout_below="@id/left_red_seeker"
+        android:text="Green:"/>
+
+    <SeekBar android:id="@+id/left_red_seeker"
+        android:layout_width="240dp"
+        android:layout_height="@dimen/led_ui_height"
+        android:layout_below="@id/led_static_spacer1"
+        android:layout_toRightOf="@id/left_green_text"
+        android:layout_toLeftOf="@id/left_red_number"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:progress="50"
+        android:maxHeight="1000dp"/>
+
+    <TextView android:id="@+id/left_green_number"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:minEms="2"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:paddingRight="@dimen/settings_left_pad"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/left_red_seeker"
+        android:text="25"/>
+
+    <SeekBar android:id="@+id/left_green_seeker"
+        android:layout_width="240dp"
+        android:layout_height="@dimen/led_ui_height"
+        android:layout_below="@id/left_red_seeker"
+        android:layout_toRightOf="@id/left_green_text"
+        android:layout_toLeftOf="@id/left_green_number"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:progress="25"
+        android:maxHeight="1000dp"/>
+
+    <TextView android:id="@+id/left_blue_text"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:layout_below="@id/left_green_seeker"
+        android:text="Blue:"/>
+
+    <TextView android:id="@+id/left_blue_number"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:minEms="2"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:paddingRight="@dimen/settings_left_pad"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/left_green_seeker"
+        android:text="80"/>
+
+    <SeekBar android:id="@+id/left_blue_seeker"
+        android:layout_width="240dp"
+        android:layout_height="@dimen/led_ui_height"
+        android:layout_below="@id/left_green_seeker"
+        android:layout_toRightOf="@id/left_green_text"
+        android:layout_toLeftOf="@id/left_blue_number"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:progress="80"
+        android:foregroundGravity="center"
+        android:maxHeight="1000dp"/>
+
+    <View android:id="@+id/left_rgb_display"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+    android:layout_marginLeft="50dp"
+    android:layout_marginRight="50dp"
+    android:background="#888888"
+    android:layout_below="@id/left_blue_number"/>
+
+    <RelativeLayout
+        android:id="@+id/right_LED_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/left_rgb_display">
+        <TextView android:id="@+id/right_LED_text"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:text="Right LED Color"
+            android:layout_marginTop="15dp"/>
+
+        <View android:id="@+id/led_static_spacer2"
+            android:layout_width="match_parent"
+            android:layout_height="1.25dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginLeft="6dp"
+            android:background="@drawable/view_spacer_1"
+            android:layout_below="@id/right_LED_text" />
+
+        <TextView android:id="@+id/right_red_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/led_ui_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/led_static_spacer2"
+            android:text="Red:"/>
+
+        <TextView android:id="@+id/right_red_number"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/led_ui_height"
+            android:minEms="2"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:paddingRight="@dimen/settings_left_pad"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/led_static_spacer2"
+            android:text="0"/>
+
+        <TextView android:id="@+id/right_green_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/led_ui_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/right_red_seeker"
+            android:text="Green:"/>
+
+        <TextView android:id="@+id/right_green_number"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/led_ui_height"
+            android:minEms="2"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:paddingRight="@dimen/settings_left_pad"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/right_red_seeker"
+            android:text="80"/>
+
+        <SeekBar android:id="@+id/right_green_seeker"
+            android:layout_width="240dp"
+            android:layout_height="@dimen/led_ui_height"
+            android:layout_below="@id/right_red_seeker"
+            android:layout_toRightOf="@id/right_green_text"
+            android:layout_toLeftOf="@id/right_green_number"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:progress="80"
+            android:maxHeight="1000dp"/>
+
+        <TextView android:id="@+id/right_blue_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/led_ui_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/right_green_seeker"
+            android:text="Blue:"/>
+
+        <TextView android:id="@+id/right_blue_number"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/led_ui_height"
+            android:minEms="2"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:paddingRight="@dimen/settings_left_pad"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/right_green_seeker"
+            android:text="60"/>
+
+        <SeekBar android:id="@+id/right_blue_seeker"
+            android:layout_width="240dp"
+            android:layout_height="@dimen/led_ui_height"
+            android:layout_below="@id/right_green_seeker"
+            android:layout_toRightOf="@id/right_green_text"
+            android:layout_toLeftOf="@id/right_blue_number"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:progress="60"
+            android:foregroundGravity="center"
+            android:maxHeight="1000dp"/>
+
+        <SeekBar android:id="@+id/right_red_seeker"
+            android:layout_width="240dp"
+            android:layout_height="@dimen/led_ui_height"
+            android:layout_below="@id/led_static_spacer2"
+            android:layout_toRightOf="@id/right_green_text"
+            android:layout_toLeftOf="@id/right_red_number"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:progress="0"
+            android:maxHeight="1000dp"/>
+
+        <View android:id="@+id/right_rgb_display"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:background="#888888"
+            android:layout_below="@id/right_blue_number"
+            android:layout_marginBottom="15dp"/>
+    </RelativeLayout>
+</RelativeLayout>

@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    tools:context="com.solid.circuits.TelTail.ControlsConfigActivity"
+    android:background="@drawable/default_content">
+
+    <Button
+        android:id="@+id/controls_apply_button"
+        android:text="Apply Controls Settings"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_marginBottom="@dimen/settings_left_pad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:layout_alignParentBottom="true"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <Button
+        android:id="@+id/controls_read_button"
+        android:text="Read Controls Settings"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:layout_above="@id/controls_apply_button"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <ScrollView android:id="@+id/logging_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/controls_read_button">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView android:id="@+id/controls_aux_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:layout_marginTop="6dp"
+                    android:textSize="@dimen/settings_text_size"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:text="Aux Output Settings"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1.25dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="@dimen/motor_info_hor_margin"
+                    android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                    android:background="@drawable/view_spacer_2"
+                    android:layout_below="@id/controls_aux_text" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/controls_aux_enable_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Aux Output Enabled:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <CheckBox
+                    android:id="@+id/controls_aux_enable_check"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_marginLeft="@dimen/settings_left_pad"
+                    android:layout_toRightOf="@id/controls_aux_enable_text"
+                    android:onClick="onCheckboxClicked"
+                    android:theme="@style/checkbox_white"/>
+
+            </RelativeLayout>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/aux_type_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:text="Aux Output Type:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <Spinner
+                    android:id="@+id/aux_type_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/aux_type_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+            </RelativeLayout>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/aux_time_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:text="On Duration:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <TextView
+                    android:id="@+id/aux_time_text2"
+                    android:text=" S"
+                    android:textSize="12dp"
+                    android:gravity="center_vertical"
+                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_alignBaseline="@id/aux_time_text"
+                    android:paddingRight="@dimen/settings_left_pad"
+                    android:layout_alignParentRight="true"/>
+
+                <TextView android:id="@+id/aux_time_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center"
+                    android:textSize="@dimen/settings_text_size"
+                    android:textColor="@android:color/white"
+                    android:paddingLeft="@dimen/settings_left_pad"
+                    android:layout_toLeftOf="@id/aux_time_text2"
+                    android:minEms="2"
+                    android:text="0.0"/>
+
+                <SeekBar android:id="@+id/aux_time_seeker"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_toRightOf="@id/aux_time_text"
+                    android:layout_toLeftOf="@id/aux_time_number"
+                    android:paddingLeft="@dimen/settings_left_pad"
+                    android:progress="50"
+                    android:maxHeight="1000dp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView android:id="@+id/controls_single_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:layout_marginTop="6dp"
+                    android:textSize="@dimen/settings_text_size"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:text="Single Axis Remotes"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1.25dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="@dimen/motor_info_hor_margin"
+                    android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                    android:background="@drawable/view_spacer_2"
+                    android:layout_below="@id/controls_single_text" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/single_aux_control_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Aux Control:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+            <View android:id="@+id/single_spacer0"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/single_aux_control_text"/>
+
+                <TextView
+                    android:id="@+id/single_toggle_all_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Toggle All:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/single_spacer0"/>
+
+            <View android:id="@+id/single_spacer1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/single_toggle_all_text"/>
+
+                <TextView
+                    android:id="@+id/single_toggle_head_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Toggle Headlights:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/single_spacer1"/>
+
+            <View android:id="@+id/single_spacer2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/single_toggle_head_text"/>
+
+                <TextView
+                    android:id="@+id/single_toggle_side_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Toggle Side Lights:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/single_spacer2"/>
+
+                <Spinner
+                    android:id="@+id/single_toggle_side_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/single_spacer2"
+                    android:popupBackground="#383838"/>
+
+                <Spinner
+                    android:id="@+id/single_toggle_all_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/single_spacer0"
+                    android:popupBackground="#383838"/>
+
+                <Spinner
+                    android:id="@+id/single_aux_control_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+                <Spinner
+                    android:id="@+id/single_toggle_head_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/single_spacer1"
+                    android:popupBackground="#383838"/>
+
+            <View android:id="@+id/single_spacer3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/single_toggle_side_text" />
+
+                <TextView
+                    android:id="@+id/single_mode_up_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="LED Mode Up:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/single_spacer3" />
+
+                <Spinner
+                    android:id="@+id/single_mode_up_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/single_spacer3"
+                    android:popupBackground="#383838"/>
+
+            <View android:id="@+id/single_spacer4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/single_mode_up_text" />
+
+                <TextView
+                    android:id="@+id/single_mode_down_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="LED Mode Down:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/single_spacer4" />
+
+                <Spinner
+                    android:id="@+id/single_mode_down_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/single_spacer4"
+                    android:popupBackground="#383838"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView android:id="@+id/controls_dual_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:layout_marginTop="6dp"
+                    android:textSize="@dimen/settings_text_size"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:text="Dual Axis Remotes"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1.25dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="@dimen/motor_info_hor_margin"
+                    android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                    android:background="@drawable/view_spacer_2"
+                    android:layout_below="@id/controls_dual_text" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/dual_aux_control_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_below="@id/log_spacer1"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Aux Control:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <View android:id="@+id/dual_spacer0"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@drawable/button_spacer"
+                    android:layout_below="@id/dual_aux_control_text"/>
+
+                <TextView
+                    android:id="@+id/dual_toggle_all_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Toggle All:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/dual_spacer0"/>
+
+                <View android:id="@+id/dual_spacer1"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@drawable/button_spacer"
+                    android:layout_below="@id/dual_toggle_all_text"/>
+
+                <TextView
+                    android:id="@+id/dual_toggle_head_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Toggle Headlights:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/dual_spacer1"/>
+
+                <View android:id="@+id/dual_spacer2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@drawable/button_spacer"
+                    android:layout_below="@id/dual_toggle_head_text"/>
+
+                <TextView
+                    android:id="@+id/dual_toggle_side_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Toggle Side Lights:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/dual_spacer2"/>
+
+                <Spinner
+                    android:id="@+id/dual_toggle_side_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/dual_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/dual_spacer2"
+                    android:popupBackground="#383838"/>
+
+                <Spinner
+                    android:id="@+id/dual_toggle_all_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/dual_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/dual_spacer0"
+                    android:popupBackground="#383838"/>
+
+                <Spinner
+                    android:id="@+id/dual_aux_control_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/dual_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+                <Spinner
+                    android:id="@+id/dual_toggle_head_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/dual_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/dual_spacer1"
+                    android:popupBackground="#383838"/>
+
+                <View android:id="@+id/dual_spacer3"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@drawable/button_spacer"
+                    android:layout_below="@id/dual_toggle_side_text" />
+
+                <TextView
+                    android:id="@+id/dual_mode_up_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="LED Mode Up:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/dual_spacer3" />
+
+                <Spinner
+                    android:id="@+id/dual_mode_up_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/dual_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/dual_spacer3"
+                    android:popupBackground="#383838" />
+
+                <View android:id="@+id/dual_spacer4"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@drawable/button_spacer"
+                    android:layout_below="@id/dual_mode_up_text" />
+
+                <TextView
+                    android:id="@+id/dual_mode_down_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="LED Mode Down:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/dual_spacer4" />
+                <Spinner
+                    android:id="@+id/dual_mode_down_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/dual_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/dual_spacer4"
+                    android:popupBackground="#383838"/>
+
+                <View android:id="@+id/dual_spacer5"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@drawable/button_spacer"
+                    android:layout_below="@id/dual_mode_down_text" />
+
+
+                <TextView
+                    android:id="@+id/controls_turn_enable_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_below="@id/dual_spacer5"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Enable Turn Signals:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"/>
+
+                <CheckBox
+                    android:id="@+id/controls_turn_enable_check"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_below="@id/dual_spacer5"
+                    android:layout_marginLeft="@dimen/settings_left_pad"
+                    android:layout_toRightOf="@id/controls_turn_enable_text"
+                    android:onClick="onCheckboxClicked"
+                    android:theme="@style/checkbox_white"/>
+            </RelativeLayout>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.solid.circuits.TelTail"
+    android:versionCode="1"
+    android:versionName="0.1">
+
+    <uses-sdk
+        android:minSdkVersion="18"
+        android:targetSdkVersion="26" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="25" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="25" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_ttl_normal_backing"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity
+            android:name="com.solid.circuits.TelTail.MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.solid.circuits.TelTail.SplashActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.SettingsActivity"
+            android:label="@string/settings_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.SensorSettingsActivity"
+            android:label="@string/sensors_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.BluetoothActivity"
+            android:label="@string/bluetooth_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.LoggingActivity"
+            android:label="@string/logging_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.MotorInfoActivity"
+            android:label="@string/motor_info_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.RemoteActivity"
+            android:label="@string/remote_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.OrientationActivity"
+            android:label="@string/orientation_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.ControlsConfigActivity"
+            android:label="@string/controls_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.BluetoothScan"
+            android:label="BLE Scan"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.BluetoothActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.RawDataActivity"
+            android:label="Raw BLE Data"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.BluetoothActivity" />
+        </activity>
+
+        <service
+            android:name="com.solid.circuits.TelTail.BluetoothService"
+            android:enabled="true" />
+        <service
+            android:name="com.solid.circuits.TelTail.LoggingService"
+            android:enabled="true" />
+    </application>
+
+</manifest>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/app_bar_main"
+    tools:context="com.solid.circuits.TelTail.MainActivity"
+    android:id="@+id/gps_layout"
+    android:background="@drawable/default_content"
+    android:visibility="visible">
+
+    <TextView
+        android:id="@+id/gps_data_text"
+        android:text="Data Displayed:"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:layout_width="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_height="45sp"/>
+
+    <Spinner
+        android:id="@+id/gps_spinner"
+        android:layout_width="wrap_content"
+        android:layout_toRightOf="@id/gps_data_text"
+        android:gravity="center_vertical"
+        android:layout_height="45sp"
+        android:popupBackground="#383838"/>
+
+    <include android:id="@+id/gps_map"
+        layout="@layout/map_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="225dp"
+        android:layout_below="@id/gps_spinner"/>
+
+    <ToggleButton android:id="@+id/gps_log_button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:textOn="Log Map Data"
+        android:textOff="Log Map Data"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"
+        android:layout_alignParentBottom="true"/>
+
+    <ScrollView android:id="@+id/gps_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/gps_log_button"
+        android:layout_below="@id/gps_map">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/gps_maplong_text"
+                android:text="Longitude: 0&#xb0;"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"/>
+
+            <TextView
+                android:id="@+id/gps_maplat_text"
+                android:text="Latitude: 0&#xb0;"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/gps_maplong_text"/>
+
+            <TextView
+                android:id="@+id/gps_mapalt_text"
+                android:text="Altitude: 0 ft"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/gps_maplat_text"/>
+
+            <TextView
+                android:id="@+id/gps_speed_text"
+                android:text="Speed: 0 mph"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/gps_mapalt_text"/>
+
+            <TextView
+                android:id="@+id/gps_max_text"
+                android:text="Max Speed: 0 mph"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/gps_speed_text"/>
+
+            <TextView
+                android:id="@+id/gps_dist_text"
+                android:text="Distance: 0 miles"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/gps_max_text"/>
+
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="6"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_remote"
+        android:title="@string/remote_button"
+        android:orderInCategory="5"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_toggle"
+        android:title="@string/toggle_button"
+        android:orderInCategory="4"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_calibrate"
+        android:title="@string/calibrate_button"
+        android:orderInCategory="3"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_ble"
+        android:title="@string/ble_button"
+        android:orderInCategory="2"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_log"
+        android:title="@string/log_button"
+        android:orderInCategory="1"
+        app:showAsAction="never"/>
+</menu>

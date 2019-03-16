@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/app_bar_main"
+    tools:context="com.solid.circuits.TelTail.MainActivity"
+    android:id="@+id/sensor_layout"
+    android:background="@drawable/default_content"
+    android:visibility="visible">
+
+    <com.jjoe64.graphview.GraphView
+        android:layout_width="match_parent"
+        android:layout_height="200dip"
+        android:id="@+id/sensor_graph"
+        android:background="@android:color/white"
+        android:backgroundTint="@android:color/darker_gray"/>
+
+    <ToggleButton android:id="@+id/sensor_log_button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:textOn="Log Sensor Data"
+        android:textOff="Log Sensor Data"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"
+        android:layout_alignParentBottom="true"/>
+
+    <ScrollView android:id="@+id/sensor_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/sensor_log_button"
+        android:layout_below="@id/sensor_graph">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox android:id="@+id/sensor_accel_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/sensor_accel_text"
+                android:text="Accelerometer X: 0\u0009Y: 0\u0009Z: 0"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_toRightOf="@id/sensor_accel_check"/>
+
+            <CheckBox android:id="@+id/sensor_gyro_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/sensor_accel_check"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/sensor_gyro_text"
+                android:text="Gyroscope X: 0\u0009Y: 0\u0009Z: 0"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/sensor_accel_check"
+                android:layout_toRightOf="@id/sensor_gyro_check"/>
+
+            <CheckBox android:id="@+id/sensor_compass_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/sensor_gyro_check"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/sensor_compass_text"
+                android:text="Compass X: 0\u0009Y: 0\u0009Z: 0"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/sensor_gyro_check"
+                android:layout_toRightOf="@id/sensor_compass_check"/>
+
+            <CheckBox android:id="@+id/sensor_heading_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/sensor_compass_check"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/sensor_heading_text"
+                android:text="Heading: 0\u00B0"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/sensor_compass_check"
+                android:layout_toRightOf="@id/sensor_heading_check"/>
+
+
+            <CheckBox android:id="@+id/sensor_light_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/sensor_heading_check"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/sensor_light_text"
+                android:text="Light Sensor: 0"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/sensor_heading_check"
+                android:layout_toRightOf="@id/sensor_light_check"/>
+
+            <CheckBox android:id="@+id/sensor_nunchuck_joy_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/sensor_light_check"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/sensor_nunchuck_joy_text"
+                android:text="Remote X: 0\u0009Y: 0"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/sensor_light_check"
+                android:layout_toRightOf="@id/sensor_nunchuck_joy_check"/>
+
+            <TextView android:id="@+id/sensor_NZ_text"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:gravity="left|center_vertical"
+                android:text="Remote Z: 0"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_below="@id/sensor_nunchuck_joy_check"
+                android:layout_toRightOf="@id/sensor_light_check"/>
+
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

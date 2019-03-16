@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.solid.circuits.TelTail.OrientationActivity"
+    android:background="@drawable/default_content">
+
+    <Button
+        android:id="@+id/orientation_apply_button"
+        android:text="Apply Orientation Settings"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_marginBottom="@dimen/settings_left_pad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:layout_alignParentBottom="true"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <Button
+        android:id="@+id/orientation_read_button"
+        android:text="Read Orientation Settings"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:layout_above="@id/orientation_apply_button"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/settings_connect_orientation_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:text="Connectors Orientation:"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/settings_text_size" />
+
+        <View android:id="@+id/orientation_spacer1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/button_spacer"
+            android:layout_below="@id/settings_connect_orientation_text"/>
+
+            <TextView
+                android:id="@+id/settings_power_orientation_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:text="Power Cord Orientation:"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_below="@id/orientation_spacer1"/>
+
+            <Spinner
+                android:id="@+id/power_orientation_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:gravity="center_vertical"
+                android:layout_toRightOf="@id/settings_power_orientation_text"
+                android:dropDownWidth="wrap_content"
+                android:popupBackground="#383838"
+                android:layout_below="@id/orientation_spacer1"/>
+
+            <Spinner
+                android:id="@+id/connect_orientation_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:gravity="center_vertical"
+                android:layout_toRightOf="@id/settings_power_orientation_text"
+                android:dropDownWidth="wrap_content"
+                android:popupBackground="#383838"/>
+
+        </RelativeLayout>
+    </LinearLayout>
+
+
+</RelativeLayout>

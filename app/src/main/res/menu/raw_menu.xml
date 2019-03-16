@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_send_hex"
+        android:title="Send HEX"
+        android:orderInCategory="96"
+        android:checkable="true"
+        android:checked="false"/>
+    <item android:id="@+id/action_disp_hex"
+        android:title="Display HEX"
+        android:orderInCategory="97"
+        android:checkable="true"
+        android:checked="false"/>
+    <item android:id="@+id/action_new_line"
+        android:title="Add Newline"
+        android:orderInCategory="98"
+        android:checkable="true"
+        android:checked="false"/>
+    <item android:id="@+id/action_auto_scroll"
+        android:title="Auto Scroll"
+        android:orderInCategory="99"
+        android:checkable="true"
+        android:checked="true"/>
+    <item android:id="@+id/action_clear"
+        android:title="Clear"
+        android:orderInCategory="100"/>
+</menu>

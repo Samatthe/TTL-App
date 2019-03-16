@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/app_bar_main"
+    tools:context="com.solid.circuits.TelTail.MainActivity"
+    android:id="@+id/led_layout"
+    android:background="@drawable/led_content"
+    android:visibility="gone">
+
+    <TextView
+        android:id="@+id/led_name"
+        android:text="Mode Selection:"
+        android:textSize="18dp"
+        android:textColor="@android:color/black"
+        android:layout_width="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_height="45dp"/>
+
+    <Spinner
+        android:id="@+id/modes_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:gravity="center_vertical"
+        android:layout_toRightOf="@id/led_name"
+        android:dropDownWidth="wrap_content"  />
+
+    <View android:id="@+id/led_main_spacer1"
+        android:layout_width="match_parent"
+        android:layout_height="1.25dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/view_spacer_1"
+        android:layout_below="@id/modes_spinner" />
+
+    <Button android:id="@+id/led_apply_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Apply"
+        android:textAlignment="center"
+        android:layout_alignParentBottom="true"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <!--<Button android:id="@+id/led_reset_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reset to Current"
+        android:layout_above="@id/led_apply_button"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>-->
+
+    <Button android:id="@+id/led_current_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Read Current Settings"
+        android:layout_above="@id/led_apply_button"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <View android:id="@+id/led_main_spacer2"
+        android:layout_width="match_parent"
+        android:layout_height="1.25dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/view_spacer_1"
+        android:layout_above="@id/led_current_button" />
+
+    <ScrollView android:id="@+id/led_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/led_main_spacer1"
+        android:layout_above="@id/led_main_spacer2">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Switch android:id="@+id/led_hb_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:paddingLeft="@dimen/settings_left_pad"/>
+
+            <TextView android:id="@+id/led_hb_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:layout_toRightOf="@id/led_hb_switch"
+                android:text="Head/Brake Lights"/>
+
+            <Switch android:id="@+id/led_side_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/led_hb_switch"/>
+
+            <TextView android:id="@+id/led_side_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:text="Side Lights"
+                android:layout_below="@id/led_hb_switch"
+                android:layout_toRightOf="@id/led_side_switch"/>
+
+            <Switch android:id="@+id/led_light_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_below="@id/led_side_switch"
+                android:paddingLeft="@dimen/settings_left_pad"/>
+
+            <TextView android:id="@+id/led_light_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/led_side_switch"
+                android:layout_toRightOf="@id/led_light_switch"
+                android:text="Light Sensor"/>
+
+            <Switch android:id="@+id/led_sensor_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_below="@id/led_light_switch"
+                android:paddingLeft="@dimen/settings_left_pad"/>
+
+            <TextView android:id="@+id/led_sensor_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/led_light_switch"
+                android:layout_toRightOf="@id/led_sensor_switch"
+                android:text="Sensor Control"/>
+
+            <include
+                layout = "@layout/led_static_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_cycle_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_compass_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_throttle_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_rpm_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_rpm_throttle_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_x_accel_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_y_accel_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_custom_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

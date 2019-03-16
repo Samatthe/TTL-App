@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.solid.circuits.TelTail.BluetoothActivity"
+    android:background="@drawable/default_content">
+
+    <ScrollView android:id="@+id/logging_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button android:id="@+id/device_select_button"
+                android:text="Choose Device"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textAlignment="textStart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:onClick="onButtonClick"
+                android:textColor="@android:color/white"/>
+
+
+            <View android:id="@+id/blue_spacer1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/device_select_button"/>
+
+
+            <Button
+                android:id="@+id/connect_button"
+                android:text="Connect/Disconnect"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textAlignment="textStart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_below="@id/blue_spacer1"
+                android:textAllCaps="false"
+                android:onClick="onButtonClick"
+                android:textColor="@android:color/white"/>
+
+
+            <View android:id="@+id/blue_spacer2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/connect_button"/>
+
+
+            <TextView
+                android:id="@+id/on_start_text"
+                android:text="Connect On Startup"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:layout_below="@id/blue_spacer2"
+                android:paddingLeft="16dp"/>
+
+            <CheckBox android:id="@+id/checkbox_on_start"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/blue_spacer2"
+                android:layout_toRightOf="@id/on_start_text"
+                android:theme="@style/checkbox_white"/>
+
+
+            <View android:id="@+id/blue_spacer3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/on_start_text"/>
+
+
+            <TextView
+                android:id="@+id/auto_text"
+                android:text="iBeacon Auto Connect"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:layout_below="@id/blue_spacer3"
+                android:paddingLeft="16dp"/>
+
+            <CheckBox android:id="@+id/checkbox_auto"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/blue_spacer3"
+                android:layout_toRightOf="@id/auto_text"
+                android:theme="@style/checkbox_white"/>
+
+
+            <View android:id="@+id/blue_spacer4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/auto_text"/>
+
+
+            <Button
+                android:id="@+id/raw_button"
+                android:text="View Raw Communication"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_below="@id/blue_spacer4"
+                android:textAllCaps="false"
+                android:onClick="onButtonClick"
+                android:textColor="@android:color/white"/>
+
+
+            <View android:id="@+id/blue_spacer5"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/raw_button"/>
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

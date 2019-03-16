@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/led_throttle_ui">
+
+    <TextView android:id="@+id/throttle_speed_text"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:text="Sensitivity:"/>
+
+    <TextView android:id="@+id/throttle_speed_number"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:minEms="2"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:paddingRight="@dimen/settings_left_pad"
+        android:layout_alignParentRight="true"
+        android:text="50"/>
+
+    <SeekBar android:id="@+id/throttle_speed_seeker"
+        android:layout_width="240dp"
+        android:layout_height="@dimen/led_ui_height"
+        android:layout_toRightOf="@id/throttle_speed_text"
+        android:layout_toLeftOf="@id/throttle_speed_number"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:progress="50"
+        android:maxHeight="1000dp"/>
+
+    <TextView android:id="@+id/throttle_bright_text"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:layout_below="@id/throttle_speed_seeker"
+        android:text="Brightness:"/>
+
+    <TextView android:id="@+id/throttle_bright_number"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/led_ui_height"
+        android:minEms="2"
+        android:gravity="center"
+        android:textSize="@dimen/settings_text_size"
+        android:textColor="@android:color/black"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:paddingRight="@dimen/settings_left_pad"
+        android:layout_below="@id/throttle_speed_seeker"
+        android:layout_alignParentRight="true"
+        android:text="50"/>
+
+    <SeekBar android:id="@+id/throttle_bright_seeker"
+        android:layout_width="240dp"
+        android:layout_height="@dimen/led_ui_height"
+        android:layout_below="@id/throttle_speed_seeker"
+        android:layout_toRightOf="@id/throttle_bright_text"
+        android:layout_toLeftOf="@id/throttle_bright_number"
+        android:paddingLeft="@dimen/settings_left_pad"
+        android:progress="50"
+        android:maxHeight="1000dp"/>
+
+</RelativeLayout>

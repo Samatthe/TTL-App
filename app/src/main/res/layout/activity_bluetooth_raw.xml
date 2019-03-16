@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.solid.circuits.TelTail.RawDataActivity"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:background="@drawable/raw_input_background"
+        android:layout_alignParentBottom="true"/>
+
+    <Button android:id="@+id/raw_send_button"
+        android:layout_width="90dp"
+        android:layout_height="@dimen/settings_height"
+        android:text="Send"
+        android:textAlignment="center"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:onClick="onButtonClick"/>
+
+    <EditText android:id="@+id/raw_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:layout_toLeftOf="@id/raw_send_button"
+        android:layout_alignParentBottom="true"
+        android:textColor="@android:color/white"/>
+
+    <View android:id="@+id/raw_spacer"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@drawable/view_spacer_1"
+        android:layout_above="@id/raw_send_button"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/button_spacer"
+        android:layout_above="@id/raw_spacer"/>
+
+    <TextView android:id="@+id/raw_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/raw_spacer"
+        android:maxLines="70"
+        android:gravity="top"
+        android:textSize="16dp"
+        android:textColor="@android:color/black"/>
+
+</RelativeLayout>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/app_bar_main"
+    tools:context="com.solid.circuits.TelTail.MainActivity"
+    android:id="@+id/motor_layout"
+    android:background="@drawable/default_content"
+    android:visibility="gone">
+
+    <com.jjoe64.graphview.GraphView
+        android:layout_width="match_parent"
+        android:layout_height="200dip"
+        android:id="@+id/motor_graph"
+        android:background="@android:color/white"
+        android:backgroundTint="@android:color/darker_gray"/>
+
+    <ToggleButton android:id="@+id/motor_log_button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:textOn="Log VESC Data"
+        android:textOff="Log VESC Data"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"
+        android:layout_alignParentBottom="true"/>
+
+    <ScrollView android:id="@+id/motor_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/motor_graph"
+        android:layout_above="@id/motor_log_button">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox android:id="@+id/motor_volt_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_volt_text"
+                android:text="Battery voltage: 0.0 V"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_toRightOf="@id/motor_volt_check"/>
+
+            <CheckBox android:id="@+id/motor_bcurrent_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/motor_volt_text"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_bcurrent_text"
+                android:text="Battery current: 0.0 A"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_volt_text"
+                android:layout_toRightOf="@id/motor_bcurrent_check"/>
+
+            <CheckBox android:id="@+id/motor_mcurrent_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/motor_bcurrent_text"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_mcurrent_text"
+                android:text="Motor current: 0.0 A"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_bcurrent_text"
+                android:layout_toRightOf="@id/motor_mcurrent_check"/>
+
+            <CheckBox android:id="@+id/motor_temp_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/motor_mcurrent_text"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_temp_text"
+                android:text="MOSFET Temp: 0.0 \u2103"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_mcurrent_text"
+                android:layout_toRightOf="@id/motor_temp_check"/>
+
+            <CheckBox android:id="@+id/motor_duty_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/motor_temp_text"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_duty_text"
+                android:text="Duty Cycle: 0.0%"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_temp_text"
+                android:layout_toRightOf="@id/motor_duty_check"/>
+
+            <CheckBox android:id="@+id/motor_rpm_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/motor_duty_text"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_rpm_text"
+                android:text="Electrical speed: 0 rpm"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_duty_text"
+                android:layout_toRightOf="@id/motor_rpm_check"/>
+
+            <CheckBox android:id="@+id/motor_mahu_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/motor_rpm_text"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_mahu_text"
+                android:text="Drawn Cap: 0.0 mAh"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_rpm_text"
+                android:layout_toRightOf="@id/motor_mahu_check"/>
+
+            <CheckBox android:id="@+id/motor_mahc_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/motor_mahu_text"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_mahc_text"
+                android:text="Charged Cap: 0.0 mAh"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_mahu_text"
+                android:layout_toRightOf="@id/motor_mahc_check"/>
+
+            <CheckBox android:id="@+id/motor_whu_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/motor_mahc_text"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_whu_text"
+                android:text="Drawn energy: 0.0 Wh"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_mahc_text"
+                android:layout_toRightOf="@id/motor_whu_check"/>
+
+            <CheckBox android:id="@+id/motor_whc_check"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/motor_whu_text"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:theme="@style/checkbox_white"
+                android:onClick="onCheckboxClicked"/>
+
+            <TextView
+                android:id="@+id/motor_whc_text"
+                android:text="Charged energy: 0.0 Wh"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_whu_text"
+                android:layout_toRightOf="@id/motor_whc_check"/>
+
+            <TextView
+                android:id="@+id/motor_error_text"
+                android:text="Fault code: NONE"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/sensor_graph_check_height"
+                android:layout_below="@id/motor_whc_text"
+                android:layout_toRightOf="@id/motor_whc_check"/>
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

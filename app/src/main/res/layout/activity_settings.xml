@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.solid.circuits.TelTail.SettingsActivity"
+    android:background="@drawable/default_content">
+
+    <ScrollView android:id="@+id/logging_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView android:id="@+id/app_settings_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:layout_marginTop="6dp"
+                    android:textSize="18dp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:text="App"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1.25dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="@dimen/motor_info_hor_margin"
+                    android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                    android:background="@drawable/view_spacer_3"
+                    android:layout_below="@id/app_settings_text" />
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/conf_bluetooth_button"
+                android:text="Configure Bluetooth"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textAlignment="textStart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/conf_logging_button"
+                android:text="Configure Data Logging"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView android:id="@+id/teltail_settings_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp"
+                    android:textSize="18dp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:text="TelTail Control Module"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1.25dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="@dimen/motor_info_hor_margin"
+                    android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                    android:background="@drawable/view_spacer_3"
+                    android:layout_below="@id/teltail_settings_text" />
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/orientation_button"
+                android:text="Configure Module Orientation"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/controls_button"
+                android:text="Configure Control Buttons"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/sensor_settins_button"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:onClick="onButtonClick"
+                android:text="Configure Sensors"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textSize="@dimen/settings_text_size"
+                android:textStyle="normal"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/settings_read_current_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_below="@id/log_spacer1"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Read LED Settings on Startup"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <CheckBox
+                    android:id="@+id/settings_read_current_check"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_below="@id/log_spacer1"
+                    android:layout_marginLeft="@dimen/settings_left_pad"
+                    android:layout_toRightOf="@id/settings_read_current_text"
+                    android:onClick="onCheckboxClicked"
+                    android:theme="@style/checkbox_white"/>
+
+            </RelativeLayout>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/calibrate_button"
+                android:text="Calibrate IMU"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView android:id="@+id/esc_settings_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp"
+                    android:textSize="18dp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:text="ESC"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1.25dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="@dimen/motor_info_hor_margin"
+                    android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                    android:background="@drawable/view_spacer_3"
+                    android:layout_below="@id/esc_settings_text" />
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/motor_info_button"
+                android:text="Motor Info"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textAlignment="textStart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

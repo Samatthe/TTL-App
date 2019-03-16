@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    tools:context="com.solid.circuits.TelTail.LoggingActivity"
+    android:background="@drawable/default_content">
+
+    <ScrollView android:id="@+id/logging_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/log_enable_text"
+                android:text="Enable Logging"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:paddingLeft="16dp"/>
+
+            <CheckBox android:id="@+id/checkbox_log_enable"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_toRightOf="@id/log_enable_text"
+                android:onClick="onCheckboxClicked"
+                android:theme="@style/checkbox_white"/>
+
+            <View android:id="@+id/log_spacer1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/log_enable_text"/>
+
+            <TextView
+                android:id="@+id/log_size_text"
+                android:text="Max Log Size:"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:layout_below="@id/log_spacer1"
+                android:paddingLeft="16dp"/>
+
+            <EditText
+                android:id="@+id/log_size_text1"
+                android:layout_width="wrap_content"
+                android:textAlignment="textStart"
+                android:text="0"
+                android:paddingLeft="6dp"
+                android:numeric="integer"
+                android:maxLines="1"
+                android:layout_height="@dimen/settings_height"
+                android:layout_toRightOf="@id/log_size_text"
+                android:background="@android:color/transparent"
+                android:layout_below="@id/log_spacer1"
+                android:textColor="@color/colorAccent"
+                android:maxLength="4" />
+
+            <TextView
+                android:id="@+id/log_size_text2"
+                android:text=" MB"
+                android:textSize="12dp"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:layout_toRightOf="@id/log_size_text1"
+                android:layout_alignBaseline="@id/log_size_text1"
+                android:layout_below="@id/log_spacer1"
+                android:paddingLeft="6dp"/>
+
+            <View android:id="@+id/log_spacer3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/log_size_text"/>
+
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

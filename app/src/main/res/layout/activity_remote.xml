@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/darkgrey"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.solid.circuits.TelTail.RemoteActivity">
+
+    <ImageButton
+        android:id="@+id/remote_left_button"
+        android:layout_width="145dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_action_left"
+        android:background="@android:color/transparent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:scaleType="fitCenter"
+        android:onClick="onButtonClick"/>
+
+    <ImageButton
+        android:id="@+id/remote_toggle_button"
+        android:layout_width="75dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_action_toggle"
+        android:background="@android:color/transparent"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/remote_left_button"
+        android:scaleType="fitCenter"
+        android:onClick="onButtonClick"/>
+
+    <ImageButton
+        android:id="@+id/remote_aux_button"
+        android:layout_width="75dp"
+        android:layout_height="100dp"
+        android:src="@mipmap/ic_action_aux"
+        android:background="@android:color/transparent"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/remote_toggle_button"
+        android:scaleType="fitCenter"
+        android:onClick="onButtonClick"/>
+
+    <ImageButton
+        android:id="@+id/remote_right_button"
+        android:layout_width="145dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_action_right"
+        android:background="@android:color/transparent"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/remote_aux_button"
+        android:scaleType="fitCenter"
+        android:onClick="onButtonClick"/>
+
+    <View
+        android:id="@+id/remote_spacer"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/button_spacer"
+        android:layout_above="@id/remote_right_button"/>
+
+    <com.solid.circuits.TelTail.CustomDrawableView
+        android:id="@+id/remote_custom_drawable"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/remote_spacer"/>
+</RelativeLayout>

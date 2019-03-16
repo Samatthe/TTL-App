@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.solid.circuits.TelTail.SensorSettingsActivity"
+    android:background="@android:color/darker_gray">
+
+    <Button
+        android:id="@+id/sensor_settings_read_button"
+        android:text="Read Sensor Info"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:layout_alignParentBottom="true"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <ScrollView android:id="@+id/logging_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/sensor_settings_read_button">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sensor_settings_light_header"
+                android:text="Light Sensor"
+                android:textStyle="bold"
+                android:textSize="18dp"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_header_height"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
+
+            <TextView
+                android:id="@+id/light_kalman_error_text"
+                android:text="Error:"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_below="@id/sensor_settings_light_header"
+                android:paddingLeft="16dp"/>
+
+            <EditText
+                android:id="@+id/light_kalman_error_edit"
+                android:layout_width="wrap_content"
+                android:textAlignment="textStart"
+                android:text="0"
+                android:paddingLeft="6dp"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/light_kalman_error_text"
+                android:background="@android:color/transparent"
+                android:layout_below="@id/sensor_settings_light_header"
+                android:maxLength="4"
+                android:enabled="false"/>
+
+            <TextView android:id="@+id/light_sensitivity_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="16dp"
+                android:layout_below="@id/light_kalman_error_text"
+                android:text="Sensitivity:"/>
+
+            <TextView android:id="@+id/light_sensitivity_number"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:paddingRight="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/light_kalman_error_text"
+                android:text="50"/>
+
+            <SeekBar android:id="@+id/light_sensitivity_seeker"
+                android:layout_width="240dp"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/light_sensitivity_text"
+                android:layout_toLeftOf="@id/light_sensitivity_number"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:progress="50"
+                android:layout_below="@id/light_kalman_error_text"
+                android:maxHeight="1000dp"/>
+
+            <Button android:id="@+id/light_calibrate_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
+                android:text="Calibrate Light Sensor"
+                android:layout_below="@id/light_sensitivity_text"
+                android:shadowDx="10"
+                android:shadowDy="10"/>
+
+            <View android:id="@+id/sensor_spacer1"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginLeft="7.5dp"
+                android:layout_marginRight="7.5dp"
+                android:background="@drawable/view_spacer_1"
+                android:layout_below="@id/light_calibrate_button"/>
+
+            <TextView
+                android:id="@+id/sensor_settings_accel_header"
+                android:text="Accelerometer"
+                android:textStyle="bold"
+                android:textSize="18dp"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_header_height"
+                android:layout_below="@id/sensor_spacer1"/>
+
+            <TextView
+                android:id="@+id/accel_x_kalman_error_text"
+                android:text="X Error:"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_below="@id/sensor_settings_accel_header"
+                android:paddingLeft="16dp"/>
+
+            <EditText
+                android:id="@+id/accel_x_kalman_error_edit"
+                android:layout_width="wrap_content"
+                android:textAlignment="textStart"
+                android:text="0"
+                android:paddingLeft="6dp"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_x_kalman_error_text"
+                android:background="@android:color/transparent"
+                android:layout_below="@id/sensor_settings_accel_header"
+                android:maxLength="4"
+                android:enabled="false"/>
+
+            <TextView android:id="@+id/accel_x_sensitivity_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="16dp"
+                android:layout_below="@id/accel_x_kalman_error_text"
+                android:text="X Sensitivity:"/>
+
+            <TextView android:id="@+id/accel_x_sensitivity_number"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:paddingRight="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/accel_x_kalman_error_text"
+                android:text="50"/>
+
+            <SeekBar android:id="@+id/accel_x_sensitivity_seeker"
+                android:layout_width="240dp"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_x_sensitivity_text"
+                android:layout_toLeftOf="@id/accel_x_sensitivity_number"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:progress="50"
+                android:layout_below="@id/accel_x_kalman_error_text"
+                android:maxHeight="1000dp"/>
+
+            <TextView
+                android:id="@+id/accel_y_kalman_error_text"
+                android:text="Y Error:"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_below="@id/accel_x_sensitivity_text"
+                android:paddingLeft="16dp"/>
+
+            <EditText
+                android:id="@+id/accel_y_kalman_error_edit"
+                android:layout_width="wrap_content"
+                android:textAlignment="textStart"
+                android:text="0"
+                android:paddingLeft="6dp"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_y_kalman_error_text"
+                android:background="@android:color/transparent"
+                android:layout_below="@id/accel_x_sensitivity_text"
+                android:maxLength="4"
+                android:enabled="false"/>
+
+            <TextView android:id="@+id/accel_y_sensitivity_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="16dp"
+                android:layout_below="@id/accel_y_kalman_error_text"
+                android:text="Y Sensitivity:"/>
+
+            <TextView android:id="@+id/accel_y_sensitivity_number"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:paddingRight="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/accel_y_kalman_error_text"
+                android:text="50"/>
+
+            <SeekBar android:id="@+id/accel_y_sensitivity_seeker"
+                android:layout_width="240dp"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_y_sensitivity_text"
+                android:layout_toLeftOf="@id/accel_y_sensitivity_number"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:progress="50"
+                android:layout_below="@id/accel_y_kalman_error_text"
+                android:maxHeight="1000dp"/>
+
+            <TextView
+                android:id="@+id/accel_z_kalman_error_text"
+                android:text="Z Error:"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_below="@id/accel_y_sensitivity_text"
+                android:paddingLeft="16dp"/>
+
+            <EditText
+                android:id="@+id/accel_z_kalman_error_edit"
+                android:layout_width="wrap_content"
+                android:textAlignment="textStart"
+                android:text="0"
+                android:paddingLeft="6dp"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_y_kalman_error_text"
+                android:background="@android:color/transparent"
+                android:layout_below="@id/accel_y_sensitivity_text"
+                android:maxLength="4"
+                android:enabled="false"/>
+
+            <TextView android:id="@+id/accel_z_sensitivity_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="16dp"
+                android:layout_below="@id/accel_z_kalman_error_text"
+                android:text="Z Sensitivity:"/>
+
+            <TextView android:id="@+id/accel_z_sensitivity_number"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:paddingRight="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/accel_z_kalman_error_text"
+                android:text="50"/>
+
+            <SeekBar android:id="@+id/accel_z_sensitivity_seeker"
+                android:layout_width="240dp"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_y_sensitivity_text"
+                android:layout_toLeftOf="@id/accel_y_sensitivity_number"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:progress="50"
+                android:layout_below="@id/accel_z_kalman_error_text"
+                android:maxHeight="1000dp"/>
+
+            <Button android:id="@+id/accel_calibrate_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
+                android:text="Calibrate Accelerometer"
+                android:layout_below="@id/accel_z_sensitivity_text"
+                android:shadowDx="10"
+                android:shadowDy="10"/>
+
+            <View android:id="@+id/sensor_spacer2"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginLeft="7.5dp"
+                android:layout_marginRight="7.5dp"
+                android:background="@drawable/view_spacer_1"
+                android:layout_below="@id/accel_calibrate_button"/>
+
+            <TextView
+                android:id="@+id/sensor_settings_gyro_header"
+                android:text="Gyroscope"
+                android:textStyle="bold"
+                android:textSize="18dp"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_header_height"
+                android:layout_below="@id/sensor_spacer2"/>
+
+            <TextView
+                android:id="@+id/gyro_x_kalman_error_text"
+                android:text="X Error:"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_below="@id/sensor_settings_gyro_header"
+                android:paddingLeft="16dp"/>
+
+            <EditText
+                android:id="@+id/gyro_x_kalman_error_edit"
+                android:layout_width="wrap_content"
+                android:textAlignment="textStart"
+                android:text="0"
+                android:paddingLeft="6dp"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/gyro_x_kalman_error_text"
+                android:background="@android:color/transparent"
+                android:layout_below="@id/sensor_settings_gyro_header"
+                android:maxLength="4"
+                android:enabled="false"/>
+
+            <TextView android:id="@+id/gyro_x_sensitivity_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="16dp"
+                android:layout_below="@id/gyro_x_kalman_error_text"
+                android:text="X Sensitivity:"/>
+
+            <TextView android:id="@+id/gyro_x_sensitivity_number"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:paddingRight="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/gyro_x_kalman_error_text"
+                android:text="50"/>
+
+            <SeekBar android:id="@+id/gyro_x_sensitivity_seeker"
+                android:layout_width="240dp"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_x_sensitivity_text"
+                android:layout_toLeftOf="@id/accel_x_sensitivity_number"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:progress="50"
+                android:layout_below="@id/gyro_x_kalman_error_text"
+                android:maxHeight="1000dp"/>
+
+            <TextView
+                android:id="@+id/gyro_y_kalman_error_text"
+                android:text="Y Error:"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_below="@id/gyro_x_sensitivity_text"
+                android:paddingLeft="16dp"/>
+
+            <EditText
+                android:id="@+id/gyro_y_kalman_error_edit"
+                android:layout_width="wrap_content"
+                android:textAlignment="textStart"
+                android:text="0"
+                android:paddingLeft="6dp"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_y_kalman_error_text"
+                android:background="@android:color/transparent"
+                android:layout_below="@id/gyro_x_sensitivity_text"
+                android:maxLength="4"
+                android:enabled="false"/>
+
+            <TextView android:id="@+id/gyro_y_sensitivity_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="16dp"
+                android:layout_below="@id/gyro_y_kalman_error_text"
+                android:text="Y Sensitivity:"/>
+
+            <TextView android:id="@+id/gyro_y_sensitivity_number"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:paddingRight="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/gyro_y_kalman_error_text"
+                android:text="50"/>
+
+            <SeekBar android:id="@+id/gyro_y_sensitivity_seeker"
+                android:layout_width="240dp"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_y_sensitivity_text"
+                android:layout_toLeftOf="@id/accel_y_sensitivity_number"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:progress="50"
+                android:layout_below="@id/gyro_y_kalman_error_text"
+                android:maxHeight="1000dp"/>
+
+            <TextView
+                android:id="@+id/gyro_z_kalman_error_text"
+                android:text="Z Error:"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_below="@id/gyro_y_sensitivity_text"
+                android:paddingLeft="16dp"/>
+
+            <EditText
+                android:id="@+id/gyro_z_kalman_error_edit"
+                android:layout_width="wrap_content"
+                android:textAlignment="textStart"
+                android:text="0"
+                android:paddingLeft="6dp"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_y_kalman_error_text"
+                android:background="@android:color/transparent"
+                android:layout_below="@id/gyro_y_sensitivity_text"
+                android:maxLength="4"
+                android:enabled="false"/>
+
+            <TextView android:id="@+id/gyro_z_sensitivity_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="16dp"
+                android:layout_below="@id/gyro_z_kalman_error_text"
+                android:text="Z Sensitivity:"/>
+
+            <TextView android:id="@+id/gyro_z_sensitivity_number"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/led_ui_height"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:paddingRight="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/gyro_z_kalman_error_text"
+                android:text="50"/>
+
+            <SeekBar android:id="@+id/gyro_z_sensitivity_seeker"
+                android:layout_width="240dp"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_toRightOf="@id/accel_y_sensitivity_text"
+                android:layout_toLeftOf="@id/accel_y_sensitivity_number"
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:progress="50"
+                android:layout_below="@id/gyro_z_kalman_error_text"
+                android:maxHeight="1000dp"/>
+
+            <Button android:id="@+id/gyro_calibrate_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/led_ui_height"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
+                android:text="Calibrate Gyroscope"
+                android:layout_below="@id/gyro_z_sensitivity_text"
+                android:shadowDx="10"
+                android:shadowDy="10"/>
+
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

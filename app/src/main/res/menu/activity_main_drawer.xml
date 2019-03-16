@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_leds"
+            android:title="LEDs"
+            android:icon="@mipmap/ic_motor"/>
+        <item
+            android:id="@+id/nav_motor"
+            android:title="VESC Data"
+            android:icon="@mipmap/ic_motor"/>
+        <item
+            android:id="@+id/nav_sensors"
+            android:title="Sensor Data"
+            android:icon="@mipmap/ic_sensor"/>
+    </group>
+
+    <item android:title="Status">
+        <menu>
+            <item
+                android:id="@+id/bluetooth_status"
+                android:title="Bluetooth: Disconnected"/>
+            <item
+                android:id="@+id/logging_status"
+                android:title="Logging: Stopped"/>
+        </menu>
+    </item>
+</menu>

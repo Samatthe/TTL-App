@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.solid.circuits.TelTail.MotorInfoActivity"
+    android:background="@android:color/darker_gray">
+
+
+    <Button
+        android:id="@+id/motor_info_read_button"
+        android:text="Read motor configuration"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:layout_alignParentBottom="true"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <ScrollView android:id="@+id/led_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/motor_info_read_button">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+            <TextView android:id="@+id/limits_current_text"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:text="Current Limits"/>
+
+            <View android:id="@+id/motor_info_spacer1"
+                android:layout_width="match_parent"
+                android:layout_height="1.25dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="@dimen/motor_info_hor_margin"
+                android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                android:background="@drawable/view_spacer_1"
+                android:layout_below="@id/limits_current_text" />
+
+        <TextView android:id="@+id/limits_current_mmax_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/motor_info_spacer1"
+            android:text="Motor max:\t0 A"/>
+
+        <TextView android:id="@+id/limits_current_mmin_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_current_mmax_text"
+            android:text="Motor min (regen):\t0 A"/>
+
+        <TextView android:id="@+id/limits_current_bmax_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_current_mmin_text"
+            android:text="Battery max:\t0 A"/>
+
+        <TextView android:id="@+id/limits_current_bmin_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_current_bmax_text"
+            android:text="Battery min (reg):\t0 A"/>
+
+        <TextView android:id="@+id/limits_current_absmax_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_current_bmin_text"
+            android:text="Absolute max:\t0 A"/>
+
+            <TextView android:id="@+id/limits_voltage_text"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="@dimen/motor_limit_header_margin_top"
+                android:layout_below="@id/limits_current_absmax_text"
+                android:text="Voltage Limits"/>
+
+            <View android:id="@+id/motor_info_spacer2"
+                android:layout_width="match_parent"
+                android:layout_height="1.25dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="@dimen/motor_info_hor_margin"
+                android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                android:background="@drawable/view_spacer_1"
+                android:layout_below="@id/limits_voltage_text" />
+
+        <TextView android:id="@+id/limits_voltage_inmin_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/motor_info_spacer2"
+            android:text="Minimum input voltage:\t0 V"/>
+
+        <TextView android:id="@+id/limits_voltage_inmax_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_voltage_inmin_text"
+            android:text="Maximum input voltage:\t0 V"/>
+
+        <TextView android:id="@+id/limits_voltage_cutstart_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_voltage_inmax_text"
+            android:text="Battery cutoff start:\t0 V"/>
+
+        <TextView android:id="@+id/limits_voltage_cutend_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_voltage_cutstart_text"
+            android:text="Battery cutoff end:\t0 V"/>
+
+            <TextView android:id="@+id/limits_rpm_text"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="@dimen/motor_limit_header_margin_top"
+                android:layout_below="@id/limits_voltage_cutend_text"
+                android:text="RPM Limits"/>
+
+            <View android:id="@+id/motor_info_spacer3"
+                android:layout_width="match_parent"
+                android:layout_height="1.25dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="@dimen/motor_info_hor_margin"
+                android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                android:background="@drawable/view_spacer_1"
+                android:layout_below="@id/limits_rpm_text" />
+
+        <TextView android:id="@+id/limits_rpm_erpmmin_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/motor_info_spacer3"
+            android:text="Min ERPM:\t0 rpm"/>
+
+        <TextView android:id="@+id/limits_rpm_erpmmax_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_rpm_erpmmin_text"
+            android:text="Max ERPM:\t0 rpm"/>
+
+        <TextView android:id="@+id/limits_rpm_erpmmax_fb_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_rpm_erpmmax_text"
+            android:text="Max ERPM at full brake:\t0 rpm"/>
+
+        <TextView android:id="@+id/limits_rpm_erpmmax_fbc_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_rpm_erpmmax_fb_text"
+            android:text="Max ERPM at full brake (cc mode):\t0 rpm"/>
+
+            <TextView android:id="@+id/limits_tempurature_text"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="@dimen/motor_limit_header_margin_top"
+                android:layout_below="@id/limits_rpm_erpmmax_fbc_text"
+                android:text="Temperature Limits"/>
+
+            <View android:id="@+id/motor_info_spacer4"
+                android:layout_width="match_parent"
+                android:layout_height="1.25dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="@dimen/motor_info_hor_margin"
+                android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                android:background="@drawable/view_spacer_1"
+                android:layout_below="@id/limits_tempurature_text" />
+
+        <TextView android:id="@+id/limits_temp_fetstart_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/motor_info_spacer4"
+            android:text="MOSFET Start:\t0 \u2103"/>
+
+        <TextView android:id="@+id/limits_temp_fetend_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_temp_fetstart_text"
+            android:text="MOSFET End:\t0 \u2103"/>
+
+        <TextView android:id="@+id/limits_temp_mstart_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_temp_fetend_text"
+            android:text="Motor Start:\t0 \u2103"/>
+
+        <TextView android:id="@+id/limits_temp_mend_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_temp_mstart_text"
+            android:text="Motor End:\t0 \u2103"/>
+
+            <TextView android:id="@+id/limits_duty_text"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:textSize="@dimen/settings_text_size"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="@dimen/motor_limit_header_margin_top"
+                android:layout_below="@id/limits_temp_mend_text"
+                android:text="Duty Cycle Limits"/>
+
+            <View android:id="@+id/motor_info_spacer5"
+                android:layout_width="match_parent"
+                android:layout_height="1.25dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="@dimen/motor_info_hor_margin"
+                android:layout_marginLeft="@dimen/motor_info_hor_margin"
+                android:background="@drawable/view_spacer_1"
+                android:layout_below="@id/limits_duty_text" />
+
+        <TextView android:id="@+id/limits_duty_min_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/motor_info_spacer5"
+            android:text="Minimum duty cycle:\t0%"/>
+
+        <TextView android:id="@+id/limits_duty_max_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/motor_limit_height"
+            android:gravity="center"
+            android:textSize="@dimen/settings_text_size"
+            android:textColor="@android:color/black"
+            android:paddingLeft="@dimen/settings_left_pad"
+            android:layout_below="@id/limits_duty_min_text"
+            android:text="Maximum duty cycle:\t0%"/>
+
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>
