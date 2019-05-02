@@ -398,7 +398,7 @@ public class ControlsConfigActivity extends AppCompatActivity
                     for (int i = 0; i < data.length; i++) {
                         switch (data[i] & 0xFF) {
                             case 0x81:
-                                if(i+7 >= data.length)
+                                if(i+8 >= data.length)
                                     break;
                                 //Toast.makeText(OrientationActivity.this, "Con: "+String.valueOf(data[i + 1] & 0xFF), Toast.LENGTH_SHORT).show();
                                 if(CHECK_DATA) {
@@ -426,13 +426,14 @@ public class ControlsConfigActivity extends AppCompatActivity
                                     }
                                     CHECK_DATA = false;
                                 } else {
+                                    resetAdapters();
+
                                     aux_enable_check.setChecked((data[i + 1] & 0x80) == 0x80);
                                     aux_enable_check.callOnClick();
                                     turn_enable_check.setChecked((data[i + 1] & 0x40) == 0x40);
                                     aux_type_spinner.setSelection(data[i + 1] & 0x0F);
                                     aux_time_seeker.setProgress(data[i + 2] & 0xFF);
 
-                                    resetAdapters();
                                     single_aux_control_last = getControlFromID((data[i + 3] & 0xF0) >> 4).toString();
                                     single_all_toggle_last = getControlFromID((data[i + 3] & 0x0F)).toString();
                                     single_head_toggle_last = getControlFromID(((data[i + 4] & 0xF0) >> 4)).toString();
@@ -459,7 +460,7 @@ public class ControlsConfigActivity extends AppCompatActivity
                                     dual_mode_down_spinner.setSelection(dual_mode_down_adapter.getPosition(dual_mode_down_last));
                                     dual_mode_up_spinner.setSelection(dual_mode_up_adapter.getPosition(dual_mode_up_last));
                                 }
-                                i+=7;
+                                i+=8;
                                 break;
                         }
                     }
@@ -483,13 +484,14 @@ public class ControlsConfigActivity extends AppCompatActivity
 
         if (parent_id == R.id.aux_type_spinner) {
             if(pos == 0) { // Momentary
-                resetAdapters();
+                //resetAdapters();
 
                 single_aux_adapter.add("Hold > 0.5s");
                 dual_aux_adapter.add("Hold > 0.5s");
                 single_aux_control_spinner.setSelection(single_aux_adapter.getCount()-1);
                 dual_aux_control_spinner.setSelection(dual_aux_adapter.getCount()-1);
 
+                resetAdapters();
                 updateAdapter(single_toggle_all_adapter, "None", "Medium Press (0.5><1s)");
                 updateAdapter(single_toggle_head_adapter, "None", "Medium Press (0.5><1s)");
                 updateAdapter(single_toggle_side_adapter, "None", "Medium Press (0.5><1s)");
@@ -719,9 +721,91 @@ public class ControlsConfigActivity extends AppCompatActivity
                 aux_time_seeker.setEnabled(checkbox.isChecked() && aux_type_spinner.getSelectedItemPosition()==2);
                 single_aux_control_spinner.setEnabled(checkbox.isChecked() && aux_type_spinner.getSelectedItemPosition()!=0);
                 dual_aux_control_spinner.setEnabled(checkbox.isChecked() && aux_type_spinner.getSelectedItemPosition()!=0);
-                if(aux_type_spinner.getSelectedItemPosition()==0){
-                    single_aux_control_spinner.setSelection(1);
-                    dual_aux_control_spinner.setSelection(1);
+                if(aux_type_spinner.getSelectedItemPosition()==0 && checkbox.isChecked()) {
+                    resetAdapters();
+
+                    single_aux_adapter.add("Hold > 0.5s");
+                    dual_aux_adapter.add("Hold > 0.5s");
+                    single_aux_control_last = "Hold > 0.5s";
+                    dual_aux_control_last = "Hold > 0.5s";
+                    single_aux_control_spinner.setSelection(single_aux_adapter.getCount() - 1);
+                    dual_aux_control_spinner.setSelection(dual_aux_adapter.getCount() - 1);
+
+                    //resetAdapters();
+                    updateAdapter(single_toggle_all_adapter, "None", "Medium Press (0.5><1s)");
+                    updateAdapter(single_toggle_head_adapter, "None", "Medium Press (0.5><1s)");
+                    updateAdapter(single_toggle_side_adapter, "None", "Medium Press (0.5><1s)");
+                    updateAdapter(single_mode_up_adapter, "None", "Medium Press (0.5><1s)");
+                    updateAdapter(single_mode_down_adapter, "None", "Medium Press (0.5><1s)");
+
+                    updateAdapter(single_toggle_all_adapter, "None", "Long Press (> 1s)");
+                    updateAdapter(single_toggle_head_adapter, "None", "Long Press (> 1s)");
+                    updateAdapter(single_toggle_side_adapter, "None", "Long Press (> 1s)");
+                    updateAdapter(single_mode_up_adapter, "None", "Long Press (> 1s)");
+                    updateAdapter(single_mode_down_adapter, "None", "Long Press (> 1s)");
+
+                    updateAdapter(dual_toggle_all_adapter, "None", "Medium Press (0.5><1s)");
+                    updateAdapter(dual_toggle_head_adapter, "None", "Medium Press (0.5><1s)");
+                    updateAdapter(dual_toggle_side_adapter, "None", "Medium Press (0.5><1s)");
+                    updateAdapter(dual_mode_up_adapter, "None", "Medium Press (0.5><1s)");
+                    updateAdapter(dual_mode_down_adapter, "None", "Medium Press (0.5><1s)");
+
+                    updateAdapter(dual_toggle_all_adapter, "None", "Long Press (> 1s)");
+                    updateAdapter(dual_toggle_head_adapter, "None", "Long Press (> 1s)");
+                    updateAdapter(dual_toggle_side_adapter, "None", "Long Press (> 1s)");
+                    updateAdapter(dual_mode_up_adapter, "None", "Long Press (> 1s)");
+                    updateAdapter(dual_mode_down_adapter, "None", "Long Press (> 1s)");
+
+                    single_aux_control_spinner.setEnabled(false);
+                    single_mode_down_spinner.setEnabled(true);
+                    single_mode_up_spinner.setEnabled(true);
+                    single_toggle_all_spinner.setEnabled(true);
+                    single_toggle_head_spinner.setEnabled(true);
+                    single_toggle_side_spinner.setEnabled(true);
+
+                    dual_aux_control_spinner.setEnabled(false);
+                    dual_mode_down_spinner.setEnabled(true);
+                    dual_mode_up_spinner.setEnabled(true);
+                    dual_toggle_all_spinner.setEnabled(true);
+                    dual_toggle_head_spinner.setEnabled(true);
+                    dual_toggle_side_spinner.setEnabled(true);
+
+                    turn_enable_check.setEnabled(false);
+                } else if(!checkbox.isChecked()) {
+                    if(single_aux_adapter.getPosition("Hold > 0.5s") != -1){
+                        single_aux_control_last = "None";
+                        updateAdapter(single_aux_adapter, "None", "Hold > 0.5s");
+
+                        updateAdapter(single_toggle_all_adapter, "Medium Press (0.5><1s)", "None");
+                        updateAdapter(single_toggle_head_adapter, "Medium Press (0.5><1s)", "None");
+                        updateAdapter(single_toggle_side_adapter, "Medium Press (0.5><1s)", "None");
+                        updateAdapter(single_mode_up_adapter, "Medium Press (0.5><1s)", "None");
+                        updateAdapter(single_mode_down_adapter, "Medium Press (0.5><1s)", "None");
+
+                        updateAdapter(single_toggle_all_adapter, "Long Press (> 1s)", "None");
+                        updateAdapter(single_toggle_head_adapter, "Long Press (> 1s)", "None");
+                        updateAdapter(single_toggle_side_adapter, "Long Press (> 1s)", "None");
+                        updateAdapter(single_mode_up_adapter, "Long Press (> 1s)", "None");
+                        updateAdapter(single_mode_down_adapter, "Long Press (> 1s)", "None");
+                    }
+                    if(dual_aux_adapter.getPosition("Hold > 0.5s") != -1){
+                        dual_aux_control_last = "None";
+                        updateAdapter(dual_aux_adapter, "None", "Hold > 0.5s");
+
+                        updateAdapter(dual_toggle_all_adapter, "Medium Press (0.5><1s)", "None");
+                        updateAdapter(dual_toggle_head_adapter, "Medium Press (0.5><1s)", "None");
+                        updateAdapter(dual_toggle_side_adapter, "Medium Press (0.5><1s)", "None");
+                        updateAdapter(dual_mode_up_adapter, "Medium Press (0.5><1s)", "None");
+                        updateAdapter(dual_mode_down_adapter, "Medium Press (0.5><1s)", "None");
+
+                        updateAdapter(dual_toggle_all_adapter, "Long Press (> 1s)", "None");
+                        updateAdapter(dual_toggle_head_adapter, "Long Press (> 1s)", "None");
+                        updateAdapter(dual_toggle_side_adapter, "Long Press (> 1s)", "None");
+                        updateAdapter(dual_mode_up_adapter, "Long Press (> 1s)", "None");
+                        updateAdapter(dual_mode_down_adapter, "Long Press (> 1s)", "None");
+                    }
+
+                    turn_enable_check.setEnabled(true);
                 }
                 break;
             case R.id.controls_turn_enable_check:
@@ -795,6 +879,7 @@ public class ControlsConfigActivity extends AppCompatActivity
         controls.add("Right + Single Tap");
         controls.add("Medium Press (0.5><1s)");
         controls.add("Long Press (> 1s)");
+        controls.add("Hold > 0.5s");
         return controls.indexOf(controlText);
     }
 
@@ -808,6 +893,7 @@ public class ControlsConfigActivity extends AppCompatActivity
         controls.add("Right + Single Tap");
         controls.add("Medium Press (0.5><1s)");
         controls.add("Long Press (> 1s)");
+        controls.add("Hold > 0.5s");
         return controls.get(controlPos);
     }
 

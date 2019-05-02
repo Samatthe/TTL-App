@@ -130,6 +130,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.solid.circuits.TelTail.BluetoothActivity" />
         </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.RemoteConfigActivity"
+            android:label="@string/remote_config_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.ESCconfigActivity"
+            android:label="@string/esc_config_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
 
         <service
             android:name="com.solid.circuits.TelTail.BluetoothService"

@@ -17,6 +17,10 @@
 
     <string name="orientation_label">Configure Orientation</string>
 
+    <string name="remote_config_label">Configure Remote Settings</string>
+
+    <string name="esc_config_label">Configure ESC Settings</string>
+
     <string name="controls_label">Configure Controls</string>
 
     <string name="calibrate_button">Calibrate IMU</string>

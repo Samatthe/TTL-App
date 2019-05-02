@@ -215,10 +215,46 @@
 
             <Button
                 android:id="@+id/motor_info_button"
-                android:text="Motor Info"
+                android:text="View ESC Motor Settings"
                 android:textSize="@dimen/settings_text_size"
                 android:layout_marginLeft="@dimen/settings_left_pad"
                 android:textAlignment="textStart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/settings_esc_button"
+                android:text="Configure ESC"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/settings_remote_button"
+                android:text="Configure Remote"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/settings_height"
                 android:onClick="onButtonClick"

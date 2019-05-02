@@ -166,6 +166,14 @@ public class SettingsActivity extends AppCompatActivity{
                 intent = new Intent(this, ControlsConfigActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.settings_remote_button:
+                intent = new Intent(this, RemoteConfigActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.settings_esc_button:
+                intent = new Intent(this, ESCconfigActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 

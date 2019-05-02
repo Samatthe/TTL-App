@@ -1449,14 +1449,14 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x15:
-                                if(i+1 >= data.length)
+                                if(i+2 >= data.length)
                                     break;
                                 TextView dutyText = (TextView) findViewById(R.id.motor_duty_text);
-                                temp = (data[i + 1]);
-                                duty_cycle = ((float) (temp));
+                                temp = (((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
+                                duty_cycle = ((float) (temp))/10;
                                 DTY_LineSeries.appendData(new DataPoint(graph_index, duty_cycle), true, MAX_DATA_POINTS);
                                 dutyText.setText("Duty Cycle: " + duty_cycle + "%");
-                                i++;
+                                i+=2;
                                 break;
                             case 0x16:
                                 if(i+3 >= data.length)

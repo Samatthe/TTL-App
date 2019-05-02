@@ -11,7 +11,7 @@
         android:textSize="@dimen/settings_text_size"
         android:textColor="@android:color/black"
         android:paddingLeft="@dimen/settings_left_pad"
-        android:text="Cycle Rate:"/>
+        android:text="Brightness:"/>
 
     <TextView android:id="@+id/y_accel_speed_number"
         android:layout_width="wrap_content"
