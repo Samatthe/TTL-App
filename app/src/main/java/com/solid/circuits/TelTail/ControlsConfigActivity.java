@@ -28,7 +28,8 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+//import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -140,8 +141,10 @@ public class ControlsConfigActivity extends AppCompatActivity
                 mBluetoothService = ((BluetoothService.LocalBinder) service).getService();
 
                 final byte txbuf[] = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0FC,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(ControlsConfigActivity.this, "Could not read controls\nPlease try again", Toast.LENGTH_SHORT).show();
@@ -346,8 +349,10 @@ public class ControlsConfigActivity extends AppCompatActivity
         switch (view.getId()) {
             case R.id.controls_read_button:
                 txbuf = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0FC,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(ControlsConfigActivity.this, "Could not read orientation\nPlease try again", Toast.LENGTH_SHORT).show();
@@ -357,6 +362,8 @@ public class ControlsConfigActivity extends AppCompatActivity
                 int checkState1 = aux_enable_check.isChecked() ? 1 : 0;
                 int checkState2 = turn_enable_check.isChecked() ? 1 : 0;
                 txbuf = new byte[]{
+                        (byte) 0x0A5,
+                        (byte) 0x008,
                         (byte) 0x0C2,
                         (byte) ((checkState1 << 7) | (checkState2 << 6) | aux_type_spinner.getSelectedItemPosition()),
                         (byte) aux_time_seeker.getProgress(),
@@ -366,14 +373,16 @@ public class ControlsConfigActivity extends AppCompatActivity
                         (byte) ((getControlID(dual_aux_control_spinner.getSelectedItem().toString()) << 4) | getControlID(dual_toggle_all_spinner.getSelectedItem().toString())),
                         (byte) ((getControlID(dual_toggle_head_spinner.getSelectedItem().toString()) << 4) | getControlID(dual_toggle_side_spinner.getSelectedItem().toString())),
                         (byte) ((getControlID(dual_mode_down_spinner.getSelectedItem().toString()) << 4) | getControlID(dual_mode_up_spinner.getSelectedItem().toString())),
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if (!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(ControlsConfigActivity.this, "Could write orientation\nPlease try again", Toast.LENGTH_SHORT).show();
                 } else {
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x000,
                             (byte) 0x0FC,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     while(!mBluetoothService.writeBytes(txbuf)) {}
                     CHECK_DATA = true;
@@ -428,37 +437,43 @@ public class ControlsConfigActivity extends AppCompatActivity
                                 } else {
                                     resetAdapters();
 
-                                    aux_enable_check.setChecked((data[i + 1] & 0x80) == 0x80);
-                                    aux_enable_check.callOnClick();
-                                    turn_enable_check.setChecked((data[i + 1] & 0x40) == 0x40);
-                                    aux_type_spinner.setSelection(data[i + 1] & 0x0F);
-                                    aux_time_seeker.setProgress(data[i + 2] & 0xFF);
+                                    try{
+                                        aux_enable_check.setChecked((data[i + 1] & 0x80) == 0x80);
+                                        aux_enable_check.callOnClick();
+                                        turn_enable_check.setChecked((data[i + 1] & 0x40) == 0x40);
+                                        aux_type_spinner.setSelection(data[i + 1] & 0x0F);
+                                        aux_time_seeker.setProgress(data[i + 2] & 0xFF);
 
-                                    single_aux_control_last = getControlFromID((data[i + 3] & 0xF0) >> 4).toString();
-                                    single_all_toggle_last = getControlFromID((data[i + 3] & 0x0F)).toString();
-                                    single_head_toggle_last = getControlFromID(((data[i + 4] & 0xF0) >> 4)).toString();
-                                    single_side_toggle_last = getControlFromID((data[i + 4] & 0x0F)).toString();
-                                    single_mode_down_last = getControlFromID(((data[i + 5] & 0xF0) >> 4)).toString();
-                                    single_mode_up_last = getControlFromID((data[i + 5] & 0x0F)).toString();
-                                    dual_aux_control_last = getControlFromID(((data[i + 6] & 0xF0) >> 4)).toString();
-                                    dual_all_toggle_last = getControlFromID((data[i + 6] & 0x0F)).toString();
-                                    dual_head_toggle_last = getControlFromID(((data[i + 7] & 0xF0) >> 4)).toString();
-                                    dual_side_toggle_last = getControlFromID((data[i + 7] & 0x0F)).toString();
-                                    dual_mode_down_last = getControlFromID(((data[i + 8] & 0xF0) >> 4)).toString();
-                                    dual_mode_up_last = getControlFromID((data[i + 8] & 0x0F)).toString();
-                                    updateAllAdapters();
-                                    single_aux_control_spinner.setSelection(single_aux_adapter.getPosition(single_aux_control_last));
-                                    single_toggle_all_spinner.setSelection(single_toggle_all_adapter.getPosition(single_all_toggle_last));
-                                    single_toggle_head_spinner.setSelection(single_toggle_head_adapter.getPosition(single_head_toggle_last));
-                                    single_toggle_side_spinner.setSelection(single_toggle_side_adapter.getPosition(single_side_toggle_last));
-                                    single_mode_down_spinner.setSelection(single_mode_down_adapter.getPosition(single_mode_down_last));
-                                    single_mode_up_spinner.setSelection(single_mode_up_adapter.getPosition(single_mode_up_last));
-                                    dual_aux_control_spinner.setSelection(dual_aux_adapter.getPosition(dual_aux_control_last));
-                                    dual_toggle_all_spinner.setSelection(dual_toggle_all_adapter.getPosition(dual_all_toggle_last));
-                                    dual_toggle_head_spinner.setSelection(dual_toggle_head_adapter.getPosition(dual_head_toggle_last));
-                                    dual_toggle_side_spinner.setSelection(dual_toggle_side_adapter.getPosition(dual_side_toggle_last));
-                                    dual_mode_down_spinner.setSelection(dual_mode_down_adapter.getPosition(dual_mode_down_last));
-                                    dual_mode_up_spinner.setSelection(dual_mode_up_adapter.getPosition(dual_mode_up_last));
+                                        single_aux_control_last = getControlFromID((data[i + 3] & 0xF0) >> 4).toString();
+                                        single_all_toggle_last = getControlFromID((data[i + 3] & 0x0F)).toString();
+                                        single_head_toggle_last = getControlFromID(((data[i + 4] & 0xF0) >> 4)).toString();
+                                        single_side_toggle_last = getControlFromID((data[i + 4] & 0x0F)).toString();
+                                        single_mode_down_last = getControlFromID(((data[i + 5] & 0xF0) >> 4)).toString();
+                                        single_mode_up_last = getControlFromID((data[i + 5] & 0x0F)).toString();
+                                        dual_aux_control_last = getControlFromID(((data[i + 6] & 0xF0) >> 4)).toString();
+                                        dual_all_toggle_last = getControlFromID((data[i + 6] & 0x0F)).toString();
+                                        dual_head_toggle_last = getControlFromID(((data[i + 7] & 0xF0) >> 4)).toString();
+                                        dual_side_toggle_last = getControlFromID((data[i + 7] & 0x0F)).toString();
+                                        dual_mode_down_last = getControlFromID(((data[i + 8] & 0xF0) >> 4)).toString();
+                                        dual_mode_up_last = getControlFromID((data[i + 8] & 0x0F)).toString();
+                                        updateAllAdapters();
+                                        single_aux_control_spinner.setSelection(single_aux_adapter.getPosition(single_aux_control_last));
+                                        single_toggle_all_spinner.setSelection(single_toggle_all_adapter.getPosition(single_all_toggle_last));
+                                        single_toggle_head_spinner.setSelection(single_toggle_head_adapter.getPosition(single_head_toggle_last));
+                                        single_toggle_side_spinner.setSelection(single_toggle_side_adapter.getPosition(single_side_toggle_last));
+                                        single_mode_down_spinner.setSelection(single_mode_down_adapter.getPosition(single_mode_down_last));
+                                        single_mode_up_spinner.setSelection(single_mode_up_adapter.getPosition(single_mode_up_last));
+                                        dual_aux_control_spinner.setSelection(dual_aux_adapter.getPosition(dual_aux_control_last));
+                                        dual_toggle_all_spinner.setSelection(dual_toggle_all_adapter.getPosition(dual_all_toggle_last));
+                                        dual_toggle_head_spinner.setSelection(dual_toggle_head_adapter.getPosition(dual_head_toggle_last));
+                                        dual_toggle_side_spinner.setSelection(dual_toggle_side_adapter.getPosition(dual_side_toggle_last));
+                                        dual_mode_down_spinner.setSelection(dual_mode_down_adapter.getPosition(dual_mode_down_last));
+                                        dual_mode_up_spinner.setSelection(dual_mode_up_adapter.getPosition(dual_mode_up_last));
+                                    }
+                                    catch(Exception e){
+                                        //Log.e("BUG:", e.toString());
+                                        Toast.makeText(ControlsConfigActivity.this, "Could not read settings correctly", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                                 i+=8;
                                 break;

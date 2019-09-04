@@ -28,7 +28,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -75,8 +75,10 @@ public class ESCconfigActivity extends AppCompatActivity
                 mBluetoothService = ((BluetoothService.LocalBinder) service).getService();
 
                 final byte txbuf[] = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0FA,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(ESCconfigActivity.this, "Could not read ESC config\nPlease try again", Toast.LENGTH_SHORT).show();
@@ -171,8 +173,10 @@ public class ESCconfigActivity extends AppCompatActivity
         switch (view.getId()) {
             case R.id.esc_config_read_button:
                 txbuf = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0FA,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(ESCconfigActivity.this, "Could not read orientation\nPlease try again", Toast.LENGTH_SHORT).show();
@@ -180,17 +184,21 @@ public class ESCconfigActivity extends AppCompatActivity
                 break;
             case R.id.esc_config_apply_button:
                 txbuf = new byte[]{
+                        (byte) 0x0A5,
+                        (byte) 0x002,
                         (byte) 0x0C4,
                         (byte) (esc_fw_spinner.getSelectedItemPosition()),
                         (byte) ((esc_comms_spinner.getSelectedItemPosition() << 4) | uart_baud_spinner.getSelectedItemPosition()),
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if (!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(ESCconfigActivity.this, "Could write orientation\nPlease try again", Toast.LENGTH_SHORT).show();
                 } else {
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x000,
                             (byte) 0x0FA,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     while(!mBluetoothService.writeBytes(txbuf)) {}
                     CHECK_DATA = true;

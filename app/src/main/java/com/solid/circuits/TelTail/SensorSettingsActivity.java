@@ -30,7 +30,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -77,8 +77,10 @@ public class SensorSettingsActivity extends AppCompatActivity
                 }
 
                 final byte[] txbuf = new byte[]{
-                        (byte)0xAC,
-                        (byte)0xAE
+                        (byte) 0x0A5,
+                        (byte) 0x000,
+                        (byte) 0x0AC,
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(SensorSettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -141,8 +143,10 @@ public class SensorSettingsActivity extends AppCompatActivity
         switch(view.getId()) {
             case R.id.sensor_settings_read_button:
                 final byte[] txbuf = new byte[]{
-                        (byte)0xAC,
-                        (byte)0xAE
+                        (byte) 0x0A5,
+                        (byte) 0x000,
+                        (byte) 0x0AC,
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(SensorSettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();

@@ -28,7 +28,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -74,8 +74,10 @@ public class RemoteConfigActivity extends AppCompatActivity
                 mBluetoothService = ((BluetoothService.LocalBinder) service).getService();
 
                 final byte txbuf[] = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0FB,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(RemoteConfigActivity.this, "Could not read remote config\nPlease try again", Toast.LENGTH_SHORT).show();
@@ -163,8 +165,10 @@ public class RemoteConfigActivity extends AppCompatActivity
         switch (view.getId()) {
             case R.id.remote_config_read_button:
                 txbuf = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0FB,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(RemoteConfigActivity.this, "Could not read orientation\nPlease try again", Toast.LENGTH_SHORT).show();
@@ -172,17 +176,21 @@ public class RemoteConfigActivity extends AppCompatActivity
                 break;
             case R.id.remote_config_apply_button:
                 txbuf = new byte[]{
+                        (byte) 0x0A5,
+                        (byte) 0x002,
                         (byte) 0x0C3,
                         (byte) ((remote_type_spinner.getSelectedItemPosition() << 4) | button_type_spinner.getSelectedItemPosition()),
                         (byte) deadzone_seeker.getProgress(),
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if (!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(RemoteConfigActivity.this, "Could write orientation\nPlease try again", Toast.LENGTH_SHORT).show();
                 } else {
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x000,
                             (byte) 0x0FB,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     while(!mBluetoothService.writeBytes(txbuf)) {}
                     CHECK_DATA = true;
@@ -212,6 +220,7 @@ public class RemoteConfigActivity extends AppCompatActivity
                                     if(remote_type_spinner.getSelectedItemPosition() != ((data[i + 1] & 0xF0) >> 4)) dataCorrect = false;
                                     if(button_type_spinner.getSelectedItemPosition() != (data[i + 1] & 0x0F)) dataCorrect = false;
                                     if(deadzone_seeker.getProgress() != (data[i + 2] & 0xFF)) dataCorrect = false;
+                                    //if(ppm_button_seeker.getProgress() != (data[i + 2] & 0xFF)) dataCorrect = false;
                                     if(dataCorrect){
                                         Toast.makeText(RemoteConfigActivity.this, "Remote config applied successfully", Toast.LENGTH_SHORT).show();
                                     } else {
@@ -222,6 +231,7 @@ public class RemoteConfigActivity extends AppCompatActivity
                                     remote_type_spinner.setSelection((data[i + 1] & 0xF0) >> 4);
                                     button_type_spinner.setSelection(data[i + 1] & 0x0F);
                                     deadzone_seeker.setProgress(data[i + 2] & 0xFF);
+                                    //ppm_button_seeker.setProgress(data[i + 2] & 0xFF);
                                 }
                                 i+=2;
                                 break;
@@ -242,7 +252,11 @@ public class RemoteConfigActivity extends AppCompatActivity
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         long parent_id = parent.getId();
+        if(parent_id == R.id.remote_button_spinner){
+            switch(pos){
 
+            }
+        }
         String selectedItem = parent.getSelectedItem().toString();
     }
 
@@ -263,6 +277,7 @@ public class RemoteConfigActivity extends AppCompatActivity
         list.add("None");
         list.add("Momentary");
         list.add("Latching");
+        list.add("Latching PPM");
         list.add("UART (Chuck Struct) C");
         list.add("UART (Chuck Struct) Z");
         list.add("Throttle Down");

@@ -21,6 +21,7 @@ package com.solid.circuits.TelTail;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -33,6 +34,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -43,8 +45,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.app.NotificationCompat;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -572,24 +574,48 @@ public class LoggingService extends Service implements LocationListener{
             else
                 mBuilder.setContentText("Ready to log");
             if(AuxEnable) {
-                mBuilder.setStyle(new NotificationCompat.MediaStyle()
+                mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(1, 2, 4));
             } else {
-                mBuilder.setStyle(new NotificationCompat.MediaStyle()
+                mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(1, 2, 3));
             }
         } else {
             //mBuilder.setContentText("");
             if(AuxEnable) {
-                mBuilder.setStyle(new NotificationCompat.MediaStyle()
+                mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 3));
             } else {
-                mBuilder.setStyle(new NotificationCompat.MediaStyle()
+                mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(0, 1, 2));
             }
         }
 
-        startForeground(mNotificationId, mBuilder.build());
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            startMyOwnForeground();
+        else
+            startForeground(mNotificationId, mBuilder.build());*/
+    }
+
+    private void startMyOwnForeground(){
+        String NOTIFICATION_CHANNEL_ID = "com.solid.circuits.TelTail";
+        String channelName = "TelTail Lights";
+        NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+        chan.setLightColor(Color.BLUE);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        assert manager != null;
+        manager.createNotificationChannel(chan);
+
+        /*NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+        Notification notification = notificationBuilder.setOngoing(true)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle("App is running in background")
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build();
+        startForeground(2, notification);*/
+        //startForeground(2, mBuilder.build());
     }
 
     int mFaultNotifId = 1;

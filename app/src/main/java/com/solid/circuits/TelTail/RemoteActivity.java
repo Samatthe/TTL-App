@@ -28,7 +28,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -228,9 +228,11 @@ public class RemoteActivity extends AppCompatActivity
             case MotionEvent.ACTION_UP: {
                 if (mBluetoothService != null && mBluetoothService.mConnectionState == 2 && remote_connected <= 2) {
                     final byte[] txbuf = new byte[]{
+                            (byte) 0x0A5,
+                            (byte) 0x001,
                             (byte) 0x0BD,
                             (byte) (0x080),
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     for(int i = 0; i < 3; i++){
                         //Log.d(TAG, bytesToHex(txbuf));
@@ -290,10 +292,12 @@ public class RemoteActivity extends AppCompatActivity
 
                     if (mBluetoothService != null && mBluetoothService.mConnectionState == 2) {
                         final byte[] txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x001,
                                 (byte) 0x0BD,
                                 //(byte) ((int) ((touchX - touchStartX + joyLimit) * (255.0 / (2 * joyLimit)))),
                                 (byte) ((int) ((touchY - touchStartY - joyLimit) * -(255.0 / (2 * joyLimit)))),
-                                (byte) 0x0AE
+                                (byte) 0x05A
                         };
                         //Log.d(TAG, bytesToHex(txbuf));
                         mBluetoothService.writeBytes(txbuf);
@@ -371,8 +375,10 @@ public class RemoteActivity extends AppCompatActivity
     public boolean onTouch(View v, MotionEvent event){
         if(event.getAction() == MotionEvent.ACTION_DOWN && AUX_PRESSED == false) {
             final byte[] txbuf = new byte[]{
+                    (byte) 0x0A5,
+                    (byte) 0x000,
                     (byte) 0x0AA,
-                    (byte) 0x0AE
+                    (byte) 0x05A
             };
             //Log.d(TAG, bytesToHex(txbuf));
             if(!mBluetoothService.writeBytes(txbuf)) {
@@ -382,8 +388,10 @@ public class RemoteActivity extends AppCompatActivity
             }
         } else if (event.getAction() == MotionEvent.ACTION_UP && AUX_PRESSED == true) {
             final byte[] txbuf = new byte[]{
+                    (byte) 0x0A5,
+                    (byte) 0x000,
                     (byte) 0x0AB,
-                    (byte) 0x0AE
+                    (byte) 0x05A
             };
             //Log.d(TAG, bytesToHex(txbuf));
             if(!mBluetoothService.writeBytes(txbuf)) {

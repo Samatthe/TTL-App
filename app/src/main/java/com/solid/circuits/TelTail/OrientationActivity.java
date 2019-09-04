@@ -27,7 +27,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -55,8 +55,10 @@ public class OrientationActivity extends AppCompatActivity
                 mBluetoothService = ((BluetoothService.LocalBinder) service).getService();
 
                 final byte txbuf[] = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0FE,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(OrientationActivity.this, "Could not read orientation\nPlease try again", Toast.LENGTH_SHORT).show();
@@ -148,8 +150,10 @@ public class OrientationActivity extends AppCompatActivity
         switch (view.getId()) {
             case R.id.orientation_read_button:
                 txbuf = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0FE,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
                     Toast.makeText(OrientationActivity.this, "Could not read orientation\nPlease try again", Toast.LENGTH_SHORT).show();
@@ -165,17 +169,21 @@ public class OrientationActivity extends AppCompatActivity
                         connector_orientation != power_orientation &&
                         (connector_orientation-1)/2 != (power_orientation-1)/2) {
                     txbuf = new byte[]{
+                            (byte) 0x0A5,
+                            (byte) 0x002,
                             (byte) 0x0FD,
                             (byte) connector_orientation,
                             (byte) power_orientation,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if (!mBluetoothService.writeBytes(txbuf)) {
                         Toast.makeText(OrientationActivity.this, "Could write orientation\nPlease try again", Toast.LENGTH_SHORT).show();
                     } else {
                         txbuf = new byte[] {
+                                (byte) 0x0A5,
+                                (byte) 0x000,
                                 (byte) 0x0FE,
-                                (byte) 0x0AE
+                                (byte) 0x05A
                         };
                         while(!mBluetoothService.writeBytes(txbuf)) {}
                         CHECK_DATA = true;

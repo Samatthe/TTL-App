@@ -23,7 +23,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -40,14 +39,14 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.NotificationCompat;
+import androidx.annotation.NonNull;
+import com.google.android.material.tabs.TabLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.app.NotificationCompat;
 import android.view.View;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
+import 	androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
@@ -62,6 +61,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -850,8 +850,10 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_calibrate) {
             final byte txbuf[] = new byte[] {
+                    (byte) 0x0A5,
+                    (byte) 0x000,
                     (byte) 0x0AD,
-                    (byte) 0x0AE
+                    (byte) 0x05A
             };
             if(!mBluetoothService.writeBytes(txbuf))
                 Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -861,8 +863,10 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_toggle) {
             final byte txbuf[] = new byte[] {
+                    (byte) 0x0A5,
+                    (byte) 0x000,
                     (byte) 0x0E3,
-                    (byte) 0x0AE
+                    (byte) 0x05A
             };
             if(!mBluetoothService.writeBytes(txbuf))
                 Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1371,8 +1375,10 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT).show();
                 if(READ_CURRENT){
                     final byte txbuf[] = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x000,
                             (byte) 0xCD,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     while(!mBluetoothService.writeBytes(txbuf)){}
                         //Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1795,8 +1801,10 @@ public class MainActivity extends AppCompatActivity
             } else if(LoggingService.ACTION_LED_TOGGLE.equals(action)) {
                 //Toast.makeText(MainActivity.this, "toggle", Toast.LENGTH_SHORT).show();
                 final byte txbuf[] = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte)0x0E3,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1805,8 +1813,10 @@ public class MainActivity extends AppCompatActivity
                 byte txbuf[];
                 if(AUX_PRESSED == false) {
                     txbuf = new byte[]{
+                            (byte) 0x0A5,
+                            (byte) 0x000,
                             (byte) 0x0AA,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if (!mBluetoothService.writeBytes(txbuf))
                         Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1814,8 +1824,10 @@ public class MainActivity extends AppCompatActivity
                         AUX_PRESSED = true;
                 } else {
                     txbuf = new byte[]{
+                            (byte) 0x0A5,
+                            (byte) 0x000,
                             (byte) 0x0AB,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if (!mBluetoothService.writeBytes(txbuf))
                         Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1824,15 +1836,19 @@ public class MainActivity extends AppCompatActivity
                 }
             } else if(LoggingService.ACTION_LED_MODE_DOWN.equals(action)) {
                 final byte txbuf[] = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte)0x0E2,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
             } else if(LoggingService.ACTION_LED_MODE_UP.equals(action)) {
                 final byte txbuf[] = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0E1,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1860,8 +1876,10 @@ public class MainActivity extends AppCompatActivity
         switch(view.getId()){
             case R.id.led_current_button:
                 txbuf = new byte[] {
+                        (byte) 0x0A5,
+                        (byte) 0x000,
                         (byte) 0x0CD,
-                        (byte) 0x0AE
+                        (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1887,6 +1905,8 @@ public class MainActivity extends AppCompatActivity
                     CheckBox linkCheck = (CheckBox) findViewById(R.id.LED_static_link_check);
                     if(linkCheck.isChecked()) {
                         txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x007,
                                 (byte) 0x0ED,
                                 switches,
                                 (byte) ((leftColor & 0x00FF0000) >> 16), //Red
@@ -1895,10 +1915,12 @@ public class MainActivity extends AppCompatActivity
                                 (byte) ((leftColor & 0x00FF0000) >> 16), //Red
                                 (byte) ((leftColor & 0x0000FF00) >> 8), //Green
                                 (byte) (leftColor & 0x000000FF), //Blue
-                                (byte) 0x0AE
+                                (byte) 0x05A
                         };
                     } else {
                         txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x007,
                                 (byte) 0x0ED,
                                 switches,
                                 (byte) ((leftColor & 0x00FF0000) >> 16), //Red
@@ -1907,7 +1929,7 @@ public class MainActivity extends AppCompatActivity
                                 (byte) ((rightColor & 0x00FF0000) >> 16), //Red
                                 (byte) ((rightColor & 0x0000FF00) >> 8), //Green
                                 (byte) (rightColor & 0x000000FF), //Blue
-                                (byte) 0x0AE
+                                (byte) 0x05A
                         };
                     }
                     if(!mBluetoothService.writeBytes(txbuf))
@@ -1918,11 +1940,13 @@ public class MainActivity extends AppCompatActivity
                     vProgress = (SeekBar)findViewById(R.id.cycle_bright_seeker);
                     byte progress2 = (byte)(vProgress.getProgress() & 0xFF);
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x003,
                             (byte)0x0EC,
                             switches,
                             progress1, //rate
                             progress2, //brightness
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if(!mBluetoothService.writeBytes(txbuf))
                         Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1930,10 +1954,12 @@ public class MainActivity extends AppCompatActivity
                     vProgress = (SeekBar)findViewById(R.id.compass_bright_seeker);
                     byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x002,
                             (byte)0x0EB,
                             switches,
                             progress1, //sensitivity
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if(!mBluetoothService.writeBytes(txbuf))
                         Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1943,11 +1969,13 @@ public class MainActivity extends AppCompatActivity
                     vProgress = (SeekBar)findViewById(R.id.throttle_bright_seeker);
                     byte progress2 = (byte)(vProgress.getProgress() & 0xFF);
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x003,
                             (byte)0x0EA,
                             switches,
                             progress1, //sensitivity
                             progress2, //brightness
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if(!mBluetoothService.writeBytes(txbuf))
                         Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1955,18 +1983,22 @@ public class MainActivity extends AppCompatActivity
                     vProgress = (SeekBar)findViewById(R.id.rpm_speed_seeker);
                     byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x002,
                             (byte)0x0E9,
                             switches,
                             progress1, //rate
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if(!mBluetoothService.writeBytes(txbuf))
                         Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                 } else if(led_mode == 5){ // RPM + Throttle
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x001,
                             (byte)0x0E8,
                             switches,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if(!mBluetoothService.writeBytes(txbuf))
                         Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1974,10 +2006,12 @@ public class MainActivity extends AppCompatActivity
                     vProgress = (SeekBar)findViewById(R.id.x_accel_rate_seeker);
                     byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x002,
                             (byte)0x0E7,
                             switches,
                             progress1,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if(!mBluetoothService.writeBytes(txbuf))
                         Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -1985,10 +2019,12 @@ public class MainActivity extends AppCompatActivity
                     vProgress = (SeekBar)findViewById(R.id.y_accel_speed_seeker);
                     byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
                     txbuf = new byte[] {
+                            (byte) 0x0A5,
+                            (byte) 0x002,
                             (byte)0x0E6,
                             switches,
                             progress1,
-                            (byte) 0x0AE
+                            (byte) 0x05A
                     };
                     if(!mBluetoothService.writeBytes(txbuf))
                         Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
@@ -2005,6 +2041,8 @@ public class MainActivity extends AppCompatActivity
                     CheckBox linkCheck = (CheckBox) findViewById(R.id.custom_static_link_check);
                     if (linkCheck.isChecked()) {
                         txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x00A,
                                 (byte) 0x0B1,
                                 switches,
                                 RateBrightBase,
@@ -2016,10 +2054,12 @@ public class MainActivity extends AppCompatActivity
                                 (byte) (customLeftColor & 0x000000FF), //Blue
                                 progress1, // Rate
                                 progress2, // Brightness
-                                (byte) 0x0AE
+                                (byte) 0x05A
                         };
                     } else {
                         txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x00A,
                                 (byte) 0x0B1,
                                 switches,
                                 RateBrightBase,
@@ -2031,7 +2071,7 @@ public class MainActivity extends AppCompatActivity
                                 (byte) (customRightColor & 0x000000FF), //Blue
                                 progress1, // Rate
                                 progress2, // Brightness
-                                (byte) 0x0AE
+                                (byte) 0x05A
                         };
                     }
                     if(!mBluetoothService.writeBytes(txbuf))

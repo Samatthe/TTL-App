@@ -6,4 +6,8 @@
             <item name="android:statusBarColor">@android:color/background_dark</item>
             <item name="switchStyle">@style/switch_holo</item>
         </style>
+
+        <style name="MyCustomTabLayout" parent="Widget.Design.TabLayout">
+            <item name="tabIndicatorColor">#FF4081</item>
+            </style>
 </resources>

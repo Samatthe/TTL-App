@@ -27,7 +27,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
@@ -146,8 +146,10 @@ public class SettingsActivity extends AppCompatActivity{
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 final byte txbuf[] = new byte[] {
+                                        (byte) 0x0A5,
+                                        (byte) 0x000,
                                         (byte) 0x0AD,
-                                        (byte) 0x0AE
+                                        (byte) 0x05A
                                 };
                                 if(!mBluetoothService.writeBytes(txbuf))
                                     Toast.makeText(SettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();

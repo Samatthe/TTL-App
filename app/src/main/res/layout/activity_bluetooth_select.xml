@@ -19,7 +19,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     tools:context="com.solid.circuits.TelTail.BluetoothScan"
-    android:background="@drawable/default_content">
+    android:background="@color/cardview_light_background">
 
     <Button android:id="@+id/ble_scan_button"
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
     <ListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"/>
 
         <!--
     <ScrollView
