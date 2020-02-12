@@ -19,9 +19,11 @@
 
 package com.solid.circuits.TelTail;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -34,10 +36,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 
 public class RemoteActivity extends AppCompatActivity
@@ -54,6 +58,7 @@ public class RemoteActivity extends AppCompatActivity
     int touchStartX = 0;
     int touchStartY = 0;
     int remote_connected = 0;
+    boolean APP_REMOTE_ENABLE = false;
     private BluetoothService mBluetoothService;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -137,6 +142,36 @@ public class RemoteActivity extends AppCompatActivity
             params.width = (int) (screenWidth * (1.0 / 3.0));
             mode_up.setLayoutParams(params);
         }
+
+        APP_REMOTE_ENABLE = false;
+        new AlertDialog.Builder(this)
+                .setMessage("The remote should only be used to control the motor(s) in the case of emergency. Would you like to enable the remote function?")
+                .setIcon(R.drawable.ic_warning)
+                .setTitle("Remote Warning")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        APP_REMOTE_ENABLE = true;
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        APP_REMOTE_ENABLE = false;
+                    }
+                })
+                .show();
+    }
+
+    private void savePreferences() {
+        // We need an Editor object to make preference changes.
+        // All objects are from android.context.Context
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putBoolean("remoteEnable", APP_REMOTE_ENABLE);
+        // Commit the edits!
+        editor.commit();
     }
 
     void restoresettings(){
@@ -144,6 +179,30 @@ public class RemoteActivity extends AppCompatActivity
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         AuxEnable = settings.getBoolean("AuxEnable", false);
+        APP_REMOTE_ENABLE = settings.getBoolean("remoteEnable", false);
+    }
+
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        savePreferences();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        savePreferences();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        savePreferences();
     }
 
     @Override
@@ -217,93 +276,95 @@ public class RemoteActivity extends AppCompatActivity
     public boolean onTouchEvent(MotionEvent event) {
         final int action = event.getAction();
         CustomDrawableView remoteView = (CustomDrawableView) findViewById(R.id.remote_custom_drawable);
-        if(remote_connected <= 2)
+        if(APP_REMOTE_ENABLE){
             remoteView.handleTouch(event);
-        int offBaseX = 110;
-        int offBaseY = 370;
-        int offJoyX = 85;
-        int offJoyY = 345;
-        int joyLimit = 325;
-        switch (action & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_UP: {
-                if (mBluetoothService != null && mBluetoothService.mConnectionState == 2 && remote_connected <= 2) {
-                    final byte[] txbuf = new byte[]{
-                            (byte) 0x0A5,
-                            (byte) 0x001,
-                            (byte) 0x0BD,
-                            (byte) (0x080),
-                            (byte) 0x05A
-                    };
-                    for(int i = 0; i < 3; i++){
-                        //Log.d(TAG, bytesToHex(txbuf));
-                        while (!mBluetoothService.writeBytes(txbuf)) {}
-                    }
-                }
-                break;
-            }
-            case MotionEvent.ACTION_DOWN: {
-                if (remote_connected <= 2) {
-                    touchStartX = ((int) event.getX());
-                    touchStartY = ((int) event.getY());
-                } else
-                    Toast.makeText(RemoteActivity.this, "        Remote connected\nDisconnect to use this remote", Toast.LENGTH_LONG).show();
-                break;
-            }
-
-            case MotionEvent.ACTION_MOVE: {
-                if (remote_connected <= 2) {
-                    //touchX = ((int) event.getX());
-                    touchX = touchStartX;
-                    touchY = ((int) event.getY());
-
-/*                    if ((touchY - touchStartY) < 0 && (touchX - touchStartX) >= 0) {
-                        if (touchX >= (Math.cos(Math.atan2(-(touchY - touchStartY), touchX - touchStartX)) * joyLimit) + touchStartX)
-                            touchX = (int) (Math.cos(Math.atan2(-(touchY - touchStartY), touchX - touchStartX)) * joyLimit) + touchStartX;
-
-                        if (touchY <= (Math.sin(Math.atan2(-(touchY - touchStartY), touchX - touchStartX)) * -joyLimit) + touchStartY)
-                            touchY = (int) (Math.sin(Math.atan2(-(touchY - touchStartY), touchX - touchStartX)) * -joyLimit) + touchStartY;
-                    }
-                    if ((touchY - touchStartY) >= 0 && (touchX - touchStartX) < 0) {
-                        if (touchX <= (Math.cos(Math.atan2(touchY - touchStartY, -(touchX - touchStartX))) * -joyLimit) + touchStartX)
-                            touchX = (int) (Math.cos(Math.atan2(touchY - touchStartY, -(touchX - touchStartX))) * -joyLimit) + touchStartX;
-
-                        if (touchY >= (Math.sin(Math.atan2(touchY - touchStartY, -(touchX - touchStartX))) * joyLimit) + touchStartY)
-                            touchY = (int) (Math.sin(Math.atan2(touchY - touchStartY, -(touchX - touchStartX))) * joyLimit) + touchStartY;
-                    }
-                    if ((touchY - touchStartY) < 0 && (touchX - touchStartX) < 0) {
-                        if (touchX <= (Math.cos(Math.atan2(-(touchY - touchStartY), -(touchX - touchStartX))) * -joyLimit) + touchStartX)
-                            touchX = (int) (Math.cos(Math.atan2(-(touchY - touchStartY), -(touchX - touchStartX))) * -joyLimit) + touchStartX;
-
-                        if (touchY <= (Math.sin(Math.atan2(-(touchY - touchStartY), -(touchX - touchStartX))) * -joyLimit) + touchStartY)
-                            touchY = (int) (Math.sin(Math.atan2(-(touchY - touchStartY), -(touchX - touchStartX))) * -joyLimit) + touchStartY;
-                    }
-                    if ((touchY - touchStartY) >= 0 && (touchX - touchStartX) >= 0) {
-                        if (touchX >= (Math.cos(Math.atan2(touchY - touchStartY, touchX - touchStartX)) * joyLimit) + touchStartX)
-                            touchX = (int) (Math.cos(Math.atan2(touchY - touchStartY, touchX - touchStartX)) * joyLimit) + touchStartX;
-
-                        if (touchY >= (Math.sin(Math.atan2(touchY - touchStartY, touchX - touchStartX)) * joyLimit) + touchStartY)
-                            touchY = (int) (Math.sin(Math.atan2(touchY - touchStartY, touchX - touchStartX)) * joyLimit) + touchStartY;
-                    }*/
-
-                    if(touchY > joyLimit + touchStartY)
-                        touchY = joyLimit + touchStartY;
-                    else if(touchY < -joyLimit + touchStartY)
-                        touchY = -joyLimit + touchStartY;
-
-                    if (mBluetoothService != null && mBluetoothService.mConnectionState == 2) {
+            //int offBaseX = 110;
+            //int offBaseY = 370;
+            //int offJoyX = 85;
+            //int offJoyY = 345;
+            int joyLimit = 325;
+            switch (action & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_UP: {
+                    if (mBluetoothService != null && mBluetoothService.mConnectionState == 2 && remote_connected <= 2) {
                         final byte[] txbuf = new byte[]{
                                 (byte) 0x0A5,
                                 (byte) 0x001,
                                 (byte) 0x0BD,
-                                //(byte) ((int) ((touchX - touchStartX + joyLimit) * (255.0 / (2 * joyLimit)))),
-                                (byte) ((int) ((touchY - touchStartY - joyLimit) * -(255.0 / (2 * joyLimit)))),
+                                (byte) (0x080),
                                 (byte) 0x05A
                         };
-                        //Log.d(TAG, bytesToHex(txbuf));
-                        mBluetoothService.writeBytes(txbuf);
+                        for (int i = 0; i < 3; i++) {
+                            //Log.d(TAG, bytesToHex(txbuf));
+                            while (!mBluetoothService.writeBytes(txbuf)) {
+                            }
+                        }
                     }
+                    break;
                 }
-                break;
+                case MotionEvent.ACTION_DOWN: {
+                    if (remote_connected <= 2) {
+                        touchStartX = ((int) event.getX());
+                        touchStartY = ((int) event.getY());
+                    } else
+                        Toast.makeText(RemoteActivity.this, "        Remote connected\nDisconnect to use this remote", Toast.LENGTH_LONG).show();
+                    break;
+                }
+
+                case MotionEvent.ACTION_MOVE: {
+                    if (remote_connected <= 2) {
+                        //touchX = ((int) event.getX());
+                        touchX = touchStartX;
+                        touchY = ((int) event.getY());
+
+    /*                    if ((touchY - touchStartY) < 0 && (touchX - touchStartX) >= 0) {
+                            if (touchX >= (Math.cos(Math.atan2(-(touchY - touchStartY), touchX - touchStartX)) * joyLimit) + touchStartX)
+                                touchX = (int) (Math.cos(Math.atan2(-(touchY - touchStartY), touchX - touchStartX)) * joyLimit) + touchStartX;
+
+                            if (touchY <= (Math.sin(Math.atan2(-(touchY - touchStartY), touchX - touchStartX)) * -joyLimit) + touchStartY)
+                                touchY = (int) (Math.sin(Math.atan2(-(touchY - touchStartY), touchX - touchStartX)) * -joyLimit) + touchStartY;
+                        }
+                        if ((touchY - touchStartY) >= 0 && (touchX - touchStartX) < 0) {
+                            if (touchX <= (Math.cos(Math.atan2(touchY - touchStartY, -(touchX - touchStartX))) * -joyLimit) + touchStartX)
+                                touchX = (int) (Math.cos(Math.atan2(touchY - touchStartY, -(touchX - touchStartX))) * -joyLimit) + touchStartX;
+
+                            if (touchY >= (Math.sin(Math.atan2(touchY - touchStartY, -(touchX - touchStartX))) * joyLimit) + touchStartY)
+                                touchY = (int) (Math.sin(Math.atan2(touchY - touchStartY, -(touchX - touchStartX))) * joyLimit) + touchStartY;
+                        }
+                        if ((touchY - touchStartY) < 0 && (touchX - touchStartX) < 0) {
+                            if (touchX <= (Math.cos(Math.atan2(-(touchY - touchStartY), -(touchX - touchStartX))) * -joyLimit) + touchStartX)
+                                touchX = (int) (Math.cos(Math.atan2(-(touchY - touchStartY), -(touchX - touchStartX))) * -joyLimit) + touchStartX;
+
+                            if (touchY <= (Math.sin(Math.atan2(-(touchY - touchStartY), -(touchX - touchStartX))) * -joyLimit) + touchStartY)
+                                touchY = (int) (Math.sin(Math.atan2(-(touchY - touchStartY), -(touchX - touchStartX))) * -joyLimit) + touchStartY;
+                        }
+                        if ((touchY - touchStartY) >= 0 && (touchX - touchStartX) >= 0) {
+                            if (touchX >= (Math.cos(Math.atan2(touchY - touchStartY, touchX - touchStartX)) * joyLimit) + touchStartX)
+                                touchX = (int) (Math.cos(Math.atan2(touchY - touchStartY, touchX - touchStartX)) * joyLimit) + touchStartX;
+
+                            if (touchY >= (Math.sin(Math.atan2(touchY - touchStartY, touchX - touchStartX)) * joyLimit) + touchStartY)
+                                touchY = (int) (Math.sin(Math.atan2(touchY - touchStartY, touchX - touchStartX)) * joyLimit) + touchStartY;
+                        }*/
+
+                        if (touchY > joyLimit + touchStartY)
+                            touchY = joyLimit + touchStartY;
+                        else if (touchY < -joyLimit + touchStartY)
+                            touchY = -joyLimit + touchStartY;
+
+                        if (mBluetoothService != null && mBluetoothService.mConnectionState == 2) {
+                            final byte[] txbuf = new byte[]{
+                                    (byte) 0x0A5,
+                                    (byte) 0x001,
+                                    (byte) 0x0BD,
+                                    //(byte) ((int) ((touchX - touchStartX + joyLimit) * (255.0 / (2 * joyLimit)))),
+                                    (byte) ((int) ((touchY - touchStartY - joyLimit) * -(255.0 / (2 * joyLimit)))),
+                                    (byte) 0x05A
+                            };
+                            //Log.d(TAG, bytesToHex(txbuf));
+                            mBluetoothService.writeBytes(txbuf);
+                        }
+                    }
+                    break;
+                }
             }
         }
         return true;
@@ -373,7 +434,7 @@ public class RemoteActivity extends AppCompatActivity
 
     @Override
     public boolean onTouch(View v, MotionEvent event){
-        if(event.getAction() == MotionEvent.ACTION_DOWN && AUX_PRESSED == false) {
+        if(event.getAction() == MotionEvent.ACTION_DOWN && !AUX_PRESSED) {
             final byte[] txbuf = new byte[]{
                     (byte) 0x0A5,
                     (byte) 0x000,
@@ -386,7 +447,7 @@ public class RemoteActivity extends AppCompatActivity
             } else {
                 AUX_PRESSED = true;
             }
-        } else if (event.getAction() == MotionEvent.ACTION_UP && AUX_PRESSED == true) {
+        } else if (event.getAction() == MotionEvent.ACTION_UP && AUX_PRESSED) {
             final byte[] txbuf = new byte[]{
                     (byte) 0x0A5,
                     (byte) 0x000,

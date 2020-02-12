@@ -23,6 +23,8 @@
 
     <string name="controls_label">Configure Controls</string>
 
+    <string name="lights_label">Configure Lights</string>
+
     <string name="calibrate_button">Calibrate IMU</string>
 
     <string name="motor_info_label">Motor Info</string>
@@ -34,7 +36,7 @@
 
     <string name="toggle_button">Toggle LEDs</string>
 
-    <string-array name="modes_array">
+    <string-array name="analog_modes_array">
         <item>Static</item>
         <item>Color Cycling</item>
         <item>Compass Cycle</item>
@@ -44,6 +46,18 @@
         <item>X Accel Based</item>
         <item>Y Accel Based</item>
         <item>Custom</item>
+    </string-array>
+
+    <string-array name="digital_modes_array">
+        <item>Static</item>
+        <item>Skittles</item>
+        <item>Gradient Cycle</item>
+        <item>Compass Cycle</item>
+        <item>Throttle Based</item>
+        <item>RPM Based</item>
+        <item>RPM + Throttle</item>
+        <item>Compass Wheel</item>
+        <item>Compass Snake</item>
     </string-array>
 
     <string-array name="color_base_array">
@@ -132,6 +146,20 @@
         <item>Current Ride</item>
         <item>Since Charge</item>
         <item>All RIdes</item>
+    </string-array>
+
+    <string-array name="rgb_type_array">
+        <item>Analog</item>
+        <item>Digital (APA102)</item>
+        <item>Digital (SK9822)</item>
+        <item>None</item>
+    </string-array>
+
+    <string-array name="brake_mode_array">
+        <item>Fade</item>
+        <item>Blink</item>
+        <item>Fade-Blink</item>
+        <item>Blink-Fade</item>
     </string-array>
 
     <!--    Permissions    -->

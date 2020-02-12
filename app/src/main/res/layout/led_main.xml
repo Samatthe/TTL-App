@@ -207,6 +207,60 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>
 
+            <include
+                layout = "@layout/led_digital_static_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_digital_skittles_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_digital_compass_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_digital_cycle_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_digital_rpm_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_digital_rpm_throttle_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_digital_throttle_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_digital_compass_wheel_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
+            <include
+                layout = "@layout/led_digital_compass_snake_ui"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/led_sensor_text"/>
+
 
         </RelativeLayout>
     </ScrollView>

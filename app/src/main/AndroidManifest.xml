@@ -113,6 +113,14 @@
                 android:value="com.solid.circuits.TelTail.SettingsActivity" />
         </activity>
         <activity
+            android:name="com.solid.circuits.TelTail.LightsConfigActivity"
+            android:label="@string/lights_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
+        <activity
             android:name="com.solid.circuits.TelTail.BluetoothScan"
             android:label="BLE Scan"
             android:screenOrientation="portrait" >

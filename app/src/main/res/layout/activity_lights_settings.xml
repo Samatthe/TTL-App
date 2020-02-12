@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    tools:context="com.solid.circuits.TelTail.LightsConfigActivity"
+    android:background="@drawable/default_content">
+
+    <Button
+        android:id="@+id/lights_config_apply_button"
+        android:text="Apply Lights Settings"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_marginBottom="@dimen/settings_left_pad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:layout_alignParentBottom="true"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <Button
+        android:id="@+id/lights_config_read_button"
+        android:text="Read Lights Settings"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/settings_height"
+        android:layout_above="@id/lights_config_apply_button"
+        android:textAllCaps="false"
+        android:onClick="onButtonClick"/>
+
+    <ScrollView android:id="@+id/lights_config_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/side_LED_type_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="RGB Strip Type:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <Spinner
+                    android:id="@+id/side_LED_type_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/side_LED_type_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/side_sync_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="Sync Side Lights:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <CheckBox
+                    android:id="@+id/side_sync_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/side_sync_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/LED_num_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="LEDs per Side:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <EditText
+                    android:id="@+id/LED_num_edittext"
+                    android:layout_width="100dp"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/LED_num_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"
+                    android:textColor="@android:color/white"
+                    android:inputType="number" />
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/brake_light_mode_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="Brake Light Mode:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <Spinner
+                    android:id="@+id/brake_light_mode_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/brake_light_mode_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/brake_always_on_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="Always-on Brake:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <CheckBox
+                    android:id="@+id/brake_always_on_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/brake_always_on_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/brake_deadzone_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="Brake Deadzone:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <TextView
+                    android:id="@+id/brake_deadzone_text2"
+                    android:text=" %"
+                    android:textSize="12dp"
+                    android:gravity="center_vertical"
+                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_alignBaseline="@id/brake_deadzone_text"
+                    android:paddingRight="@dimen/settings_left_pad"
+                    android:layout_alignParentRight="true"/>
+
+                <TextView android:id="@+id/brake_deadzone_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center"
+                    android:textSize="@dimen/settings_text_size"
+                    android:textColor="@android:color/white"
+                    android:paddingLeft="@dimen/settings_left_pad"
+                    android:layout_toLeftOf="@id/brake_deadzone_text2"
+                    android:minEms="2"
+                    android:text="1"/>
+
+                <SeekBar android:id="@+id/brake_deadzone_seeker"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_toRightOf="@id/brake_deadzone_text"
+                    android:layout_toLeftOf="@id/brake_deadzone_number"
+                    android:paddingLeft="@dimen/settings_left_pad"
+                    android:progress="50"
+                    android:maxHeight="1000dp"/>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
+            <!--
+            <View android:id="@+id/blue_spacer3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/remote_button_ppm_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="PPM Button Threshold:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <TextView
+                    android:id="@+id/remote_button_ppm_text2"
+                    android:text=" %"
+                    android:textSize="12dp"
+                    android:gravity="center_vertical"
+                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_alignBaseline="@id/remote_button_ppm_text"
+                    android:paddingRight="@dimen/settings_left_pad"
+                    android:layout_alignParentRight="true"/>
+
+                <TextView android:id="@+id/remote_button_ppm_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center"
+                    android:textSize="@dimen/settings_text_size"
+                    android:textColor="@android:color/white"
+                    android:paddingLeft="@dimen/settings_left_pad"
+                    android:layout_toLeftOf="@id/remote_button_ppm_text2"
+                    android:minEms="2"
+                    android:text="1"/>
+
+                <SeekBar android:id="@+id/remote_button_ppm_seeker"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_toRightOf="@id/remote_button_ppm_text"
+                    android:layout_toLeftOf="@id/remote_button_ppm_number"
+                    android:paddingLeft="@dimen/settings_left_pad"
+                    android:progress="50"
+                    android:maxHeight="1000dp"/>
+            </RelativeLayout>-->
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

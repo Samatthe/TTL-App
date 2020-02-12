@@ -486,7 +486,7 @@ public class BluetoothService extends Service {
     public void createFaultNotification(String fault){
         NotificationCompat.Builder mFaultNotif = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setSmallIcon(R.drawable.notification)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setColor(0xFF484848)
                 .setPriority(Notification.PRIORITY_MAX);
 

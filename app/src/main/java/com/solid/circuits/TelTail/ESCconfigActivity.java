@@ -61,6 +61,8 @@ public class ESCconfigActivity extends AppCompatActivity
     Spinner uart_baud_spinner;
 
     boolean CHECK_DATA = false;
+    long applytimer = 0;
+    long applytime = 100;
 
     private final static String TAG = ControlsConfigActivity.class.getSimpleName();
 
@@ -202,6 +204,7 @@ public class ESCconfigActivity extends AppCompatActivity
                     };
                     while(!mBluetoothService.writeBytes(txbuf)) {}
                     CHECK_DATA = true;
+                    applytimer = System.currentTimeMillis();
                 }
                 break;
         }
@@ -216,7 +219,11 @@ public class ESCconfigActivity extends AppCompatActivity
                 finish();
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) {
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                if(data.length == 3) {
+                if(CHECK_DATA && (System.currentTimeMillis() - applytimer) > applytime){
+                    Toast.makeText(ESCconfigActivity.this, "Remote config failed to apply\nPlease try again", Toast.LENGTH_SHORT).show();
+                    CHECK_DATA = false;
+                }
+                else if(data.length == 3) {
                     for (int i = 0; i < data.length; i++) {
                         switch (data[i] & 0xFF) {
                             case 0x73:

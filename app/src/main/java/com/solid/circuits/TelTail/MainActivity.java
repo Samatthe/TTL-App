@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity
 
     NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setSmallIcon(R.drawable.notification)
+            .setSmallIcon(R.drawable.ic_notification)
             .setColor(0xFF484848)
             .setPriority(Notification.PRIORITY_MAX);
     int mNotificationId = 750;
@@ -106,6 +106,15 @@ public class MainActivity extends AppCompatActivity
     View vXAccel;
     View vYAccel;
     View vCustom;
+    View vDigitalStatic;
+    View vDigitalFuzz; // RGB animated static
+    View vDigitalCycle;
+    View vDigitalCompass;
+    View vDigitalThrottle;
+    View vDigitalRPM;
+    View vDigitalRPMThrottle;
+    View vDigitalCompassWheel;
+    View vDigitalCompassSnake;
 
     CheckBox motorCheck1;
     CheckBox motorCheck2;
@@ -216,6 +225,7 @@ public class MainActivity extends AppCompatActivity
     boolean led_switch_hb = false;
     boolean led_switch_light = false;
     boolean led_switch_sensor = false;
+    int LED_STRIP_TYPE = 0; // 0:Analog 1:Digital_APA 2:Digital_SK98
 
     boolean STATIC_LINK = false;
 
@@ -266,12 +276,12 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            if(componentName.getClassName().equals(BluetoothService.class.getName())) {
+            if (componentName.getClassName().equals(BluetoothService.class.getName())) {
                 //Toast.makeText(MainActivity.this, "Binding BLE", Toast.LENGTH_SHORT).show();
                 mBluetoothService = ((BluetoothService.LocalBinder) service).getService();
 
                 // Automatically connects to the device upon successful start-up initialization
-                if(autoConnect){                // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
+                if (autoConnect) {                // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
                     // BluetoothAdapter through BluetoothManager.
                     final BluetoothManager bluetoothManager =
                             (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -282,15 +292,14 @@ public class MainActivity extends AppCompatActivity
                     if (!mBluetoothAdapter.isEnabled()) {
                         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                         startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                    }
-                    else
+                    } else
                         mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
                 }
 
-            } else if(componentName.getClassName().equals(LoggingService.class.getName())){
+            } else if (componentName.getClassName().equals(LoggingService.class.getName())) {
                 //Toast.makeText(MainActivity.this, "Binding Log", Toast.LENGTH_SHORT).show();
                 mLoggingService = ((LoggingService.LocalBinder) service).getService();
-                if(mMap != null)
+                if (mMap != null)
                     mLoggingService.mMap = mMap;
 
                 mLoggingService.setCallbacks(MainActivity.this);
@@ -299,9 +308,9 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            if(componentName.getClassName().equals(BluetoothService.class.getName())) {
+            if (componentName.getClassName().equals(BluetoothService.class.getName())) {
                 mBluetoothService = null;
-            } else if(componentName.getClassName().equals(LoggingService.class.getName())) {
+            } else if (componentName.getClassName().equals(LoggingService.class.getName())) {
                 mLoggingService = null;
             }
         }
@@ -346,12 +355,27 @@ public class MainActivity extends AppCompatActivity
         vXAccel = findViewById(R.id.led_x_accel_ui);
         vYAccel = findViewById(R.id.led_y_accel_ui);
         vCustom = findViewById(R.id.led_custom_ui);
+        vDigitalStatic = findViewById(R.id.led_digital_static_ui);
+        vDigitalFuzz = findViewById(R.id.led_digital_skittles_ui);// RGB animated static
+        vDigitalCycle = findViewById(R.id.led_digital_cycle_ui);
+        vDigitalCompass = findViewById(R.id.led_digital_compass_ui);
+        vDigitalThrottle = findViewById(R.id.led_digital_throttle_ui);
+        vDigitalRPM = findViewById(R.id.led_digital_rpm_ui);
+        vDigitalRPMThrottle = findViewById(R.id.led_digital_rpm_throttle_ui);
+        vDigitalCompassWheel = findViewById(R.id.led_digital_compass_wheel_ui);
+        vDigitalCompassSnake = findViewById(R.id.led_digital_compass_snake_ui);
 
+        if (LED_STRIP_TYPE == 0) {
+            vStatic.setVisibility(View.VISIBLE);
+            vDigitalStatic.setVisibility(View.GONE);
+        } else {
+            vDigitalStatic.setVisibility(View.VISIBLE);
+            vStatic.setVisibility(View.GONE);
+        }
         vLEDS.setVisibility(View.VISIBLE);
         vMOTOR.setVisibility(View.GONE);
         vSENSOR.setVisibility(View.GONE);
         vGPS.setVisibility(View.GONE);
-        vStatic.setVisibility(View.VISIBLE);
         vCycle.setVisibility(View.GONE);
         vCompass.setVisibility(View.GONE);
         vThrottle.setVisibility(View.GONE);
@@ -360,11 +384,23 @@ public class MainActivity extends AppCompatActivity
         vXAccel.setVisibility(View.GONE);
         vYAccel.setVisibility(View.GONE);
         vCustom.setVisibility(View.GONE);
+        vDigitalFuzz.setVisibility(View.GONE); // RGB animated static
+        vDigitalCycle.setVisibility(View.GONE);
+        vDigitalCompass.setVisibility(View.GONE);
+        vDigitalThrottle.setVisibility(View.GONE);
+        vDigitalRPM.setVisibility(View.GONE);
+        vDigitalRPMThrottle.setVisibility(View.GONE);
 
         Spinner modeSpinner = (Spinner) findViewById(R.id.modes_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(this,
-                R.array.modes_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> modeAdapter;
+        if (LED_STRIP_TYPE == 0) {
+            modeAdapter = ArrayAdapter.createFromResource(this,
+                    R.array.analog_modes_array, android.R.layout.simple_spinner_item);
+        } else {
+            modeAdapter = ArrayAdapter.createFromResource(this,
+                    R.array.digital_modes_array, android.R.layout.simple_spinner_item);
+        }
         // Specify the layout to use when the list of choices appears
         modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
@@ -408,28 +444,43 @@ public class MainActivity extends AppCompatActivity
         colorBaseSpinner.setAdapter(colorAdapter);
         colorBaseSpinner.setOnItemSelectedListener(this);
 
-        SeekBar custom_bright_seek = (SeekBar) findViewById(R.id.custom_brightness_seeker);
-        SeekBar custom_rate_seek = (SeekBar) findViewById(R.id.custom_rate_seeker);
-        SeekBar custom_left_red_seek = (SeekBar) findViewById(R.id.custom_left_red_seeker);
-        SeekBar custom_left_green_seek = (SeekBar) findViewById(R.id.custom_left_green_seeker);
-        SeekBar custom_left_blue_seek = (SeekBar) findViewById(R.id.custom_left_blue_seeker);
-        SeekBar custom_right_red_seek = (SeekBar) findViewById(R.id.custom_right_red_seeker);
-        SeekBar custom_right_green_seek = (SeekBar) findViewById(R.id.custom_right_green_seeker);
-        SeekBar custom_right_blue_seek = (SeekBar) findViewById(R.id.custom_right_blue_seeker);
-        SeekBar left_red_seek = (SeekBar) findViewById(R.id.left_red_seeker);
-        SeekBar left_green_seek = (SeekBar) findViewById(R.id.left_green_seeker);
-        SeekBar left_blue_seek = (SeekBar) findViewById(R.id.left_blue_seeker);
-        SeekBar right_red_seek = (SeekBar) findViewById(R.id.right_red_seeker);
-        SeekBar right_green_seek = (SeekBar) findViewById(R.id.right_green_seeker);
-        SeekBar right_blue_seek = (SeekBar) findViewById(R.id.right_blue_seeker);
-        SeekBar cycle_speed_seek = (SeekBar) findViewById(R.id.cycle_speed_seeker);
-        SeekBar cycle_bright_seek = (SeekBar) findViewById(R.id.cycle_bright_seeker);
-        SeekBar comp_bright_seek = (SeekBar) findViewById(R.id.compass_bright_seeker);
-        SeekBar x_accel_speed_seek = (SeekBar) findViewById(R.id.throttle_speed_seeker);
-        SeekBar y_accel_speed_seek = (SeekBar) findViewById(R.id.y_accel_speed_seeker);
-        SeekBar x_accel_bright_seek = (SeekBar) findViewById(R.id.throttle_bright_seeker);
-        SeekBar rpm_speed_seek = (SeekBar) findViewById(R.id.rpm_speed_seeker);
-        SeekBar x_accel_rate_seeker = (SeekBar) findViewById(R.id.x_accel_rate_seeker);
+        SeekBar custom_bright_seek = findViewById(R.id.custom_brightness_seeker);
+        SeekBar custom_rate_seek =  findViewById(R.id.custom_rate_seeker);
+        SeekBar custom_left_red_seek =  findViewById(R.id.custom_left_red_seeker);
+        SeekBar custom_left_green_seek =  findViewById(R.id.custom_left_green_seeker);
+        SeekBar custom_left_blue_seek =  findViewById(R.id.custom_left_blue_seeker);
+        SeekBar custom_right_red_seek =  findViewById(R.id.custom_right_red_seeker);
+        SeekBar custom_right_green_seek =  findViewById(R.id.custom_right_green_seeker);
+        SeekBar custom_right_blue_seek =  findViewById(R.id.custom_right_blue_seeker);
+        SeekBar left_red_seek =  findViewById(R.id.left_red_seeker);
+        SeekBar left_green_seek =  findViewById(R.id.left_green_seeker);
+        SeekBar left_blue_seek =  findViewById(R.id.left_blue_seeker);
+        SeekBar right_red_seek =  findViewById(R.id.right_red_seeker);
+        SeekBar right_green_seek =  findViewById(R.id.right_green_seeker);
+        SeekBar right_blue_seek =  findViewById(R.id.right_blue_seeker);
+        SeekBar cycle_speed_seek =  findViewById(R.id.cycle_speed_seeker);
+        SeekBar cycle_bright_seek =  findViewById(R.id.cycle_bright_seeker);
+        SeekBar comp_bright_seek =  findViewById(R.id.compass_bright_seeker);
+        SeekBar x_accel_speed_seek =  findViewById(R.id.throttle_speed_seeker);
+        SeekBar y_accel_speed_seek =  findViewById(R.id.y_accel_speed_seeker);
+        SeekBar x_accel_bright_seek =  findViewById(R.id.throttle_bright_seeker);
+        SeekBar rpm_speed_seek =  findViewById(R.id.rpm_speed_seeker);
+        SeekBar x_accel_rate_seeker =  findViewById(R.id.x_accel_rate_seeker);
+        SeekBar digital_static_zoom_seeker =  findViewById(R.id.digital_static_zoom_seeker);
+        SeekBar digital_static_shift_seeker =  findViewById(R.id.digital_static_shift_seeker);
+        SeekBar digital_static_bright_seeker =  findViewById(R.id.digital_static_bright_seeker);
+        SeekBar digital_skittles_bright_seeker =  findViewById(R.id.digital_skittles_bright_seeker);
+        SeekBar digital_cycle_rate_seeker =  findViewById(R.id.digital_cycle_rate_seeker);
+        SeekBar digital_cycle_bright_seeker =  findViewById(R.id.digital_cycle_bright_seeker);
+        SeekBar digital_compass_bright_seeker =  findViewById(R.id.digital_compass_bright_seeker);
+        SeekBar digital_throttle_zoom_seeker =  findViewById(R.id.digital_throttle_zoom_seeker);
+        SeekBar digital_throttle_shift_seeker =  findViewById(R.id.digital_throttle_shift_seeker);
+        SeekBar digital_throttle_sens_seeker =  findViewById(R.id.digital_throttle_sens_seeker);
+        SeekBar digital_throttle_bright_seeker =  findViewById(R.id.digital_throttle_bright_seeker);
+        SeekBar digital_rpm_rate_seeker =  findViewById(R.id.digital_rpm_rate_seeker);
+        SeekBar digital_rpm_bright_seeker =  findViewById(R.id.digital_rpm_bright_seeker);
+        SeekBar digital_cycle_zoom_seeker =  findViewById(R.id.digital_cycle_zoom_seeker);
+        SeekBar digital_rpm_zoom_seeker =  findViewById(R.id.digital_rpm_zoom_seeker);
         custom_bright_seek.setOnSeekBarChangeListener(this);
         custom_rate_seek.setOnSeekBarChangeListener(this);
         custom_left_red_seek.setOnSeekBarChangeListener(this);
@@ -452,6 +503,21 @@ public class MainActivity extends AppCompatActivity
         x_accel_bright_seek.setOnSeekBarChangeListener(this);
         rpm_speed_seek.setOnSeekBarChangeListener(this);
         x_accel_rate_seeker.setOnSeekBarChangeListener(this);
+        digital_static_zoom_seeker.setOnSeekBarChangeListener(this);
+        digital_static_shift_seeker.setOnSeekBarChangeListener(this);
+        digital_static_bright_seeker.setOnSeekBarChangeListener(this);
+        digital_cycle_rate_seeker.setOnSeekBarChangeListener(this);
+        digital_cycle_bright_seeker.setOnSeekBarChangeListener(this);
+        digital_compass_bright_seeker.setOnSeekBarChangeListener(this);
+        digital_throttle_zoom_seeker.setOnSeekBarChangeListener(this);
+        digital_throttle_shift_seeker.setOnSeekBarChangeListener(this);
+        digital_throttle_sens_seeker.setOnSeekBarChangeListener(this);
+        digital_throttle_bright_seeker.setOnSeekBarChangeListener(this);
+        digital_rpm_rate_seeker.setOnSeekBarChangeListener(this);
+        digital_rpm_bright_seeker.setOnSeekBarChangeListener(this);
+        digital_skittles_bright_seeker.setOnSeekBarChangeListener(this);
+        digital_cycle_zoom_seeker.setOnSeekBarChangeListener(this);
+        digital_rpm_zoom_seeker.setOnSeekBarChangeListener(this);
         View left_rgb = findViewById(R.id.left_rgb_display);
         View right_rgb = findViewById(R.id.right_rgb_display);
         left_rgb.setBackgroundColor(0xFF7F3FCC);
@@ -589,7 +655,10 @@ public class MainActivity extends AppCompatActivity
         RECIEVE_BLE_DATA = true;
         loadPreferences();
 
-        if(menu != null) {
+        Spinner ModeSpinner = (Spinner) findViewById(R.id.modes_spinner);
+        ModeSpinner.setSelection(led_mode);
+
+        if (menu != null) {
             MenuItem bleAction = menu.findItem(R.id.action_ble);
             MenuItem logAction = menu.findItem(R.id.action_log);
 
@@ -625,7 +694,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
 
         RECIEVE_BLE_DATA = false;
@@ -647,29 +716,34 @@ public class MainActivity extends AppCompatActivity
         unregisterReceiver(mGattUpdateReceiver);
     }
 
-    private void loadPreferences(){
+    private void loadPreferences() {
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         autoConnect = settings.getBoolean("bleConnect", false);
-        LOG_MAP = settings.getBoolean("LogMap",false);
-        LOG_MOTOR = settings.getBoolean("LogMotor",false);
-        LOG_SENSOR = settings.getBoolean("LogSensor",false);
+        LOG_MAP = settings.getBoolean("LogMap", false);
+        LOG_MOTOR = settings.getBoolean("LogMotor", false);
+        LOG_SENSOR = settings.getBoolean("LogSensor", false);
         LOG_ENABLED = settings.getBoolean("LogEnable", false);
         int MotorChecks = settings.getInt("MotorChecks", 0);
         int SensorChecks = settings.getInt("SensorChecks", 0);
         previous_voltage = settings.getFloat("BattVolt", 0);
-        previous_mAh_used = settings.getFloat("mAhUsed",0);
-        previous_mAh_charged = settings.getFloat("mAhUsed",0);
-        previous_wh_used = settings.getFloat("WhUsed",0);
-        previous_wh_charged = settings.getFloat("WhUsed",0);
+        previous_mAh_used = settings.getFloat("mAhUsed", 0);
+        previous_mAh_charged = settings.getFloat("mAhUsed", 0);
+        previous_wh_used = settings.getFloat("WhUsed", 0);
+        previous_wh_charged = settings.getFloat("WhUsed", 0);
         STATIC_LINK = settings.getBoolean("staticLink", false);
         READ_CURRENT = settings.getBoolean("ReadCurrent", false);
+
+        LED_STRIP_TYPE = settings.getInt("RGBType", 0);
+
+        updateModeSpinner();
+        updateLEDui();
 
         WHU = ((MotorChecks & 0x200) == 0x200);
         WHC = ((MotorChecks & 0x100) == 0x100);
         BV = ((MotorChecks & 0x80) == 0x80);
         TMP = ((MotorChecks & 0x40) == 0x40);
-        RPM  = ((MotorChecks & 0x20) == 0x20);
+        RPM = ((MotorChecks & 0x20) == 0x20);
         MC = ((MotorChecks & 0x10) == 0x10);
         MAHU = ((MotorChecks & 0x8) == 0x8);
         MAHC = ((MotorChecks & 0x4) == 0x4);
@@ -717,15 +791,15 @@ public class MainActivity extends AppCompatActivity
 
         TextView left_title = (TextView) findViewById(R.id.left_LED_text);
         RelativeLayout right_layout = (RelativeLayout) findViewById(R.id.right_LED_layout);
-        if (static_link.isChecked()){
+        if (static_link.isChecked()) {
             left_title.setText("LED Color");
             right_layout.setVisibility(View.GONE);
-        } else{
+        } else {
             left_title.setText("Left LED Color");
             right_layout.setVisibility(View.VISIBLE);
         }
 
-        if(LOG_ENABLED){
+        if (LOG_ENABLED) {
             MapLog.setVisibility(View.VISIBLE);
             MotorLog.setVisibility(View.VISIBLE);
             SensorLog.setVisibility(View.VISIBLE);
@@ -760,17 +834,18 @@ public class MainActivity extends AppCompatActivity
         int SensorCheck5 = (LGHT ? 1 : 0);
         int SensorCheck6 = (NUNCHUCK ? 1 : 0);
 
-        int MotorChecks = (MotorCheck10 << 9)|(MotorCheck9 << 8)|(MotorCheck8<<7)|(MotorCheck7<<6)|(MotorCheck6<<5)|(MotorCheck5<<4)|(MotorCheck4<<3)|(MotorCheck3<<2)|(MotorCheck2<<1)|(MotorCheck1);
-        int SensorChecks =(SensorCheck6 << 5)|(SensorCheck5 << 4)|(SensorCheck4 << 3)|(SensorCheck3 << 2)|(SensorCheck2 << 1)|(SensorCheck1);
+        int MotorChecks = (MotorCheck10 << 9) | (MotorCheck9 << 8) | (MotorCheck8 << 7) | (MotorCheck7 << 6) | (MotorCheck6 << 5) | (MotorCheck5 << 4) | (MotorCheck4 << 3) | (MotorCheck3 << 2) | (MotorCheck2 << 1) | (MotorCheck1);
+        int SensorChecks = (SensorCheck6 << 5) | (SensorCheck5 << 4) | (SensorCheck4 << 3) | (SensorCheck3 << 2) | (SensorCheck2 << 1) | (SensorCheck1);
         editor.putInt("MotorChecks", MotorChecks);
         editor.putInt("SensorChecks", SensorChecks);
         editor.putBoolean("staticLink", STATIC_LINK);
-        if(mBluetoothService != null && mBluetoothService.mConnectionState == 2 && battery_voltage > 0) {
-            editor.putFloat("BattVolt",battery_voltage);
-            editor.putFloat("mAhUsed",mAh_used + previous_mAh_used);
-            editor.putFloat("mAhCharged",mAh_charged + previous_mAh_charged);
-            editor.putFloat("WhUsed",wh_used + previous_wh_used);
-            editor.putFloat("WhCharged",wh_charged + previous_wh_charged);
+        editor.putInt("RGBType",LED_STRIP_TYPE);
+        if (mBluetoothService != null && mBluetoothService.mConnectionState == 2 && battery_voltage > 0) {
+            editor.putFloat("BattVolt", battery_voltage);
+            editor.putFloat("mAhUsed", mAh_used + previous_mAh_used);
+            editor.putFloat("mAhCharged", mAh_charged + previous_mAh_charged);
+            editor.putFloat("WhUsed", wh_used + previous_wh_used);
+            editor.putFloat("WhCharged", wh_charged + previous_wh_charged);
         }
         // Commit the edits!
         editor.commit();
@@ -849,61 +924,58 @@ public class MainActivity extends AppCompatActivity
 
             return true;
         } else if (id == R.id.action_calibrate) {
-            final byte txbuf[] = new byte[] {
+            final byte txbuf[] = new byte[]{
                     (byte) 0x0A5,
                     (byte) 0x000,
                     (byte) 0x0AD,
                     (byte) 0x05A
             };
-            if(!mBluetoothService.writeBytes(txbuf))
+            if (!mBluetoothService.writeBytes(txbuf))
                 Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
             //String txstring = bytesToHex(txbuf);
             // Toast.makeText(MainActivity.this, txstring, Toast.LENGTH_SHORT).show();
 
             return true;
         } else if (id == R.id.action_toggle) {
-            final byte txbuf[] = new byte[] {
+            final byte txbuf[] = new byte[]{
                     (byte) 0x0A5,
                     (byte) 0x000,
                     (byte) 0x0E3,
                     (byte) 0x05A
             };
-            if(!mBluetoothService.writeBytes(txbuf))
+            if (!mBluetoothService.writeBytes(txbuf))
                 Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
             //String txstring = bytesToHex(txbuf);
             // Toast.makeText(MainActivity.this, txstring, Toast.LENGTH_SHORT).show();
 
             return true;
         } else if (id == R.id.action_ble) {
-            if(mBluetoothService.mBluetoothDeviceAddress != null) {
+            if (mBluetoothService.mBluetoothDeviceAddress != null) {
                 // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
                 // BluetoothAdapter through BluetoothManager.
                 final BluetoothManager bluetoothManager =
                         (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
                 mBluetoothAdapter = bluetoothManager.getAdapter();
 
-                if(mBluetoothService.mConnectionState == 0) {
+                if (mBluetoothService.mConnectionState == 0) {
                     // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
                     // fire an intent to display a dialog asking the user to grant permission to enable it.
                     if (!mBluetoothAdapter.isEnabled()) {
                         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                         startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                    }
-                    else {
+                    } else {
                         bleAction.setTitle("Connecting BLE");
                         bleAction.setEnabled(false);
                         mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
                     }
-                } else if(mBluetoothService.mConnectionState == 2){
+                } else if (mBluetoothService.mConnectionState == 2) {
                     bleAction.setTitle("Disconnecting BLE");
                     bleAction.setEnabled(false);
                     mBluetoothService.disconnect();
-                }
-                else{
+                } else {
                     Toast.makeText(MainActivity.this, "Connecting: Please wait", Toast.LENGTH_SHORT).show();
                 }
-            }
-            else {
+            } else {
                 Toast.makeText(MainActivity.this, "No device selected", Toast.LENGTH_SHORT).show();
             }
 
@@ -920,7 +992,7 @@ public class MainActivity extends AppCompatActivity
                 logAction.setTitle("Start Logging");
             }
             return true;
-        } else if(id == R.id.action_remote) {
+        } else if (id == R.id.action_remote) {
             Intent intent = new Intent(this, RemoteActivity.class);
             startActivity(intent);
         }
@@ -930,8 +1002,8 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Function to show settings alert dialog
-     * */
-    public void showSettingsAlert(){
+     */
+    public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 
         // Setting Dialog Title
@@ -945,7 +1017,7 @@ public class MainActivity extends AppCompatActivity
 
         // On pressing Settings button
         alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog,int which) {
+            public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
             }
@@ -1017,36 +1089,36 @@ public class MainActivity extends AppCompatActivity
         Spinner color_spinner = (Spinner) findViewById(R.id.custom_color_select_spinner);
 
         long parent_id = parent.getId();
-        if(parent_id == R.id.modes_spinner){
+        if (parent_id == R.id.modes_spinner) {
             led_mode = pos;
             updateLEDui();
-        } else if(parent_id == R.id.custom_color_select_spinner) {
-            if(pos == 0) {
+        } else if (parent_id == R.id.custom_color_select_spinner) {
+            if (pos == 0) {
                 static_layout.setVisibility(View.VISIBLE);
                 rate_spinner.setEnabled(false);
                 rate_layout.setVisibility(View.GONE);
-            } else if(pos  == 2) {
+            } else if (pos == 2) {
                 static_layout.setVisibility(View.GONE);
                 rate_spinner.setEnabled(false);
                 rate_layout.setVisibility(View.GONE);
-            } else{
+            } else {
                 static_layout.setVisibility(View.GONE);
                 rate_spinner.setEnabled(true);
-                if(rate_spinner.getSelectedItemPosition() == 0)
+                if (rate_spinner.getSelectedItemPosition() == 0)
                     rate_layout.setVisibility(View.VISIBLE);
                 else
                     rate_layout.setVisibility(View.GONE);
             }
-        } else if(parent_id == R.id.custom_brightness_select_spinner) {
-            if(pos == 0) {
+        } else if (parent_id == R.id.custom_brightness_select_spinner) {
+            if (pos == 0) {
                 bright_layout.setVisibility(View.VISIBLE);
-            } else{
+            } else {
                 bright_layout.setVisibility(View.GONE);
             }
-        } else if(parent_id == R.id.custom_rate_select_spinner) {
-            if(pos == 0 && color_spinner.getSelectedItemPosition() != 0) {
+        } else if (parent_id == R.id.custom_rate_select_spinner) {
+            if (pos == 0 && color_spinner.getSelectedItemPosition() != 0) {
                 rate_layout.setVisibility(View.VISIBLE);
-            } else{
+            } else {
                 rate_layout.setVisibility(View.GONE);
             }
         }
@@ -1058,110 +1130,147 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        TextView custom_bright_number = (TextView) findViewById(R.id.custom_brightness_number);
-        TextView custom_rate_number = (TextView) findViewById(R.id.custom_rate_number);
-        TextView custom_left_red_number = (TextView) findViewById(R.id.custom_left_red_number);
-        TextView custom_left_green_number = (TextView) findViewById(R.id.custom_left_green_number);
-        TextView custom_left_blue_number = (TextView) findViewById(R.id.custom_left_blue_number);
-        TextView custom_right_red_number = (TextView) findViewById(R.id.custom_right_red_number);
-        TextView custom_right_green_number = (TextView) findViewById(R.id.custom_right_green_number);
-        TextView custom_right_blue_number = (TextView) findViewById(R.id.custom_right_blue_number);
-        TextView left_red_number = (TextView) findViewById(R.id.left_red_number);
-        TextView left_green_number = (TextView) findViewById(R.id.left_green_number);
-        TextView left_blue_number = (TextView) findViewById(R.id.left_blue_number);
-        TextView right_red_number = (TextView) findViewById(R.id.right_red_number);
-        TextView right_green_number = (TextView) findViewById(R.id.right_green_number);
-        TextView right_blue_number = (TextView) findViewById(R.id.right_blue_number);
-        TextView cycle_speed_number = (TextView) findViewById(R.id.cycle_speed_number);
-        TextView cycle_bright_number = (TextView) findViewById(R.id.cycle_bright_number);
-        TextView comp_bright_number = (TextView) findViewById(R.id.compass_bright_number);
-        TextView throttle_rate_number = (TextView) findViewById(R.id.throttle_speed_number);
-        TextView throttle_bright_number = (TextView) findViewById(R.id.throttle_bright_number);
-        TextView rpm_sens_number = (TextView) findViewById(R.id.rpm_speed_number);
+        TextView custom_bright_number =  findViewById(R.id.custom_brightness_number);
+        TextView custom_rate_number =  findViewById(R.id.custom_rate_number);
+        TextView custom_left_red_number =  findViewById(R.id.custom_left_red_number);
+        TextView custom_left_green_number =  findViewById(R.id.custom_left_green_number);
+        TextView custom_left_blue_number =  findViewById(R.id.custom_left_blue_number);
+        TextView custom_right_red_number =  findViewById(R.id.custom_right_red_number);
+        TextView custom_right_green_number =  findViewById(R.id.custom_right_green_number);
+        TextView custom_right_blue_number =  findViewById(R.id.custom_right_blue_number);
+        TextView left_red_number =  findViewById(R.id.left_red_number);
+        TextView left_green_number =  findViewById(R.id.left_green_number);
+        TextView left_blue_number =  findViewById(R.id.left_blue_number);
+        TextView right_red_number =  findViewById(R.id.right_red_number);
+        TextView right_green_number =  findViewById(R.id.right_green_number);
+        TextView right_blue_number =  findViewById(R.id.right_blue_number);
+        TextView cycle_speed_number =  findViewById(R.id.cycle_speed_number);
+        TextView cycle_bright_number =  findViewById(R.id.cycle_bright_number);
+        TextView comp_bright_number =  findViewById(R.id.compass_bright_number);
+        TextView throttle_rate_number =  findViewById(R.id.throttle_speed_number);
+        TextView throttle_bright_number =  findViewById(R.id.throttle_bright_number);
+        TextView rpm_sens_number =  findViewById(R.id.rpm_speed_number);
         View left_rgb = findViewById(R.id.left_rgb_display);
         View right_rgb = findViewById(R.id.right_rgb_display);
-        TextView x_accel_sens_number = (TextView) findViewById(R.id.x_accel_rate_number);
-        TextView y_accel_sens_number = (TextView) findViewById(R.id.y_accel_speed_number);
+        TextView x_accel_sens_number =  findViewById(R.id.x_accel_rate_number);
+        TextView y_accel_sens_number =  findViewById(R.id.y_accel_speed_number);
         View custom_left_rgb = findViewById(R.id.custom_left_rgb_display);
         View custom_right_rgb = findViewById(R.id.custom_right_rgb_display);
+        TextView digital_static_zoom_number =  findViewById(R.id.digital_static_zoom_number);
+        TextView digital_static_shift_number =  findViewById(R.id.digital_static_shift_number);
+        TextView digital_static_bright_number =  findViewById(R.id.digital_static_bright_number);
+        TextView digital_skittles_bright_number =  findViewById(R.id.digital_skittles_bright_number);
+        TextView digital_cycle_rate_number =  findViewById(R.id.digital_cycle_rate_number);
+        TextView digital_cycle_bright_number =  findViewById(R.id.digital_cycle_bright_number);
+        TextView digital_compass_bright_number =  findViewById(R.id.digital_compass_bright_number);
+        TextView digital_throttle_zoom_number =  findViewById(R.id.digital_throttle_zoom_number);
+        TextView digital_throttle_shift_number =  findViewById(R.id.digital_throttle_shift_number);
+        TextView digital_throttle_sens_number =  findViewById(R.id.digital_throttle_sens_number);
+        TextView digital_throttle_bright_number =  findViewById(R.id.digital_throttle_bright_number);
+        TextView digital_rpm_zoom_number =  findViewById(R.id.digital_rpm_zoom_number);
+        TextView digital_rpm_rate_number =  findViewById(R.id.digital_rpm_rate_number);
+        TextView digital_rpm_bright_number =  findViewById(R.id.digital_rpm_bright_number);
+        TextView digital_cycle_zoom_number =  findViewById(R.id.digital_cycle_zoom_number);
 
 
-        if(seekBar.getId() == R.id.left_red_seeker){
+        if (seekBar.getId() == R.id.left_red_seeker) {
             left_red_number.setText("" + progress);
-            leftColor = (leftColor & 0xFF00FFFF) | ((int)(progress * 2.55) << 16);
+            leftColor = (leftColor & 0xFF00FFFF) | ((int) (progress * 2.55) << 16);
             left_rgb.setBackgroundColor(leftColor);
-        } else if(seekBar.getId() == R.id.left_green_seeker){
+        } else if (seekBar.getId() == R.id.left_green_seeker) {
             left_green_number.setText("" + progress);
-            leftColor = (leftColor & 0xFFFF00FF) | ((int)(progress * 2.55) << 8);
+            leftColor = (leftColor & 0xFFFF00FF) | ((int) (progress * 2.55) << 8);
             left_rgb.setBackgroundColor(leftColor);
-        } else if(seekBar.getId() == R.id.left_blue_seeker){
+        } else if (seekBar.getId() == R.id.left_blue_seeker) {
             left_blue_number.setText("" + progress);
-            leftColor = (leftColor & 0xFFFFFF00) | ((int)(progress * 2.55));
+            leftColor = (leftColor & 0xFFFFFF00) | ((int) (progress * 2.55));
             left_rgb.setBackgroundColor(leftColor);
-        } else if(seekBar.getId() == R.id.right_red_seeker){
+        } else if (seekBar.getId() == R.id.right_red_seeker) {
             right_red_number.setText("" + progress);
-            rightColor = (rightColor & 0xFF00FFFF) | ((int)(progress * 2.55) << 16);
+            rightColor = (rightColor & 0xFF00FFFF) | ((int) (progress * 2.55) << 16);
             right_rgb.setBackgroundColor(rightColor);
-        } else if(seekBar.getId() == R.id.right_green_seeker){
+        } else if (seekBar.getId() == R.id.right_green_seeker) {
             right_green_number.setText("" + progress);
-            rightColor = (rightColor & 0xFFFF00FF) | ((int)(progress * 2.55) << 8);
+            rightColor = (rightColor & 0xFFFF00FF) | ((int) (progress * 2.55) << 8);
             right_rgb.setBackgroundColor(rightColor);
-        } else if(seekBar.getId() == R.id.right_blue_seeker){
+        } else if (seekBar.getId() == R.id.right_blue_seeker) {
             right_blue_number.setText("" + progress);
-            rightColor = (rightColor & 0xFFFFFF00) | ((int)(progress * 2.55));
+            rightColor = (rightColor & 0xFFFFFF00) | ((int) (progress * 2.55));
             right_rgb.setBackgroundColor(rightColor);
-        } else if(seekBar.getId() == R.id.cycle_speed_seeker){
-            //cycle_rate = progress;
+        } else if (seekBar.getId() == R.id.cycle_speed_seeker) {
             cycle_speed_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.cycle_bright_seeker) {
-            //cycle_brightness = progress;
+        } else if (seekBar.getId() == R.id.cycle_bright_seeker) {
             cycle_bright_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.compass_bright_seeker) {
-            //comp_brightness = progress;
+        } else if (seekBar.getId() == R.id.compass_bright_seeker) {
             comp_bright_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.throttle_speed_seeker){
-            //accel_sensitivity = progress;
+        } else if (seekBar.getId() == R.id.throttle_speed_seeker) {
             throttle_rate_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.throttle_bright_seeker) {
-            //accel_brightness = progress;
+        } else if (seekBar.getId() == R.id.throttle_bright_seeker) {
             throttle_bright_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.rpm_speed_seeker){
-            //rpm_sensitivity = progress;
+        } else if (seekBar.getId() == R.id.rpm_speed_seeker) {
             rpm_sens_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.x_accel_rate_seeker){
-            //accel_sensitivity = progress;
+        } else if (seekBar.getId() == R.id.x_accel_rate_seeker) {
             x_accel_sens_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.y_accel_speed_seeker){
-            //accel_sensitivity = progress;
+        } else if (seekBar.getId() == R.id.y_accel_speed_seeker) {
             y_accel_sens_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.custom_brightness_seeker){
+        } else if (seekBar.getId() == R.id.custom_brightness_seeker) {
             custom_bright_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.custom_rate_seeker){
+        } else if (seekBar.getId() == R.id.custom_rate_seeker) {
             custom_rate_number.setText("" + progress);
-        } else if(seekBar.getId() == R.id.custom_left_red_seeker){
+        } else if (seekBar.getId() == R.id.custom_left_red_seeker) {
             custom_left_red_number.setText("" + progress);
-            customLeftColor = (customLeftColor & 0xFF00FFFF) | ((int)(progress * 2.55) << 16);
+            customLeftColor = (customLeftColor & 0xFF00FFFF) | ((int) (progress * 2.55) << 16);
             custom_left_rgb.setBackgroundColor(customLeftColor);
-        } else if(seekBar.getId() == R.id.custom_left_green_seeker){
+        } else if (seekBar.getId() == R.id.custom_left_green_seeker) {
             custom_left_green_number.setText("" + progress);
-            customLeftColor = (customLeftColor & 0xFFFF00FF) | ((int)(progress * 2.55) << 8);
+            customLeftColor = (customLeftColor & 0xFFFF00FF) | ((int) (progress * 2.55) << 8);
             custom_left_rgb.setBackgroundColor(customLeftColor);
-        } else if(seekBar.getId() == R.id.custom_left_blue_seeker){
+        } else if (seekBar.getId() == R.id.custom_left_blue_seeker) {
             custom_left_blue_number.setText("" + progress);
-            customLeftColor = (customLeftColor & 0xFFFFFF00) | ((int)(progress * 2.55));
+            customLeftColor = (customLeftColor & 0xFFFFFF00) | ((int) (progress * 2.55));
             custom_left_rgb.setBackgroundColor(customLeftColor);
-        } else if(seekBar.getId() == R.id.custom_right_red_seeker){
+        } else if (seekBar.getId() == R.id.custom_right_red_seeker) {
             custom_right_red_number.setText("" + progress);
-            customRightColor = (customRightColor & 0xFF00FFFF) | ((int)(progress * 2.55) << 16);
+            customRightColor = (customRightColor & 0xFF00FFFF) | ((int) (progress * 2.55) << 16);
             custom_right_rgb.setBackgroundColor(customRightColor);
-        } else if(seekBar.getId() == R.id.custom_right_green_seeker){
+        } else if (seekBar.getId() == R.id.custom_right_green_seeker) {
             custom_right_green_number.setText("" + progress);
-            customRightColor = (customRightColor & 0xFFFF00FF) | ((int)(progress * 2.55) << 8);
+            customRightColor = (customRightColor & 0xFFFF00FF) | ((int) (progress * 2.55) << 8);
             custom_right_rgb.setBackgroundColor(customRightColor);
-        } else if(seekBar.getId() == R.id.custom_right_blue_seeker){
+        } else if (seekBar.getId() == R.id.custom_right_blue_seeker) {
             custom_right_blue_number.setText("" + progress);
-            customRightColor = (customRightColor & 0xFFFFFF00) | ((int)(progress * 2.55));
+            customRightColor = (customRightColor & 0xFFFFFF00) | ((int) (progress * 2.55));
             custom_right_rgb.setBackgroundColor(customRightColor);
+        } else if (seekBar.getId() == R.id.digital_static_zoom_seeker) {
+            digital_static_zoom_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_static_shift_seeker) {
+            digital_static_shift_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_static_bright_seeker) {
+            digital_static_bright_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_skittles_bright_seeker) {
+            digital_skittles_bright_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_cycle_rate_seeker) {
+            digital_cycle_rate_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_cycle_bright_seeker) {
+            digital_cycle_bright_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_compass_bright_seeker) {
+            digital_compass_bright_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_throttle_zoom_seeker) {
+            digital_throttle_zoom_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_throttle_shift_seeker) {
+            digital_throttle_shift_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_throttle_sens_seeker) {
+            digital_throttle_sens_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_throttle_bright_seeker) {
+            digital_throttle_bright_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_rpm_zoom_seeker) {
+            digital_rpm_zoom_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_rpm_rate_seeker) {
+            digital_rpm_rate_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_rpm_bright_seeker) {
+            digital_rpm_bright_number.setText("" + progress);
+        } else if (seekBar.getId() == R.id.digital_cycle_zoom_seeker) {
+            digital_cycle_zoom_number.setText("" + progress);
         }
     }
 
@@ -1197,7 +1306,7 @@ public class MainActivity extends AppCompatActivity
         mMap.setTrafficEnabled(false);
         enableMyLocation();
 
-        if(mLoggingService != null)
+        if (mLoggingService != null)
             mLoggingService.mMap = mMap;
     }
 
@@ -1248,9 +1357,9 @@ public class MainActivity extends AppCompatActivity
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
     }
 
-    public void onCheckboxClicked(View view){
+    public void onCheckboxClicked(View view) {
         CheckBox checkbox = (CheckBox) findViewById(view.getId());
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.sensor_accel_check:
                 ACCEL = checkbox.isChecked();
                 updateSensorGraphContent();
@@ -1318,10 +1427,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.LED_static_link_check:
                 TextView left_title = (TextView) findViewById(R.id.left_LED_text);
                 RelativeLayout right_layout = (RelativeLayout) findViewById(R.id.right_LED_layout);
-                if (checkbox.isChecked()){
+                if (checkbox.isChecked()) {
                     left_title.setText("LED Color");
                     right_layout.setVisibility(View.GONE);
-                } else{
+                } else {
                     left_title.setText("Left LED Color");
                     right_layout.setVisibility(View.VISIBLE);
                 }
@@ -1330,10 +1439,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.custom_static_link_check:
                 TextView custom_left_title = (TextView) findViewById(R.id.custom_left_LED_text);
                 RelativeLayout custom_right_layout = (RelativeLayout) findViewById(R.id.custom_right_LED_layout);
-                if (checkbox.isChecked()){
+                if (checkbox.isChecked()) {
                     custom_left_title.setText("LED Color");
                     custom_right_layout.setVisibility(View.GONE);
-                } else{
+                } else {
                     custom_left_title.setText("Left LED Color");
                     custom_right_layout.setVisibility(View.VISIBLE);
                 }
@@ -1343,15 +1452,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onClick(View view){
-        Switch vSwitch = (Switch)findViewById(view.getId());
-        if(view.getId() == R.id.led_side_switch){
+    public void onClick(View view) {
+        Switch vSwitch = (Switch) findViewById(view.getId());
+        if (view.getId() == R.id.led_side_switch) {
             led_switch_side = vSwitch.isChecked();
-        } else if(view.getId() == R.id.led_hb_switch){
+        } else if (view.getId() == R.id.led_hb_switch) {
             led_switch_hb = vSwitch.isChecked();
-        } else if(view.getId() == R.id.led_light_switch) {
+        } else if (view.getId() == R.id.led_light_switch) {
             led_switch_light = vSwitch.isChecked();
-        } else if(view.getId() == R.id.led_sensor_switch) {
+        } else if (view.getId() == R.id.led_sensor_switch) {
             led_switch_sensor = vSwitch.isChecked();
         }
     }
@@ -1373,15 +1482,16 @@ public class MainActivity extends AppCompatActivity
                 bleAction.setTitle("Disconnect BLE");
                 bleAction.setEnabled(true);
                 Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT).show();
-                if(READ_CURRENT){
-                    final byte txbuf[] = new byte[] {
+                if (READ_CURRENT) {
+                    final byte txbuf[] = new byte[]{
                             (byte) 0x0A5,
                             (byte) 0x000,
                             (byte) 0xCD,
                             (byte) 0x05A
                     };
-                    while(!mBluetoothService.writeBytes(txbuf)){}
-                        //Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    while (!mBluetoothService.writeBytes(txbuf)) {
+                    }
+                    //Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                 }
             } else if (BluetoothService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 bleTitleBar.setImageResource(R.mipmap.ic_ble_black);
@@ -1398,24 +1508,24 @@ public class MainActivity extends AppCompatActivity
                 int temp;
 
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                if((data.length == 15 || data.length == 16 || data.length == 18 || data.length == 19 || data.length == 20) && RECIEVE_BLE_DATA) {
+                if ((data.length == 10 || data.length == 11 || data.length == 15 || data.length == 16 || data.length == 18 || data.length == 19 || data.length == 20) && RECIEVE_BLE_DATA) {
                     for (int i = 0; i < data.length; i++) {
                         temp = 0;
-                        if(i >= data.length)
+                        if (i >= data.length)
                             break;
                         switch (data[i] & 0xFF) {
                             case 0x11:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 TextView bcText = (TextView) findViewById(R.id.motor_bcurrent_text);
                                 temp = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 battery_current = ((float) (temp)) / 100;
-                                 BC_LineSeries.appendData(new DataPoint(graph_index, battery_current), true, MAX_DATA_POINTS);
+                                BC_LineSeries.appendData(new DataPoint(graph_index, battery_current), true, MAX_DATA_POINTS);
                                 bcText.setText("Battery current: " + battery_current + " A");
                                 i += 2;
                                 break;
                             case 0x12:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 TextView bvText = (TextView) findViewById(R.id.motor_volt_text);
                                 temp = (((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
@@ -1423,10 +1533,10 @@ public class MainActivity extends AppCompatActivity
                                 BV_LineSeries.appendData(new DataPoint(graph_index, battery_voltage), true, MAX_DATA_POINTS);
                                 bvText.setText("Battery voltage: " + battery_voltage + " V");
 
-                                if(previous_voltage > battery_voltage + 1) {
+                                if (previous_voltage > battery_voltage + 1) {
                                     battery_update = 1;
                                     //showBatteryUpdateAlert();
-                                } else if(previous_voltage < battery_voltage - 1) {
+                                } else if (previous_voltage < battery_voltage - 1) {
                                     battery_update = 2;
                                     //showBatteryUpdateAlert();
                                 }
@@ -1435,7 +1545,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x13:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 TextView mcText = (TextView) findViewById(R.id.motor_mcurrent_text);
                                 temp = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
@@ -1445,7 +1555,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x14:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 TextView tempText = (TextView) findViewById(R.id.motor_temp_text);
                                 temp = (((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
@@ -1455,24 +1565,24 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x15:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 TextView dutyText = (TextView) findViewById(R.id.motor_duty_text);
                                 temp = (((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
-                                duty_cycle = ((float) (temp))/10;
+                                duty_cycle = ((float) (temp)) / 10;
                                 DTY_LineSeries.appendData(new DataPoint(graph_index, duty_cycle), true, MAX_DATA_POINTS);
                                 dutyText.setText("Duty Cycle: " + duty_cycle + "%");
-                                i+=2;
+                                i += 2;
                                 break;
                             case 0x16:
-                                if(i+3 >= data.length)
+                                if (i + 3 >= data.length)
                                     break;
                                 TextView rpmText = (TextView) findViewById(R.id.motor_rpm_text);
                                 motor_rpm = (((data[i + 3]) << 16) | ((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
                                 RPM_LineSeries.appendData(new DataPoint(graph_index, motor_rpm), true, MAX_DATA_POINTS);
                                 rpmText.setText("Electrical speed: " + motor_rpm + " rpm");
 
-                                if(motor_rpm < 750){
+                                if (motor_rpm < 750) {
                                     BOARD_MOVING = false;
                                     NEW_PATH = true;
                                 } else
@@ -1481,7 +1591,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 3;
                                 break;
                             case 0x17:
-                                if(i+3 >= data.length)
+                                if (i + 3 >= data.length)
                                     break;
                                 TextView mahuText = (TextView) findViewById(R.id.motor_mahu_text);
                                 temp = (((data[i + 3]) << 16) | ((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
@@ -1491,7 +1601,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 3;
                                 break;
                             case 0x18:
-                                if(i+3 >= data.length)
+                                if (i + 3 >= data.length)
                                     break;
                                 TextView mahcText = (TextView) findViewById(R.id.motor_mahc_text);
                                 temp = (((data[i + 3]) << 16) | ((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
@@ -1501,7 +1611,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 3;
                                 break;
                             case 0x19:
-                                if(i+3 >= data.length)
+                                if (i + 3 >= data.length)
                                     break;
                                 TextView whuText = (TextView) findViewById(R.id.motor_whu_text);
                                 temp = (((data[i + 3]) << 16) | ((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
@@ -1511,7 +1621,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 3;
                                 break;
                             case 0x1A:
-                                if(i+3 >= data.length)
+                                if (i + 3 >= data.length)
                                     break;
                                 TextView whcText = (TextView) findViewById(R.id.motor_whc_text);
                                 temp = (((data[i + 3]) << 16) | ((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
@@ -1521,7 +1631,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 3;
                                 break;
                             case 0x1B:
-                                if(i+1 >= data.length)
+                                if (i + 1 >= data.length)
                                     break;
                                 error_codes = data[i + 1];
                                 TextView faultText = (TextView) findViewById(R.id.motor_error_text);
@@ -1551,33 +1661,33 @@ public class MainActivity extends AppCompatActivity
                                 i++;
                                 break;
                             case 0x21:
-                                if(i+1 >= data.length)
+                                if (i + 1 >= data.length)
                                     break;
                                 remote_x = (data[i + 1] & 0xFF);
                                 NX_LineSeries.appendData(new DataPoint(graph_index, remote_x), true, MAX_DATA_POINTS);
-                                if(remote_connected == 2)
+                                if (remote_connected == 2)
                                     nxyText.setText("Remote X: " + remote_x + "\t\tY: " + remote_y);
-                                else if(remote_connected == 1)
+                                else if (remote_connected == 1)
                                     nxyText.setText("Remote X: n/a\t\tY: " + remote_y);
-                                else if(remote_connected == 0)
+                                else if (remote_connected == 0)
                                     nxyText.setText("Remote X: n/a\t\tY: n/a");
                                 i++;
                                 break;
                             case 0x22:
-                                if(i+1 >= data.length)
+                                if (i + 1 >= data.length)
                                     break;
                                 remote_y = (data[i + 1] & 0xFF);
                                 NY_LineSeries.appendData(new DataPoint(graph_index, remote_y), true, MAX_DATA_POINTS);
-                                if(remote_connected == 2)
+                                if (remote_connected == 2)
                                     nxyText.setText("Remote X: " + remote_x + "\t\tY: " + remote_y);
-                                else if(remote_connected == 1)
+                                else if (remote_connected == 1)
                                     nxyText.setText("Remote X: n/a\t\tY: " + remote_y);
-                                else if(remote_connected == 0)
+                                else if (remote_connected == 0)
                                     nxyText.setText("Remote X: n/a\t\tY: n/a");
                                 i++;
                                 break;
                             case 0x23:
-                                if(i+1 >= data.length)
+                                if (i + 1 >= data.length)
                                     break;
                                 TextView nz_text = (TextView) findViewById(R.id.sensor_NZ_text);
                                 remote_button = ((data[i + 1] & 0x1));
@@ -1586,7 +1696,7 @@ public class MainActivity extends AppCompatActivity
                                 i++;
                                 break;
                             case 0x24:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 accel_x = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 AX_LineSeries.appendData(new DataPoint(graph_index, accel_x), true, MAX_DATA_POINTS);
@@ -1594,7 +1704,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x25:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 accel_y = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 AY_LineSeries.appendData(new DataPoint(graph_index, accel_y), true, MAX_DATA_POINTS);
@@ -1602,7 +1712,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x26:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 accel_z = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 AZ_LineSeries.appendData(new DataPoint(graph_index, accel_z), true, MAX_DATA_POINTS);
@@ -1610,7 +1720,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x27:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 gyro_x = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 GX_LineSeries.appendData(new DataPoint(graph_index, gyro_x), true, MAX_DATA_POINTS);
@@ -1618,7 +1728,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x28:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 gyro_y = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 GY_LineSeries.appendData(new DataPoint(graph_index, gyro_y), true, MAX_DATA_POINTS);
@@ -1626,7 +1736,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x29:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 gyro_z = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 GZ_LineSeries.appendData(new DataPoint(graph_index, gyro_z), true, MAX_DATA_POINTS);
@@ -1634,7 +1744,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x2A:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 compass_x = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 CX_LineSeries.appendData(new DataPoint(graph_index, compass_x), true, MAX_DATA_POINTS);
@@ -1642,7 +1752,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x2B:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 compass_y = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 CY_LineSeries.appendData(new DataPoint(graph_index, compass_y), true, MAX_DATA_POINTS);
@@ -1650,7 +1760,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x2C:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 compass_z = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 CZ_LineSeries.appendData(new DataPoint(graph_index, compass_z), true, MAX_DATA_POINTS);
@@ -1658,7 +1768,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x2D:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 light_sense = (((data[i + 2] & 0xFF) << 8) | (data[i + 1] & 0xFF));
                                 LGHT_LineSeries.appendData(new DataPoint(graph_index, light_sense), true, MAX_DATA_POINTS);
@@ -1666,7 +1776,7 @@ public class MainActivity extends AppCompatActivity
                                 i += 2;
                                 break;
                             case 0x2E:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 heading = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
                                 heading = heading / 10;
@@ -1678,24 +1788,24 @@ public class MainActivity extends AppCompatActivity
                                 graph_index++;
                                 break;
                             case 0x31:
-                                if(i+1 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 Spinner ModeSpinner = (Spinner) findViewById(R.id.modes_spinner);
                                 Switch SideSwitch = (Switch) findViewById(R.id.led_side_switch);
                                 Switch HeadSwitch = (Switch) findViewById(R.id.led_hb_switch);
                                 Switch LightSwitch = (Switch) findViewById(R.id.led_light_switch);
                                 Switch SensSwitch = (Switch) findViewById(R.id.led_sensor_switch);
-                                led_mode = (data[i+1] & 0xF0) >> 4;
-                                updateLEDui();
+                                led_mode = (data[i + 1] & 0xF0) >> 4;
+                                HeadSwitch.setChecked(((data[i + 1] & 0x08) >> 3) == 1);
+                                SideSwitch.setChecked(((data[i + 1] & 0x04) >> 2) == 1);
+                                LightSwitch.setChecked(((data[i + 1] & 0x02) >> 1) == 1);
+                                SensSwitch.setChecked((data[i + 1] & 0x01) == 1);
+                                LED_STRIP_TYPE = (data[i + 2] & 0xFF);
                                 ModeSpinner.setSelection(led_mode);
-                                HeadSwitch.setChecked(((data[i+1] & 0x08) >> 3)==1);
-                                SideSwitch.setChecked(((data[i+1] & 0x04) >> 2)==1);
-                                LightSwitch.setChecked(((data[i+1] & 0x02) >> 1)==1);
-                                SensSwitch.setChecked((data[i+1] & 0x01)==1);
-                                i += 1;
+                                i += 2;
                                 break;
                             case 0x32:
-                                if(i+6 >= data.length)
+                                if (i + 6 >= data.length)
                                     break;
                                 //CheckBox LinkCheck = (CheckBox) findViewById(R.id.LED_static_link_check);
                                 SeekBar StaticLR = (SeekBar) findViewById(R.id.left_red_seeker);
@@ -1704,62 +1814,62 @@ public class MainActivity extends AppCompatActivity
                                 SeekBar StaticRR = (SeekBar) findViewById(R.id.right_red_seeker);
                                 SeekBar StaticRG = (SeekBar) findViewById(R.id.right_green_seeker);
                                 SeekBar StaticRB = (SeekBar) findViewById(R.id.right_blue_seeker);
-                                StaticLR.setProgress(data[i+1] & 0xFF);
-                                StaticLG.setProgress(data[i+2] & 0xFF);
-                                StaticLB.setProgress(data[i+3] & 0xFF);
-                                StaticRR.setProgress(data[i+4] & 0xFF);
-                                StaticRG.setProgress(data[i+5] & 0xFF);
-                                StaticRB.setProgress(data[i+6] & 0xFF);
+                                StaticLR.setProgress(data[i + 1] & 0xFF);
+                                StaticLG.setProgress(data[i + 2] & 0xFF);
+                                StaticLB.setProgress(data[i + 3] & 0xFF);
+                                StaticRR.setProgress(data[i + 4] & 0xFF);
+                                StaticRG.setProgress(data[i + 5] & 0xFF);
+                                StaticRB.setProgress(data[i + 6] & 0xFF);
                                 i += 6;
                                 break;
                             case 0x33:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 SeekBar CycleRate = (SeekBar) findViewById(R.id.cycle_speed_seeker);
                                 SeekBar CycleBright = (SeekBar) findViewById(R.id.cycle_bright_seeker);
-                                CycleRate.setProgress(data[i+1] & 0xFF);
-                                CycleBright.setProgress(data[i+2] & 0xFF);
+                                CycleRate.setProgress(data[i + 1] & 0xFF);
+                                CycleBright.setProgress(data[i + 2] & 0xFF);
                                 i += 2;
                                 break;
                             case 0x34:
-                                if(i+1 >= data.length)
+                                if (i + 1 >= data.length)
                                     break;
                                 SeekBar CompBright = (SeekBar) findViewById(R.id.compass_bright_seeker);
-                                CompBright.setProgress(data[i+1] & 0xFF);
+                                CompBright.setProgress(data[i + 1] & 0xFF);
                                 i += 1;
                                 break;
                             case 0x35:
-                                if(i+2 >= data.length)
+                                if (i + 2 >= data.length)
                                     break;
                                 SeekBar ThrottleSens = (SeekBar) findViewById(R.id.throttle_speed_seeker);
                                 SeekBar ThrottleBright = (SeekBar) findViewById(R.id.throttle_bright_seeker);
-                                ThrottleSens.setProgress(data[i+1] & 0xFF);
-                                ThrottleBright.setProgress(data[i+2] & 0xFF);
+                                ThrottleSens.setProgress(data[i + 1] & 0xFF);
+                                ThrottleBright.setProgress(data[i + 2] & 0xFF);
                                 i += 2;
                                 break;
                             case 0x36:
-                                if(i+1 >= data.length)
+                                if (i + 1 >= data.length)
                                     break;
                                 SeekBar rpmRate = (SeekBar) findViewById(R.id.rpm_speed_seeker);
-                                rpmRate.setProgress(data[i+1] & 0xFF);
+                                rpmRate.setProgress(data[i + 1] & 0xFF);
                                 i += 1;
                                 break;
                             case 0x37:
-                                if(i+1 >= data.length)
+                                if (i + 1 >= data.length)
                                     break;
                                 SeekBar XaccelRate = (SeekBar) findViewById(R.id.x_accel_rate_seeker);
-                                XaccelRate.setProgress(data[i+1] & 0xFF);
+                                XaccelRate.setProgress(data[i + 1] & 0xFF);
                                 i += 1;
                                 break;
                             case 0x38:
-                                if(i+1 >= data.length)
+                                if (i + 1 >= data.length)
                                     break;
                                 SeekBar YaccelRate = (SeekBar) findViewById(R.id.y_accel_speed_seeker);
-                                YaccelRate.setProgress(data[i+1] & 0xFF);
+                                YaccelRate.setProgress(data[i + 1] & 0xFF);
                                 i += 1;
                                 break;
                             case 0x39:
-                                if(i+10 >= data.length)
+                                if (i + 10 >= data.length)
                                     break;
                                 Spinner ColorSpin = (Spinner) findViewById(R.id.custom_color_select_spinner);
                                 Spinner RateSpin = (Spinner) findViewById(R.id.custom_rate_select_spinner);
@@ -1773,45 +1883,105 @@ public class MainActivity extends AppCompatActivity
                                 SeekBar CustomRB = (SeekBar) findViewById(R.id.custom_right_blue_seeker);
                                 SeekBar CustomRate = (SeekBar) findViewById(R.id.custom_rate_seeker);
                                 SeekBar CustomBright = (SeekBar) findViewById(R.id.custom_brightness_seeker);
-                                ColorSpin.setSelection((data[i+1] & 0xF0) >> 4);
-                                BrightSpin.setSelection(data[i+1] & 0x0F);
-                                RateSpin.setSelection(data[i+2] & 0xFF);
-                                CustomLR.setProgress(data[i+3] & 0xFF);
-                                CustomLG.setProgress(data[i+4] & 0xFF);
-                                CustomLB.setProgress(data[i+5] & 0xFF);
-                                CustomRR.setProgress(data[i+6] & 0xFF);
-                                CustomRG.setProgress(data[i+7] & 0xFF);
-                                CustomRB.setProgress(data[i+8] & 0xFF);
-                                CustomRate.setProgress(data[i+9] & 0xFF);
-                                CustomBright.setProgress(data[i+10] & 0xFF);
+                                ColorSpin.setSelection((data[i + 1] & 0xF0) >> 4);
+                                BrightSpin.setSelection(data[i + 1] & 0x0F);
+                                RateSpin.setSelection(data[i + 2] & 0xFF);
+                                CustomLR.setProgress(data[i + 3] & 0xFF);
+                                CustomLG.setProgress(data[i + 4] & 0xFF);
+                                CustomLB.setProgress(data[i + 5] & 0xFF);
+                                CustomRR.setProgress(data[i + 6] & 0xFF);
+                                CustomRG.setProgress(data[i + 7] & 0xFF);
+                                CustomRB.setProgress(data[i + 8] & 0xFF);
+                                CustomRate.setProgress(data[i + 9] & 0xFF);
+                                CustomBright.setProgress(data[i + 10] & 0xFF);
                                 i += 10;
+                                break;
+                            case 0x3A:
+                                if (i + 3 >= data.length)
+                                    break;
+                                SeekBar DigitalStaticZoom = (SeekBar) findViewById(R.id.digital_static_zoom_seeker);
+                                SeekBar DigitalStaticShift = (SeekBar) findViewById(R.id.digital_static_shift_seeker);
+                                SeekBar DigitalStaticBright = (SeekBar) findViewById(R.id.digital_static_bright_seeker);
+                                DigitalStaticZoom.setProgress(data[i + 1] & 0xFF);
+                                DigitalStaticShift.setProgress(data[i + 2] & 0xFF);
+                                DigitalStaticBright.setProgress(data[i + 3] & 0xFF);
+                                i += 3;
+                                break;
+                            case 0x3B:
+                                if (i + 1 >= data.length)
+                                    break;
+                                SeekBar DigitalSkittlesBright = (SeekBar) findViewById(R.id.digital_skittles_bright_seeker);
+                                DigitalSkittlesBright.setProgress(data[i + 1] & 0xFF);
+                                i += 1;
+                                break;
+                            case 0x3C:
+                                if (i + 3 >= data.length)
+                                    break;
+                                SeekBar DigitalCycleZoom = (SeekBar) findViewById(R.id.digital_cycle_zoom_seeker);
+                                SeekBar DigitalCycleRate = (SeekBar) findViewById(R.id.digital_cycle_rate_seeker);
+                                SeekBar DigitalCycleBright = (SeekBar) findViewById(R.id.digital_cycle_bright_seeker);
+                                DigitalCycleZoom.setProgress(data[i + 1] & 0xFF);
+                                DigitalCycleRate.setProgress(data[i + 2] & 0xFF);
+                                DigitalCycleBright.setProgress(data[i + 3] & 0xFF);
+                                i += 3;
+                                break;
+                            case 0x3D:
+                                if (i + 1 >= data.length)
+                                    break;
+                                SeekBar DigitalCompassBright = (SeekBar) findViewById(R.id.digital_compass_bright_seeker);
+                                DigitalCompassBright.setProgress(data[i + 1] & 0xFF);
+                                i += 1;
+                                break;
+                            case 0x3E:
+                                if (i + 4 >= data.length)
+                                    break;
+                                SeekBar DigitalThrottleZoom = (SeekBar) findViewById(R.id.digital_throttle_zoom_seeker);
+                                SeekBar DigitalThrottleShift = (SeekBar) findViewById(R.id.digital_throttle_shift_seeker);
+                                SeekBar DigitalThrottleSens = (SeekBar) findViewById(R.id.digital_throttle_sens_seeker);
+                                SeekBar DigitalThrottleBright = (SeekBar) findViewById(R.id.digital_throttle_bright_seeker);
+                                DigitalThrottleZoom.setProgress(data[i + 1] & 0xFF);
+                                DigitalThrottleShift.setProgress(data[i + 2] & 0xFF);
+                                DigitalThrottleSens.setProgress(data[i + 3] & 0xFF);
+                                DigitalThrottleBright.setProgress(data[i + 4] & 0xFF);
+                                i += 4;
+                                break;
+                            case 0x3F:
+                                if (i + 3 >= data.length)
+                                    break;
+                                SeekBar DigitalRPMZoom = (SeekBar) findViewById(R.id.digital_rpm_zoom_seeker);
+                                SeekBar DigitalRPMRate = (SeekBar) findViewById(R.id.digital_rpm_rate_seeker);
+                                SeekBar DigitalRPMBright = (SeekBar) findViewById(R.id.digital_rpm_bright_seeker);
+                                DigitalRPMZoom.setProgress(data[i + 1] & 0xFF);
+                                DigitalRPMRate.setProgress(data[i + 2] & 0xFF);
+                                DigitalRPMBright.setProgress(data[i + 3] & 0xFF);
+                                i += 3;
                                 break;
                         }
                     }
                 }
-            } else if(LoggingService.ACTION_LOG_TOGGLE.equals(action)) {
+            } else if (LoggingService.ACTION_LOG_TOGGLE.equals(action)) {
                 mLoggingService.ToggleLogging();
                 if (mLoggingService.LOG_STARTED) {
                     logAction.setTitle("Stop Logging");
                 } else {
                     logAction.setTitle("Start Logging");
                 }
-            } else if(LoggingService.ACTION_MAIN_CLOSE.equals(action)) {
+            } else if (LoggingService.ACTION_MAIN_CLOSE.equals(action)) {
                 MainActivity.super.finish();
-            } else if(LoggingService.ACTION_LED_TOGGLE.equals(action)) {
+            } else if (LoggingService.ACTION_LED_TOGGLE.equals(action)) {
                 //Toast.makeText(MainActivity.this, "toggle", Toast.LENGTH_SHORT).show();
-                final byte txbuf[] = new byte[] {
+                final byte txbuf[] = new byte[]{
                         (byte) 0x0A5,
                         (byte) 0x000,
-                        (byte)0x0E3,
+                        (byte) 0x0E3,
                         (byte) 0x05A
                 };
-                if(!mBluetoothService.writeBytes(txbuf))
+                if (!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-            } else if(LoggingService.ACTION_AUX_TOGGLE.equals(action)) {
+            } else if (LoggingService.ACTION_AUX_TOGGLE.equals(action)) {
                 //Toast.makeText(MainActivity.this, "toggle", Toast.LENGTH_SHORT).show();
                 byte txbuf[];
-                if(AUX_PRESSED == false) {
+                if (AUX_PRESSED == false) {
                     txbuf = new byte[]{
                             (byte) 0x0A5,
                             (byte) 0x000,
@@ -1834,23 +2004,23 @@ public class MainActivity extends AppCompatActivity
                     else
                         AUX_PRESSED = false;
                 }
-            } else if(LoggingService.ACTION_LED_MODE_DOWN.equals(action)) {
-                final byte txbuf[] = new byte[] {
+            } else if (LoggingService.ACTION_LED_MODE_DOWN.equals(action)) {
+                final byte txbuf[] = new byte[]{
                         (byte) 0x0A5,
                         (byte) 0x000,
-                        (byte)0x0E2,
+                        (byte) 0x0E2,
                         (byte) 0x05A
                 };
-                if(!mBluetoothService.writeBytes(txbuf))
+                if (!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-            } else if(LoggingService.ACTION_LED_MODE_UP.equals(action)) {
-                final byte txbuf[] = new byte[] {
+            } else if (LoggingService.ACTION_LED_MODE_UP.equals(action)) {
+                final byte txbuf[] = new byte[]{
                         (byte) 0x0A5,
                         (byte) 0x000,
                         (byte) 0x0E1,
                         (byte) 0x05A
                 };
-                if(!mBluetoothService.writeBytes(txbuf))
+                if (!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
             }
         }
@@ -1870,18 +2040,18 @@ public class MainActivity extends AppCompatActivity
         return intentFilter;
     }
 
-    public void onButtonClick(View view){
+    public void onButtonClick(View view) {
         final byte txbuf[];
 
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.led_current_button:
-                txbuf = new byte[] {
+                txbuf = new byte[]{
                         (byte) 0x0A5,
                         (byte) 0x000,
                         (byte) 0x0CD,
                         (byte) 0x05A
                 };
-                if(!mBluetoothService.writeBytes(txbuf))
+                if (!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                 //String txstring = bytesToHex(txbuf);
                 // Toast.makeText(MainActivity.this, txstring, Toast.LENGTH_SHORT).show();
@@ -1890,192 +2060,335 @@ public class MainActivity extends AppCompatActivity
             case R.id.led_apply_button:
                 Switch vSwitch;
                 SeekBar vProgress;
-                byte switches;
+                byte switches_led_type;
 
-                vSwitch = (Switch)findViewById(R.id.led_side_switch);
-                switches = (byte)((byte)0xFF & (byte)(vSwitch.isChecked() ? 1 : 0) << 4);
-                vSwitch = (Switch)findViewById(R.id.led_hb_switch);
-                switches = (byte)(switches | ((byte)(vSwitch.isChecked() ? 1 : 0)) << 5);
-                vSwitch = (Switch)findViewById(R.id.led_light_switch);
-                switches = (byte)(switches | ((byte)(vSwitch.isChecked() ? 1 : 0)) << 6);
-                vSwitch = (Switch)findViewById(R.id.led_sensor_switch);
-                switches = (byte)(switches | ((byte)(vSwitch.isChecked() ? 1 : 0)) << 7);
+                switches_led_type = (byte) (LED_STRIP_TYPE & 0x0F);
+                vSwitch = (Switch) findViewById(R.id.led_side_switch);
+                switches_led_type = (byte) (switches_led_type | ((byte) 0xFF & (byte) (vSwitch.isChecked() ? 1 : 0) << 4));
+                vSwitch = (Switch) findViewById(R.id.led_hb_switch);
+                switches_led_type = (byte) (switches_led_type | ((byte) (vSwitch.isChecked() ? 1 : 0)) << 5);
+                vSwitch = (Switch) findViewById(R.id.led_light_switch);
+                switches_led_type = (byte) (switches_led_type | ((byte) (vSwitch.isChecked() ? 1 : 0)) << 6);
+                vSwitch = (Switch) findViewById(R.id.led_sensor_switch);
+                switches_led_type = (byte) (switches_led_type | ((byte) (vSwitch.isChecked() ? 1 : 0)) << 7);
 
-                if(led_mode == 0){ // Static
-                    CheckBox linkCheck = (CheckBox) findViewById(R.id.LED_static_link_check);
-                    if(linkCheck.isChecked()) {
+                if(LED_STRIP_TYPE == 0) {
+                    if (led_mode == 0) { // Static
+                        CheckBox linkCheck = (CheckBox) findViewById(R.id.LED_static_link_check);
+                        if (linkCheck.isChecked()) {
+                            txbuf = new byte[]{
+                                    (byte) 0x0A5,
+                                    (byte) 0x007,
+                                    (byte) 0x0ED,
+                                    switches_led_type,
+                                    (byte) ((leftColor & 0x00FF0000) >> 16), //Red
+                                    (byte) ((leftColor & 0x0000FF00) >> 8), //Green
+                                    (byte) (leftColor & 0x000000FF), //Blue
+                                    (byte) ((leftColor & 0x00FF0000) >> 16), //Red
+                                    (byte) ((leftColor & 0x0000FF00) >> 8), //Green
+                                    (byte) (leftColor & 0x000000FF), //Blue
+                                    (byte) 0x05A
+                            };
+                        } else {
+                            txbuf = new byte[]{
+                                    (byte) 0x0A5,
+                                    (byte) 0x007,
+                                    (byte) 0x0ED,
+                                    switches_led_type,
+                                    (byte) ((leftColor & 0x00FF0000) >> 16), //Red
+                                    (byte) ((leftColor & 0x0000FF00) >> 8), //Green
+                                    (byte) (leftColor & 0x000000FF), //Blue
+                                    (byte) ((rightColor & 0x00FF0000) >> 16), //Red
+                                    (byte) ((rightColor & 0x0000FF00) >> 8), //Green
+                                    (byte) (rightColor & 0x000000FF), //Blue
+                                    (byte) 0x05A
+                            };
+                        }
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 1) { // Color Cycle
+                        vProgress = (SeekBar) findViewById(R.id.cycle_speed_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.cycle_bright_seeker);
+                        byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x007,
-                                (byte) 0x0ED,
-                                switches,
-                                (byte) ((leftColor & 0x00FF0000) >> 16), //Red
-                                (byte) ((leftColor & 0x0000FF00) >> 8), //Green
-                                (byte) (leftColor & 0x000000FF), //Blue
-                                (byte) ((leftColor & 0x00FF0000) >> 16), //Red
-                                (byte) ((leftColor & 0x0000FF00) >> 8), //Green
-                                (byte) (leftColor & 0x000000FF), //Blue
+                                (byte) 0x003,
+                                (byte) 0x0EC,
+                                switches_led_type,
+                                progress1, //rate
+                                progress2, //brightness
                                 (byte) 0x05A
                         };
-                    } else {
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 2) { // Compass Cycle
+                        vProgress = (SeekBar) findViewById(R.id.compass_bright_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x007,
-                                (byte) 0x0ED,
-                                switches,
-                                (byte) ((leftColor & 0x00FF0000) >> 16), //Red
-                                (byte) ((leftColor & 0x0000FF00) >> 8), //Green
-                                (byte) (leftColor & 0x000000FF), //Blue
-                                (byte) ((rightColor & 0x00FF0000) >> 16), //Red
-                                (byte) ((rightColor & 0x0000FF00) >> 8), //Green
-                                (byte) (rightColor & 0x000000FF), //Blue
+                                (byte) 0x002,
+                                (byte) 0x0EB,
+                                switches_led_type,
+                                progress1, //sensitivity
                                 (byte) 0x05A
                         };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 3) { // Throttle
+                        vProgress = (SeekBar) findViewById(R.id.throttle_speed_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.throttle_bright_seeker);
+                        byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x003,
+                                (byte) 0x0EA,
+                                switches_led_type,
+                                progress1, //sensitivity
+                                progress2, //brightness
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 4) { // RPM
+                        vProgress = (SeekBar) findViewById(R.id.rpm_speed_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x002,
+                                (byte) 0x0E9,
+                                switches_led_type,
+                                progress1, //rate
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 5) { // RPM + Throttle
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x001,
+                                (byte) 0x0E8,
+                                switches_led_type,
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 6) { // X Accel
+                        vProgress = (SeekBar) findViewById(R.id.x_accel_rate_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x002,
+                                (byte) 0x0E7,
+                                switches_led_type,
+                                progress1,
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 7) { // Y Accel
+                        vProgress = (SeekBar) findViewById(R.id.y_accel_speed_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x002,
+                                (byte) 0x0E6,
+                                switches_led_type,
+                                progress1,
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 8) { // Custom
+                        vProgress = (SeekBar) findViewById(R.id.custom_rate_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.custom_brightness_seeker);
+                        byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
+                        Spinner ColorBaseSpin = (Spinner) findViewById(R.id.custom_color_select_spinner);
+                        Spinner RateBaseSpin = (Spinner) findViewById(R.id.custom_rate_select_spinner);
+                        Spinner BrightBaseSpin = (Spinner) findViewById(R.id.custom_brightness_select_spinner);
+                        //switches_led_type = (byte) (switches_led_type | ColorBaseSpin.getSelectedItemPosition());
+                        byte RateBrightBase = (byte) ((RateBaseSpin.getSelectedItemPosition() << 4) | BrightBaseSpin.getSelectedItemPosition());
+                        CheckBox linkCheck = (CheckBox) findViewById(R.id.custom_static_link_check);
+                        if (linkCheck.isChecked()) {
+                            txbuf = new byte[]{
+                                    (byte) 0x0A5,
+                                    (byte) 0x00B,
+                                    (byte) 0x0B1,
+                                    switches_led_type,
+                                    (byte) (ColorBaseSpin.getSelectedItemPosition() & 0x0FF),
+                                    RateBrightBase,
+                                    (byte) ((customLeftColor & 0x00FF0000) >> 16), //Red
+                                    (byte) ((customLeftColor & 0x0000FF00) >> 8), //Green
+                                    (byte) (customLeftColor & 0x000000FF), //Blue
+                                    (byte) ((customLeftColor & 0x00FF0000) >> 16), //Red
+                                    (byte) ((customLeftColor & 0x0000FF00) >> 8), //Green
+                                    (byte) (customLeftColor & 0x000000FF), //Blue
+                                    progress1, // Rate
+                                    progress2, // Brightness
+                                    (byte) 0x05A
+                            };
+                        } else {
+                            txbuf = new byte[]{
+                                    (byte) 0x0A5,
+                                    (byte) 0x00B,
+                                    (byte) 0x0B1,
+                                    switches_led_type,
+                                    (byte) (ColorBaseSpin.getSelectedItemPosition() & 0x0FF),
+                                    RateBrightBase,
+                                    (byte) ((customLeftColor & 0x00FF0000) >> 16), //Red
+                                    (byte) ((customLeftColor & 0x0000FF00) >> 8), //Green
+                                    (byte) (customLeftColor & 0x000000FF), //Blue
+                                    (byte) ((customRightColor & 0x00FF0000) >> 16), //Red
+                                    (byte) ((customRightColor & 0x0000FF00) >> 8), //Green
+                                    (byte) (customRightColor & 0x000000FF), //Blue
+                                    progress1, // Rate
+                                    progress2, // Brightness
+                                    (byte) 0x05A
+                            };
+                        }
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     }
-                    if(!mBluetoothService.writeBytes(txbuf))
-                        Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                } else if(led_mode == 1){ // Color Cycle
-                    vProgress = (SeekBar)findViewById(R.id.cycle_speed_seeker);
-                    byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
-                    vProgress = (SeekBar)findViewById(R.id.cycle_bright_seeker);
-                    byte progress2 = (byte)(vProgress.getProgress() & 0xFF);
-                    txbuf = new byte[] {
-                            (byte) 0x0A5,
-                            (byte) 0x003,
-                            (byte)0x0EC,
-                            switches,
-                            progress1, //rate
-                            progress2, //brightness
-                            (byte) 0x05A
-                    };
-                    if(!mBluetoothService.writeBytes(txbuf))
-                        Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                } else if(led_mode == 2){ // Compass Cycle
-                    vProgress = (SeekBar)findViewById(R.id.compass_bright_seeker);
-                    byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
-                    txbuf = new byte[] {
-                            (byte) 0x0A5,
-                            (byte) 0x002,
-                            (byte)0x0EB,
-                            switches,
-                            progress1, //sensitivity
-                            (byte) 0x05A
-                    };
-                    if(!mBluetoothService.writeBytes(txbuf))
-                        Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                }else if(led_mode == 3){ // Throttle
-                    vProgress = (SeekBar)findViewById(R.id.throttle_speed_seeker);
-                    byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
-                    vProgress = (SeekBar)findViewById(R.id.throttle_bright_seeker);
-                    byte progress2 = (byte)(vProgress.getProgress() & 0xFF);
-                    txbuf = new byte[] {
-                            (byte) 0x0A5,
-                            (byte) 0x003,
-                            (byte)0x0EA,
-                            switches,
-                            progress1, //sensitivity
-                            progress2, //brightness
-                            (byte) 0x05A
-                    };
-                    if(!mBluetoothService.writeBytes(txbuf))
-                        Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                } else if(led_mode == 4){ // RPM
-                    vProgress = (SeekBar)findViewById(R.id.rpm_speed_seeker);
-                    byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
-                    txbuf = new byte[] {
-                            (byte) 0x0A5,
-                            (byte) 0x002,
-                            (byte)0x0E9,
-                            switches,
-                            progress1, //rate
-                            (byte) 0x05A
-                    };
-                    if(!mBluetoothService.writeBytes(txbuf))
-                        Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                } else if(led_mode == 5){ // RPM + Throttle
-                    txbuf = new byte[] {
-                            (byte) 0x0A5,
-                            (byte) 0x001,
-                            (byte)0x0E8,
-                            switches,
-                            (byte) 0x05A
-                    };
-                    if(!mBluetoothService.writeBytes(txbuf))
-                        Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                } else if(led_mode == 6){ // X Accel
-                    vProgress = (SeekBar)findViewById(R.id.x_accel_rate_seeker);
-                    byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
-                    txbuf = new byte[] {
-                            (byte) 0x0A5,
-                            (byte) 0x002,
-                            (byte)0x0E7,
-                            switches,
-                            progress1,
-                            (byte) 0x05A
-                    };
-                    if(!mBluetoothService.writeBytes(txbuf))
-                        Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                } else if(led_mode == 7){ // Y Accel
-                    vProgress = (SeekBar)findViewById(R.id.y_accel_speed_seeker);
-                    byte progress1 = (byte)(vProgress.getProgress() & 0xFF);
-                    txbuf = new byte[] {
-                            (byte) 0x0A5,
-                            (byte) 0x002,
-                            (byte)0x0E6,
-                            switches,
-                            progress1,
-                            (byte) 0x05A
-                    };
-                    if(!mBluetoothService.writeBytes(txbuf))
-                        Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                } else if(led_mode == 8) { // Custom
-                    vProgress = (SeekBar) findViewById(R.id.custom_rate_seeker);
-                    byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
-                    vProgress = (SeekBar) findViewById(R.id.custom_brightness_seeker);
-                    byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
-                    Spinner ColorBaseSpin = (Spinner) findViewById(R.id.custom_color_select_spinner);
-                    Spinner RateBaseSpin = (Spinner) findViewById(R.id.custom_rate_select_spinner);
-                    Spinner BrightBaseSpin = (Spinner) findViewById(R.id.custom_brightness_select_spinner);
-                    switches = (byte) (switches | ColorBaseSpin.getSelectedItemPosition());
-                    byte RateBrightBase = (byte) ((RateBaseSpin.getSelectedItemPosition() << 4) | BrightBaseSpin.getSelectedItemPosition());
-                    CheckBox linkCheck = (CheckBox) findViewById(R.id.custom_static_link_check);
-                    if (linkCheck.isChecked()) {
+                }
+                else {
+                    if (led_mode == 0) { // Static
+                        vProgress = (SeekBar) findViewById(R.id.digital_static_zoom_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.digital_static_shift_seeker);
+                        byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.digital_static_bright_seeker);
+                        byte progress3 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x00A,
-                                (byte) 0x0B1,
-                                switches,
-                                RateBrightBase,
-                                (byte) ((customLeftColor & 0x00FF0000) >> 16), //Red
-                                (byte) ((customLeftColor & 0x0000FF00) >> 8), //Green
-                                (byte) (customLeftColor & 0x000000FF), //Blue
-                                (byte) ((customLeftColor & 0x00FF0000) >> 16), //Red
-                                (byte) ((customLeftColor & 0x0000FF00) >> 8), //Green
-                                (byte) (customLeftColor & 0x000000FF), //Blue
-                                progress1, // Rate
-                                progress2, // Brightness
+                                (byte) 0x004,
+                                (byte) 0x0B9,
+                                switches_led_type,
+                                progress1, //zoom
+                                progress2, //shift
+                                progress3, //brightness
                                 (byte) 0x05A
                         };
-                    } else {
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 1) { // Color Cycle
+                        vProgress = (SeekBar) findViewById(R.id.digital_skittles_bright_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x00A,
-                                (byte) 0x0B1,
-                                switches,
-                                RateBrightBase,
-                                (byte) ((customLeftColor & 0x00FF0000) >> 16), //Red
-                                (byte) ((customLeftColor & 0x0000FF00) >> 8), //Green
-                                (byte) (customLeftColor & 0x000000FF), //Blue
-                                (byte) ((customRightColor & 0x00FF0000) >> 16), //Red
-                                (byte) ((customRightColor & 0x0000FF00) >> 8), //Green
-                                (byte) (customRightColor & 0x000000FF), //Blue
-                                progress1, // Rate
-                                progress2, // Brightness
+                                (byte) 0x002,
+                                (byte) 0x0BA,
+                                switches_led_type,
+                                progress1, //brightness
                                 (byte) 0x05A
                         };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 2) { // Color Cycle
+                        vProgress = (SeekBar) findViewById(R.id.digital_cycle_zoom_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.digital_cycle_rate_seeker);
+                        byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.digital_cycle_bright_seeker);
+                        byte progress3 = (byte) (vProgress.getProgress() & 0xFF);
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x004,
+                                (byte) 0x0BB,
+                                switches_led_type,
+                                progress1, //zoom
+                                progress2, //rate
+                                progress3, //brightness
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 3) { // Compass Cycle
+                        vProgress = (SeekBar) findViewById(R.id.digital_compass_bright_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x002,
+                                (byte) 0x0BC,
+                                switches_led_type,
+                                progress1, //brightness
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 4) { // Throttle
+                        vProgress = (SeekBar) findViewById(R.id.digital_throttle_zoom_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.digital_throttle_shift_seeker);
+                        byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.digital_throttle_sens_seeker);
+                        byte progress3 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.digital_throttle_bright_seeker);
+                        byte progress4 = (byte) (vProgress.getProgress() & 0xFF);
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x005,
+                                (byte) 0x0C0,
+                                switches_led_type,
+                                progress1, //zoom
+                                progress2, //shift
+                                progress3, //sensitivity
+                                progress4, //brightness
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 5) { // RPM
+                        vProgress = (SeekBar) findViewById(R.id.digital_rpm_zoom_seeker);
+                        byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.digital_rpm_rate_seeker);
+                        byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
+                        vProgress = (SeekBar) findViewById(R.id.digital_rpm_bright_seeker);
+                        byte progress3 = (byte) (vProgress.getProgress() & 0xFF);
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x004,
+                                (byte) 0x0BE,
+                                switches_led_type,
+                                progress1, //zoom
+                                progress2, //rate
+                                progress3, //brightness
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 6) { // RPM + Throttle
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x001,
+                                (byte) 0x0BF,
+                                switches_led_type,
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 7) { // RPM + Throttle
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x001,
+                                (byte) 0x0C1,
+                                switches_led_type,
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    } else if (led_mode == 8) { // RPM + Throttle
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x001,
+                                (byte) 0x0C6,
+                                switches_led_type,
+                                (byte) 0x05A
+                        };
+                        if (!mBluetoothService.writeBytes(txbuf))
+                            Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     }
-                    if(!mBluetoothService.writeBytes(txbuf))
-                        Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.motor_log_button:
@@ -2091,13 +2404,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void updateLocation(double val, int field){
+    public void updateLocation(double val, int field) {
         TextView longitudetext = (TextView) findViewById(R.id.gps_maplong_text);
         TextView latitudetext = (TextView) findViewById(R.id.gps_maplat_text);
         TextView altitudetext = (TextView) findViewById(R.id.gps_mapalt_text);
         TextView speedtext = (TextView) findViewById(R.id.gps_speed_text);
         TextView maxSpeedText = (TextView) findViewById(R.id.gps_max_text);
-        switch(field){
+        switch (field) {
             case 0:
                 longitudetext.setText("Longitude: " + val + (char) 0x00B0);
                 pLong = longitude;
@@ -2109,12 +2422,12 @@ public class MainActivity extends AppCompatActivity
                 latitude = val;
                 break;
             case 2:
-                altitudetext.setText("Altitude: " + (double)(Math.round(val*3.28084*100))/100 + "ft");
+                altitudetext.setText("Altitude: " + (double) (Math.round(val * 3.28084 * 100)) / 100 + "ft");
                 break;
             case 3:
-                double temp = (double)(Math.round(val*2.23694*100))/100;
+                double temp = (double) (Math.round(val * 2.23694 * 100)) / 100;
                 speedtext.setText("Speed: " + temp + "mph");
-                if(temp > maxSpeed){// && BOARD_MOVING) {
+                if (temp > maxSpeed) {// && BOARD_MOVING) {
                     maxSpeed = temp;
                     maxSpeedText.setText("Max Speed: " + maxSpeed + " mph");
                 }
@@ -2123,10 +2436,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void updatePath(){
+    public void updatePath() {
         TextView gpsDistText = (TextView) findViewById(R.id.gps_dist_text);
-        if(NEW_PATH){
-            if(BOARD_MOVING) {
+        if (NEW_PATH) {
+            if (BOARD_MOVING) {
                 polyPoints.clear();
                 polyPoints.add(new LatLng(latitude, longitude));
                 path = mMap.addPolyline(new PolylineOptions()
@@ -2137,61 +2450,61 @@ public class MainActivity extends AppCompatActivity
                 NEW_PATH = false;
             }
         } else {
-            if(BOARD_MOVING) {
+            if (BOARD_MOVING) {
                 polyPoints.add(new LatLng(latitude, longitude));
                 path.setPoints(polyPoints);
                 float[] temp = {0};
                 Location.distanceBetween(pLat, pLong, latitude, longitude, temp);
-                distance = distance + (temp[0] * (float)0.000621371);
-                String tempDist = String.format("%.2f",distance);
+                distance = distance + (temp[0] * (float) 0.000621371);
+                String tempDist = String.format("%.2f", distance);
                 gpsDistText.setText("Distance: " + tempDist + " mi");
             }
         }
     }
 
-    public void updateSensorGraphContent(){
+    public void updateSensorGraphContent() {
         vSensorGraph.removeAllSeries();
 
-        if(NUNCHUCK){
+        if (NUNCHUCK) {
             vSensorGraph.addSeries(NX_LineSeries);
             vSensorGraph.addSeries(NY_LineSeries);
-        } else{
+        } else {
             vSensorGraph.removeSeries(NX_LineSeries);
             vSensorGraph.removeSeries(NY_LineSeries);
         }
-        if(ACCEL) {
+        if (ACCEL) {
             vSensorGraph.addSeries(AX_LineSeries);
             vSensorGraph.addSeries(AY_LineSeries);
             vSensorGraph.addSeries(AZ_LineSeries);
-        } else{
+        } else {
             vSensorGraph.removeSeries(AX_LineSeries);
             vSensorGraph.removeSeries(AY_LineSeries);
             vSensorGraph.removeSeries(AZ_LineSeries);
         }
-        if(GYRO) {
+        if (GYRO) {
             vSensorGraph.addSeries(GX_LineSeries);
             vSensorGraph.addSeries(GY_LineSeries);
             vSensorGraph.addSeries(GZ_LineSeries);
-        } else{
+        } else {
             vSensorGraph.removeSeries(GX_LineSeries);
             vSensorGraph.removeSeries(GY_LineSeries);
             vSensorGraph.removeSeries(GZ_LineSeries);
         }
-        if(COMP) {
+        if (COMP) {
             vSensorGraph.addSeries(CX_LineSeries);
             vSensorGraph.addSeries(CY_LineSeries);
             vSensorGraph.addSeries(CZ_LineSeries);
-        } else{
+        } else {
             vSensorGraph.removeSeries(CX_LineSeries);
             vSensorGraph.removeSeries(CY_LineSeries);
             vSensorGraph.removeSeries(CZ_LineSeries);
         }
-        if(HEAD) {
+        if (HEAD) {
             vSensorGraph.addSeries(HEAD_LineSeries);
-        } else{
+        } else {
             vSensorGraph.removeSeries(HEAD_LineSeries);
         }
-        if(LGHT)
+        if (LGHT)
             vSensorGraph.addSeries(LGHT_LineSeries);
         else
             vSensorGraph.removeSeries(LGHT_LineSeries);
@@ -2210,46 +2523,46 @@ public class MainActivity extends AppCompatActivity
         vSensorGraph.getLegendRenderer().setSpacing(3);
     }
 
-    public void updateMotorGraphContent(){
+    public void updateMotorGraphContent() {
         vMotorGraph.removeAllSeries();
 
-        if(BC)
+        if (BC)
             vMotorGraph.addSeries(BC_LineSeries);
         else
             vMotorGraph.removeSeries(BC_LineSeries);
-        if(BV)
+        if (BV)
             vMotorGraph.addSeries(BV_LineSeries);
         else
             vMotorGraph.removeSeries(BV_LineSeries);
-        if(MC)
+        if (MC)
             vMotorGraph.addSeries(MC_LineSeries);
         else
             vMotorGraph.removeSeries(MC_LineSeries);
-        if(DTY)
+        if (DTY)
             vMotorGraph.addSeries(DTY_LineSeries);
         else
             vMotorGraph.removeSeries(DTY_LineSeries);
-        if(TMP)
+        if (TMP)
             vMotorGraph.addSeries(TMP_LineSeries);
         else
             vMotorGraph.removeSeries(TMP_LineSeries);
-        if(RPM)
+        if (RPM)
             vMotorGraph.addSeries(RPM_LineSeries);
         else
             vMotorGraph.removeSeries(RPM_LineSeries);
-        if(MAHU)
+        if (MAHU)
             vMotorGraph.addSeries(mahU_LineSeries);
         else
             vMotorGraph.removeSeries(mahU_LineSeries);
-        if(MAHC)
+        if (MAHC)
             vMotorGraph.addSeries(mahC_LineSeries);
         else
             vMotorGraph.removeSeries(mahC_LineSeries);
-        if(WHU)
+        if (WHU)
             vMotorGraph.addSeries(whU_LineSeries);
         else
             vMotorGraph.removeSeries(whU_LineSeries);
-        if(WHC)
+        if (WHC)
             vMotorGraph.addSeries(whC_LineSeries);
         else
             vMotorGraph.removeSeries(whC_LineSeries);
@@ -2300,8 +2613,9 @@ public class MainActivity extends AppCompatActivity
             int on = 0;
             try {
                 on = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE);
-            } catch (Exception e) {}
-            if(on == 0) {
+            } catch (Exception e) {
+            }
+            if (on == 0) {
                 showSettingsAlert();
             }
         }
@@ -2322,15 +2636,16 @@ public class MainActivity extends AppCompatActivity
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
+                    + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
     }
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
+        for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
             hexChars[j * 2] = hexArray[v >>> 4];
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
@@ -2338,97 +2653,107 @@ public class MainActivity extends AppCompatActivity
         return new String(hexChars);
     }
 
-    private void updateLEDui(){
-        if(led_mode == 0){
-            vStatic.setVisibility(View.VISIBLE);
-            vCycle.setVisibility(View.GONE);
-            vCompass.setVisibility(View.GONE);
-            vThrottle.setVisibility(View.GONE);
-            vRPM.setVisibility(View.GONE);
-            vRPMAccel.setVisibility(View.GONE);
-            vXAccel.setVisibility(View.GONE);
-            vYAccel.setVisibility(View.GONE);
-            vCustom.setVisibility(View.GONE);
-        } else if(led_mode == 1){
-            vStatic.setVisibility(View.GONE);
-            vCycle.setVisibility(View.VISIBLE);
-            vCompass.setVisibility(View.GONE);
-            vThrottle.setVisibility(View.GONE);
-            vRPM.setVisibility(View.GONE);
-            vRPMAccel.setVisibility(View.GONE);
-            vXAccel.setVisibility(View.GONE);
-            vYAccel.setVisibility(View.GONE);
-            vCustom.setVisibility(View.GONE);
-        } else if(led_mode == 2){
-            vStatic.setVisibility(View.GONE);
-            vCycle.setVisibility(View.GONE);
-            vCompass.setVisibility(View.VISIBLE);
-            vThrottle.setVisibility(View.GONE);
-            vRPM.setVisibility(View.GONE);
-            vRPMAccel.setVisibility(View.GONE);
-            vXAccel.setVisibility(View.GONE);
-            vYAccel.setVisibility(View.GONE);
-            vCustom.setVisibility(View.GONE);
-        } else if(led_mode == 3){
-            vStatic.setVisibility(View.GONE);
-            vCycle.setVisibility(View.GONE);
-            vCompass.setVisibility(View.GONE);
-            vThrottle.setVisibility(View.VISIBLE);
-            vRPM.setVisibility(View.GONE);
-            vRPMAccel.setVisibility(View.GONE);
-            vXAccel.setVisibility(View.GONE);
-            vYAccel.setVisibility(View.GONE);
-            vCustom.setVisibility(View.GONE);
-        } else if(led_mode == 4){
-            vStatic.setVisibility(View.GONE);
-            vCycle.setVisibility(View.GONE);
-            vCompass.setVisibility(View.GONE);
-            vThrottle.setVisibility(View.GONE);
-            vRPM.setVisibility(View.VISIBLE);
-            vRPMAccel.setVisibility(View.GONE);
-            vXAccel.setVisibility(View.GONE);
-            vYAccel.setVisibility(View.GONE);
-            vCustom.setVisibility(View.GONE);
-        } else if(led_mode == 5){
-            vStatic.setVisibility(View.GONE);
-            vCycle.setVisibility(View.GONE);
-            vCompass.setVisibility(View.GONE);
-            vThrottle.setVisibility(View.GONE);
-            vRPM.setVisibility(View.GONE);
-            vRPMAccel.setVisibility(View.VISIBLE);
-            vXAccel.setVisibility(View.GONE);
-            vYAccel.setVisibility(View.GONE);
-            vCustom.setVisibility(View.GONE);
-        } else if(led_mode == 6){
-            vStatic.setVisibility(View.GONE);
-            vCycle.setVisibility(View.GONE);
-            vCompass.setVisibility(View.GONE);
-            vThrottle.setVisibility(View.GONE);
-            vRPM.setVisibility(View.GONE);
-            vRPMAccel.setVisibility(View.GONE);
-            vXAccel.setVisibility(View.VISIBLE);
-            vYAccel.setVisibility(View.GONE);
-            vCustom.setVisibility(View.GONE);
-        } else if(led_mode == 7){
-            vStatic.setVisibility(View.GONE);
-            vCycle.setVisibility(View.GONE);
-            vCompass.setVisibility(View.GONE);
-            vThrottle.setVisibility(View.GONE);
-            vRPM.setVisibility(View.GONE);
-            vRPMAccel.setVisibility(View.GONE);
-            vXAccel.setVisibility(View.GONE);
-            vYAccel.setVisibility(View.VISIBLE);
-            vCustom.setVisibility(View.GONE);
-        } else if(led_mode == 8) {
-            vStatic.setVisibility(View.GONE);
-            vCycle.setVisibility(View.GONE);
-            vCompass.setVisibility(View.GONE);
-            vThrottle.setVisibility(View.GONE);
-            vRPM.setVisibility(View.GONE);
-            vRPMAccel.setVisibility(View.GONE);
-            vXAccel.setVisibility(View.GONE);
-            vYAccel.setVisibility(View.GONE);
-            vCustom.setVisibility(View.VISIBLE);
+    void SwitchToView(int mode) {
+        vStatic.setVisibility(View.GONE);
+        vCycle.setVisibility(View.GONE);
+        vCompass.setVisibility(View.GONE);
+        vThrottle.setVisibility(View.GONE);
+        vRPM.setVisibility(View.GONE);
+        vRPMAccel.setVisibility(View.GONE);
+        vXAccel.setVisibility(View.GONE);
+        vYAccel.setVisibility(View.GONE);
+        vCustom.setVisibility(View.GONE);
+        vDigitalStatic.setVisibility(View.GONE);
+        vDigitalFuzz.setVisibility(View.GONE); // RGB animated static
+        vDigitalCycle.setVisibility(View.GONE);
+        vDigitalCompass.setVisibility(View.GONE);
+        vDigitalThrottle.setVisibility(View.GONE);
+        vDigitalRPM.setVisibility(View.GONE);
+        vDigitalRPMThrottle.setVisibility(View.GONE);
+        vDigitalCompassWheel.setVisibility(View.GONE);
+        vDigitalCompassSnake.setVisibility(View.GONE);
+
+        if(LED_STRIP_TYPE == 0) {
+            switch (mode) {
+                case 0:
+                    vStatic.setVisibility(View.VISIBLE);
+                    break;
+                case 1:
+                    vCycle.setVisibility(View.VISIBLE);
+                    break;
+                case 2:
+                    vCompass.setVisibility(View.VISIBLE);
+                    break;
+                case 3:
+                    vThrottle.setVisibility(View.VISIBLE);
+                    break;
+                case 4:
+                    vRPM.setVisibility(View.VISIBLE);
+                    break;
+                case 5:
+                    vRPMAccel.setVisibility(View.VISIBLE);
+                    break;
+                case 6:
+                    vXAccel.setVisibility(View.VISIBLE);
+                    break;
+                case 7:
+                    vYAccel.setVisibility(View.VISIBLE);
+                    break;
+                case 8:
+                    vCustom.setVisibility(View.VISIBLE);
+                    break;
+            }
+        } else {
+            switch (mode) {
+                case 0:
+                    vDigitalStatic.setVisibility(View.VISIBLE);
+                    break;
+                case 1:
+                    vDigitalFuzz.setVisibility(View.VISIBLE);
+                    break;
+                case 2:
+                    vDigitalCycle.setVisibility(View.VISIBLE);
+                    break;
+                case 3:
+                    vDigitalCompass.setVisibility(View.VISIBLE);
+                    break;
+                case 4:
+                    vDigitalThrottle.setVisibility(View.VISIBLE);
+                    break;
+                case 5:
+                    vDigitalRPM.setVisibility(View.VISIBLE);
+                    break;
+                case 6:
+                    vDigitalRPMThrottle.setVisibility(View.VISIBLE);
+                    break;
+                case 7:
+                    vDigitalCompassWheel.setVisibility(View.VISIBLE);
+                    break;
+                case 8:
+                    vDigitalCompassSnake.setVisibility(View.VISIBLE);
+                    break;
+            }
         }
+    }
+
+    private void updateLEDui() {
+        SwitchToView(led_mode);
+    }
+
+    void updateModeSpinner(){
+        Spinner modeSpinner = (Spinner) findViewById(R.id.modes_spinner);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> modeAdapter;
+        if (LED_STRIP_TYPE == 0) {
+            modeAdapter = ArrayAdapter.createFromResource(this,
+                    R.array.analog_modes_array, android.R.layout.simple_spinner_item);
+        } else {
+            modeAdapter = ArrayAdapter.createFromResource(this,
+                    R.array.digital_modes_array, android.R.layout.simple_spinner_item);
+        }
+        // Specify the layout to use when the list of choices appears
+        modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        modeSpinner.setAdapter(modeAdapter);
     }
 }

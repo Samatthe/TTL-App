@@ -44,6 +44,8 @@ public class OrientationActivity extends AppCompatActivity
     int power_orientation = 0;
 
     boolean CHECK_DATA = false;
+    long applytimer = 0;
+    long applytime = 100;
 
     private BluetoothService mBluetoothService;
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -187,6 +189,7 @@ public class OrientationActivity extends AppCompatActivity
                         };
                         while(!mBluetoothService.writeBytes(txbuf)) {}
                         CHECK_DATA = true;
+                        applytimer = System.currentTimeMillis();
                     }
                 } else {
                     Toast.makeText(OrientationActivity.this, "Orientation Not Valid", Toast.LENGTH_SHORT).show();
@@ -207,7 +210,11 @@ public class OrientationActivity extends AppCompatActivity
                 Spinner powerOrientaion = (Spinner)findViewById(R.id.power_orientation_spinner);
                 int temp;
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                if(data.length == 3) {
+                if(CHECK_DATA && (System.currentTimeMillis() - applytimer) > applytime){
+                    Toast.makeText(OrientationActivity.this, "Remote config failed to apply\nPlease try again", Toast.LENGTH_SHORT).show();
+                    CHECK_DATA = false;
+                }
+                else if(data.length == 3) {
                     for (int i = 0; i < data.length; i++) {
                         switch (data[i] & 0xFF) {
                             case 0x71:

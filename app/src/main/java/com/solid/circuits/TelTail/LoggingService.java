@@ -48,6 +48,7 @@ import android.provider.Settings;
 import androidx.core.content.ContextCompat;
 import androidx.core.app.NotificationCompat;
 import android.widget.Toast;
+import android.os.Build;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -91,12 +92,15 @@ public class LoggingService extends Service implements LocationListener{
     public boolean LOG_MOTOR_DATA = false;
     public boolean LOG_ENABLED = false;
 
+    boolean DispNotifiaction = false;
+    boolean NotifIsDisplayed = false;
+
     FileOutputStream fos;
     File logFile = null;
 
     NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setSmallIcon(R.drawable.notification)
+            .setSmallIcon(R.drawable.ic_notification)
             .setColor(0xFF484848)
             .setPriority(Notification.PRIORITY_MAX);
     // Sets an ID for the notification
@@ -248,6 +252,7 @@ public class LoggingService extends Service implements LocationListener{
         LOG_SENSOR_DATA = settings.getBoolean("LogSensor", false);
         LOG_ENABLED = settings.getBoolean("LogEnable", false);
         AuxEnable = settings.getBoolean("AuxEnable", false);
+        DispNotifiaction = settings.getBoolean("DispNotif", true);
     }
 
     private final IBinder mBinder = new LocalBinder();
@@ -540,103 +545,158 @@ public class LoggingService extends Service implements LocationListener{
     }
 
     public void updateNotification(){
-        loadPreferences();
+        if(DispNotifiaction) {
+            loadPreferences();
 
-        mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setSmallIcon(R.drawable.notification)
-                .setColor(0xFF484848)
-                .setPriority(Notification.PRIORITY_MAX);
+            mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setColor(0xFF484848)
+                    .setPriority(Notification.PRIORITY_MAX);
 
-        //mBuilder.setContentTitle("TelTail Lights Running");
-        // Because clicking the notification opens a new ("special") activity, there's
-        // no need to create an artificial back stack.
+            //mBuilder.setContentTitle("TelTail Lights Running");
+            // Because clicking the notification opens a new ("special") activity, there's
+            // no need to create an artificial back stack.
 
-        mBuilder.setContentIntent(ContentPendingIntent);
-        // Apply the media style template
-        if (LOG_ENABLED)
-            mBuilder.addAction(R.mipmap.ic_log, "", LogStartPendingIntent);
-        mBuilder.addAction(R.mipmap.ic_left, "", LEDModeDownPendingIntent);
-        mBuilder.addAction(R.mipmap.ic_power, "", LEDTogglePendingIntent);
-        if (AuxEnable)
-            mBuilder.addAction(R.mipmap.ic_action_aux_black,"",AUXPendingIntent);
-        mBuilder.addAction(R.mipmap.ic_right, "", LEDModeUpPendingIntent);
-        mBuilder.addAction(R.mipmap.ic_close, "", MainClosePendingIntent);
+            mBuilder.setContentIntent(ContentPendingIntent);
+            // Apply the media style template
+            if (LOG_ENABLED)
+                mBuilder.addAction(R.mipmap.ic_log, "", LogStartPendingIntent);
+            mBuilder.addAction(R.mipmap.ic_left, "", LEDModeDownPendingIntent);
+            mBuilder.addAction(R.mipmap.ic_power, "", LEDTogglePendingIntent);
+            if (AuxEnable)
+                mBuilder.addAction(R.mipmap.ic_action_aux_black, "", AUXPendingIntent);
+            mBuilder.addAction(R.mipmap.ic_right, "", LEDModeUpPendingIntent);
+            mBuilder.addAction(R.mipmap.ic_close, "", MainClosePendingIntent);
 
-        Drawable myDrawable = getResources().getDrawable(R.mipmap.ic_ttl_normal);
-        Bitmap LargeIcon = ((BitmapDrawable) myDrawable).getBitmap();
-        mBuilder.setLargeIcon(LargeIcon);
-        mBuilder.setShowWhen(false);
+            Drawable myDrawable = getResources().getDrawable(R.mipmap.ic_ttl_normal);
+            Bitmap LargeIcon = ((BitmapDrawable) myDrawable).getBitmap();
+            mBuilder.setLargeIcon(LargeIcon);
+            mBuilder.setShowWhen(false);
 
-        if (LOG_ENABLED) {
-            if(LOG_STARTED)
-                mBuilder.setContentText("Logging...");
+            if (LOG_ENABLED) {
+                if (LOG_STARTED)
+                    mBuilder.setContentText("Logging...");
+                else
+                    mBuilder.setContentText("Ready to log");
+                if (AuxEnable) {
+                    mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(1, 2, 4));
+                } else {
+                    mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(1, 2, 3));
+                }
+            } else {
+                //mBuilder.setContentText("");
+                if (AuxEnable) {
+                    mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(0, 1, 3));
+                } else {
+                    mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(0, 1, 2));
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                startMyOwnForeground();
             else
-                mBuilder.setContentText("Ready to log");
-            if(AuxEnable) {
-                mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(1, 2, 4));
-            } else {
-                mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(1, 2, 3));
-            }
-        } else {
-            //mBuilder.setContentText("");
-            if(AuxEnable) {
-                mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(0, 1, 3));
-            } else {
-                mBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(0, 1, 2));
-            }
+                startForeground(mNotificationId, mBuilder.build());
+            NotifIsDisplayed = true;
+        } else if(NotifIsDisplayed){
+            //NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            //manager.cancelAll();
+            //TODO: close the notifiaction
+            NotifIsDisplayed = false;
+            Toast.makeText(mBluetoothService, "Restart app to hide notification", Toast.LENGTH_SHORT).show();
         }
-
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            startMyOwnForeground();
-        else
-            startForeground(mNotificationId, mBuilder.build());*/
     }
 
     private void startMyOwnForeground(){
-        String NOTIFICATION_CHANNEL_ID = "com.solid.circuits.TelTail";
-        String channelName = "TelTail Lights";
-        NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
-        chan.setLightColor(Color.BLUE);
-        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        assert manager != null;
-        manager.createNotificationChannel(chan);
+            String NOTIFICATION_CHANNEL_ID = "com.solid.circuits.TelTail";
+            String channelName = "TelTail Lights";
+            NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_MAX);
+            chan.setLightColor(Color.BLUE);
+            chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            assert manager != null;
+            manager.createNotificationChannel(chan);
 
-        /*NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
-        Notification notification = notificationBuilder.setOngoing(true)
-                .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("App is running in background")
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build();
-        startForeground(2, notification);*/
-        //startForeground(2, mBuilder.build());
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                    .setOngoing(true)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentTitle("App is running")
+                    .setPriority(NotificationManager.IMPORTANCE_MAX)
+                    .setCategory(Notification.CATEGORY_SERVICE)
+                    .setColor(0xFF484848)
+                    .setPriority(Notification.PRIORITY_MAX)
+                    .setContentIntent(ContentPendingIntent);
+
+            //mBuilder.setContentTitle("TelTail Lights Running");
+            // Because clicking the notification opens a new ("special") activity, there's
+            // no need to create an artificial back stack.
+
+            // Apply the media style template
+            if (LOG_ENABLED)
+                notificationBuilder.addAction(R.mipmap.ic_log, "", LogStartPendingIntent);
+            notificationBuilder.addAction(R.mipmap.ic_left, "", LEDModeDownPendingIntent);
+            notificationBuilder.addAction(R.mipmap.ic_power, "", LEDTogglePendingIntent);
+            if (AuxEnable)
+                notificationBuilder.addAction(R.mipmap.ic_action_aux_black, "", AUXPendingIntent);
+            notificationBuilder.addAction(R.mipmap.ic_right, "", LEDModeUpPendingIntent);
+            notificationBuilder.addAction(R.mipmap.ic_close, "", MainClosePendingIntent);
+
+            Drawable myDrawable = getResources().getDrawable(R.mipmap.ic_ttl_normal);
+            Bitmap LargeIcon = ((BitmapDrawable) myDrawable).getBitmap();
+            notificationBuilder.setLargeIcon(LargeIcon);
+            notificationBuilder.setShowWhen(false);
+
+            if (LOG_ENABLED) {
+                if (LOG_STARTED)
+                    notificationBuilder.setContentText("Logging...");
+                else
+                    notificationBuilder.setContentText("Ready to log");
+                if (AuxEnable) {
+                    notificationBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(1, 2, 4));
+                } else {
+                    notificationBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(1, 2, 3));
+                }
+            } else {
+                //mBuilder.setContentText("");
+                if (AuxEnable) {
+                    notificationBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(0, 1, 3));
+                } else {
+                    notificationBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(0, 1, 2));
+                }
+            }//*/
+            Notification notification = notificationBuilder.build();
+            startForeground(mNotificationId, notification);
     }
 
     int mFaultNotifId = 1;
     public void createFaultNotification(String fault){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Service.NOTIFICATION_SERVICE);
+        if(DispNotifiaction) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Service.NOTIFICATION_SERVICE);
 
-        NotificationCompat.Builder mFaultNotif = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setSmallIcon(R.drawable.notification)
-                .setColor(0xFF484848);
+            NotificationCompat.Builder mFaultNotif = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setColor(0xFF484848);
 
-        mFaultNotif.setContentTitle("Fault Detected: " + fault);
+            mFaultNotif.setContentTitle("Fault Detected: " + fault);
 
-        mFaultNotif.setContentIntent(ContentPendingIntent);
+            mFaultNotif.setContentIntent(ContentPendingIntent);
 
-        Drawable myDrawable = getResources().getDrawable(R.mipmap.ic_ttl_normal);
-        Bitmap LargeIcon = ((BitmapDrawable) myDrawable).getBitmap();
-        mFaultNotif.setLargeIcon(LargeIcon);
-        mFaultNotif.setShowWhen(true);
+            Drawable myDrawable = getResources().getDrawable(R.mipmap.ic_ttl_normal);
+            Bitmap LargeIcon = ((BitmapDrawable) myDrawable).getBitmap();
+            mFaultNotif.setLargeIcon(LargeIcon);
+            mFaultNotif.setShowWhen(true);
 
-        notificationManager.notify(mFaultNotifId, mFaultNotif.build());
-        mFaultNotifId++;
+            notificationManager.notify(mFaultNotifId, mFaultNotif.build());
+            mFaultNotifId++;
+        }
     }
 }

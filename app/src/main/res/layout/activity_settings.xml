@@ -68,6 +68,33 @@
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"/>
 
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/settings_disp_notif_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_below="@id/log_spacer1"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Display Notification"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+                <CheckBox
+                    android:id="@+id/settings_disp_notif_check"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_marginLeft="@dimen/settings_left_pad"
+                    android:layout_toRightOf="@id/settings_disp_notif_text"
+                    android:onClick="onCheckboxClicked"
+                    android:theme="@style/checkbox_white"/>
+            </RelativeLayout>
+
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
@@ -123,6 +150,7 @@
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"/>
 
+        <!--
             <View android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer" />
@@ -135,6 +163,25 @@
                 android:layout_marginLeft="@dimen/settings_left_pad"
                 android:onClick="onButtonClick"
                 android:text="Configure Sensors"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textSize="@dimen/settings_text_size"
+                android:textStyle="normal"
+                android:textColor="@android:color/white"/>
+            -->
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/led_settins_button"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:onClick="onButtonClick"
+                android:text="Configure Lights"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
                 android:textSize="@dimen/settings_text_size"
@@ -164,7 +211,6 @@
                     android:id="@+id/settings_read_current_check"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/settings_height"
-                    android:layout_below="@id/log_spacer1"
                     android:layout_marginLeft="@dimen/settings_left_pad"
                     android:layout_toRightOf="@id/settings_read_current_text"
                     android:onClick="onCheckboxClicked"
@@ -189,6 +235,39 @@
                 style="?android:attr/borderlessButtonStyle"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/ttl_fw_button"
+                    android:text="Read TTL FW:"
+                    android:textStyle="normal"
+                    android:textAlignment="textStart"
+                    android:layout_marginLeft="@dimen/settings_left_pad"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:onClick="onButtonClick"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"/>
+
+                <TextView
+                    android:id="@+id/ttl_fw_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_toRightOf="@id/ttl_fw_button"
+                    android:gravity="center_vertical"
+                    android:text="v?.?"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+            </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="wrap_content"

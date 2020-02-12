@@ -127,6 +127,8 @@ public class ControlsConfigActivity extends AppCompatActivity
     String dual_mode_up_last = "None";
 
     boolean CHECK_DATA = false;
+    long applytimer = 0;
+    long applytime = 100;
 
     private final static String TAG = ControlsConfigActivity.class.getSimpleName();
 
@@ -386,6 +388,7 @@ public class ControlsConfigActivity extends AppCompatActivity
                     };
                     while(!mBluetoothService.writeBytes(txbuf)) {}
                     CHECK_DATA = true;
+                    applytimer = System.currentTimeMillis();
                 }
                 break;
         }
@@ -403,7 +406,11 @@ public class ControlsConfigActivity extends AppCompatActivity
                 Spinner powerOrientaion = (Spinner)findViewById(R.id.power_orientation_spinner);
                 int temp;
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                if(data.length == 9) {
+                if(CHECK_DATA && (System.currentTimeMillis() - applytimer) > applytime){
+                    Toast.makeText(ControlsConfigActivity.this, "Remote config failed to apply\nPlease try again", Toast.LENGTH_SHORT).show();
+                    CHECK_DATA = false;
+                }
+                else if(data.length == 9) {
                     for (int i = 0; i < data.length; i++) {
                         switch (data[i] & 0xFF) {
                             case 0x81:

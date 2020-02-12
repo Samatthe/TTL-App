@@ -28,40 +28,44 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-public class RemoteConfigActivity extends AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity;
+
+public class LightsConfigActivity extends AppCompatActivity
         implements SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
 
     public static final String PREFS_NAME = "MyPrefsFile";
     float Deadzone = 0;
 
     ArrayAdapter<CharSequence> single_button_config_adapter;
-    List<CharSequence> remote_type_list = new ArrayList<CharSequence>();
-    List<CharSequence> button_type_list = new ArrayList<CharSequence>();
+    List<CharSequence> RGB_type_list = new ArrayList<CharSequence>();
+    List<CharSequence> brake_mode_list = new ArrayList<CharSequence>();
 
-    ArrayAdapter<CharSequence> remote_type_adapter;
-    ArrayAdapter<CharSequence> button_type_adapter;
+    ArrayAdapter<CharSequence> RGB_type_adapter;
+    ArrayAdapter<CharSequence> brake_mode_adapter;
 
-    Spinner remote_type_spinner;
-    Spinner button_type_spinner;
+    Spinner RGB_type_spinner;
+    Spinner brake_mode_spinner;
+    CheckBox RGB_sync_checkbox;
+    CheckBox brake_always_on_checkbox;
     SeekBar deadzone_seeker;
+    EditText LED_num_edittext;
 
     boolean CHECK_DATA = false;
     long applytimer = 0;
-    long applytime = 100;
+    long applytime = 1000;
 
     private final static String TAG = ControlsConfigActivity.class.getSimpleName();
 
@@ -78,11 +82,11 @@ public class RemoteConfigActivity extends AppCompatActivity
                 final byte txbuf[] = new byte[] {
                         (byte) 0x0A5,
                         (byte) 0x000,
-                        (byte) 0x0FB,
+                        (byte) 0x0A1,
                         (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
-                    Toast.makeText(RemoteConfigActivity.this, "Could not read remote config\nPlease try again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LightsConfigActivity.this, "Could not read remote config\nPlease try again", Toast.LENGTH_SHORT).show();
                 }
             }// else if (componentName.getClassName().equals(LoggingService.class.getName())) {
                 //Toast.makeText(MainActivity.this, "Binding Log", Toast.LENGTH_SHORT).show();
@@ -103,33 +107,36 @@ public class RemoteConfigActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_remote_settings);
+        setContentView(R.layout.activity_lights_settings);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        initializeRemoteTypeList(remote_type_list);
-        initializeButtonTypeList(button_type_list);
+        initializeRGBTypeList(RGB_type_list);
+        initializeBrakeModeAdapter(brake_mode_list);
 
-        remote_type_spinner = (Spinner) findViewById(R.id.remote_type_spinner);
-        button_type_spinner = (Spinner) findViewById(R.id.remote_button_spinner);
+        RGB_type_spinner = (Spinner) findViewById(R.id.side_LED_type_spinner);
+        brake_mode_spinner = (Spinner) findViewById(R.id.brake_light_mode_spinner);
+        RGB_sync_checkbox = findViewById(R.id.side_sync_checkbox);
+        brake_always_on_checkbox = findViewById(R.id.brake_always_on_checkbox);
+        LED_num_edittext = findViewById(R.id.LED_num_edittext);
 
         // Aux control assignment spinner
-        remote_type_adapter = new ArrayAdapter<>(this,
-                R.layout.gps_spinner_item, remote_type_list);
-        remote_type_adapter.setDropDownViewResource(R.layout.gps_spinner_item);
-        remote_type_adapter.notifyDataSetChanged();
-        remote_type_spinner.setAdapter(remote_type_adapter);
+        RGB_type_adapter = new ArrayAdapter<>(this,
+                R.layout.gps_spinner_item, RGB_type_list);
+        RGB_type_adapter.setDropDownViewResource(R.layout.gps_spinner_item);
+        RGB_type_adapter.notifyDataSetChanged();
+        RGB_type_spinner.setAdapter(RGB_type_adapter);
 
-        button_type_adapter = new ArrayAdapter<>(this,
-                R.layout.gps_spinner_item, button_type_list);
-        button_type_adapter.setDropDownViewResource(R.layout.gps_spinner_item);
-        button_type_adapter.notifyDataSetChanged();
-        button_type_spinner.setAdapter(button_type_adapter);
+        brake_mode_adapter = new ArrayAdapter<>(this,
+                R.layout.gps_spinner_item, brake_mode_list);
+        brake_mode_adapter.setDropDownViewResource(R.layout.gps_spinner_item);
+        brake_mode_adapter.notifyDataSetChanged();
+        brake_mode_spinner.setAdapter(brake_mode_adapter);
 
-        remote_type_spinner.setOnItemSelectedListener(this);
-        button_type_spinner.setOnItemSelectedListener(this);
+        RGB_type_spinner.setOnItemSelectedListener(this);
+        brake_mode_spinner.setOnItemSelectedListener(this);
 
-        deadzone_seeker = (SeekBar) findViewById(R.id.remote_deadzone_seeker);
+        deadzone_seeker = findViewById(R.id.brake_deadzone_seeker);
         deadzone_seeker.setOnSeekBarChangeListener(this);
 
         restoresettings();
@@ -139,59 +146,74 @@ public class RemoteConfigActivity extends AppCompatActivity
     }
 
     void savesettings() {
-        SeekBar deadzone_seeker = (SeekBar) findViewById(R.id.remote_deadzone_seeker);
-
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putInt("RemoteType", remote_type_spinner.getSelectedItemPosition());
+        editor.putInt("RGBType", RGB_type_spinner.getSelectedItemPosition());
+        editor.putBoolean("SyncSide", RGB_sync_checkbox.isChecked());
+        editor.putString("LEDnum", LED_num_edittext.getText().toString());
         editor.putInt("Deadzone", deadzone_seeker.getProgress());
-        editor.putInt("ButtonType", button_type_spinner.getSelectedItemPosition());
+        editor.putInt("BrakeMode", brake_mode_spinner.getSelectedItemPosition());
+        editor.putBoolean("BrakeAlwaysOn", brake_always_on_checkbox.isChecked());
 
         // Commit the edits!
         editor.commit();
     }
 
     void restoresettings() {
-        SeekBar deadzone_seeker = (SeekBar) findViewById(R.id.remote_deadzone_seeker);
-
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
-        remote_type_spinner.setSelection(settings.getInt("RemoteType", 0));
+        RGB_type_spinner.setSelection(settings.getInt("RGBType", 0));
+        RGB_sync_checkbox.setChecked(settings.getBoolean("SyncSide", true));
+        LED_num_edittext.setText(settings.getString("LEDnum", "0"));
         deadzone_seeker.setProgress(settings.getInt("Deadzone", 50));
-        button_type_spinner.setSelection(settings.getInt("ButtonType", 0));
+        brake_mode_spinner.setSelection(settings.getInt("BrakeMode", 0));
+        brake_always_on_checkbox.setChecked(settings.getBoolean("BrakeAlwaysOn", false));
     }
 
     public void onButtonClick(View view) {
         byte txbuf[];
         switch (view.getId()) {
-            case R.id.remote_config_read_button:
+            case R.id.lights_config_read_button:
                 txbuf = new byte[] {
                         (byte) 0x0A5,
                         (byte) 0x000,
-                        (byte) 0x0FB,
+                        (byte) 0x0A1,
                         (byte) 0x05A
                 };
                 if(!mBluetoothService.writeBytes(txbuf)) {
-                    Toast.makeText(RemoteConfigActivity.this, "Could not read orientation\nPlease try again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LightsConfigActivity.this, "Couldnt write Light Config\nPlease try again", Toast.LENGTH_SHORT).show();
                 }
                 break;
-            case R.id.remote_config_apply_button:
+            case R.id.lights_config_apply_button:
+                int LEDnum = 0;
+                try {
+                    LEDnum = Integer.parseInt(LED_num_edittext.getText().toString());
+                } catch(NumberFormatException nfe) {
+                    Toast.makeText(mBluetoothService, "LED number invalid", Toast.LENGTH_SHORT).show();
+                    //System.out.println("Could not parse " + nfe);
+                }
+
+                byte checks = (byte)((byte)0xFF & (byte)(RGB_sync_checkbox.isChecked() ? 1 : 0) << 7);
+                checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(brake_always_on_checkbox.isChecked() ? 1 : 0) << 6)));
+
                 txbuf = new byte[]{
                         (byte) 0x0A5,
-                        (byte) 0x002,
-                        (byte) 0x0C3,
-                        (byte) ((remote_type_spinner.getSelectedItemPosition() << 4) | button_type_spinner.getSelectedItemPosition()),
-                        (byte) deadzone_seeker.getProgress(),
+                        (byte) 0x004,
+                        (byte) 0x0C5,
+                        (byte) ((RGB_type_spinner.getSelectedItemPosition() << 4) | brake_mode_spinner.getSelectedItemPosition()),
+                        (byte) (deadzone_seeker.getProgress()),
+                        (byte) (LEDnum),
+                        (byte) checks,
                         (byte) 0x05A
                 };
                 if (!mBluetoothService.writeBytes(txbuf)) {
-                    Toast.makeText(RemoteConfigActivity.this, "Could write orientation\nPlease try again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LightsConfigActivity.this, "Couldnt write Light Config\nPlease try again", Toast.LENGTH_SHORT).show();
                 } else {
                     txbuf = new byte[] {
                             (byte) 0x0A5,
                             (byte) 0x000,
-                            (byte) 0x0FB,
+                            (byte) 0x0A1,
                             (byte) 0x05A
                     };
                     while(!mBluetoothService.writeBytes(txbuf)) {}
@@ -212,35 +234,51 @@ public class RemoteConfigActivity extends AppCompatActivity
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) {
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
                 if(CHECK_DATA && (System.currentTimeMillis() - applytimer) > applytime){
-                    Toast.makeText(RemoteConfigActivity.this, "Remote config failed to apply\nPlease try again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LightsConfigActivity.this, "Response Timed Out\nPlease try again", Toast.LENGTH_SHORT).show();
                     CHECK_DATA = false;
                 }
-                else if(data.length == 3) {
+                else if(data.length == 5) {
                     for (int i = 0; i < data.length; i++) {
                         switch (data[i] & 0xFF) {
-                            case 0x72:
-                                if(i+2 >= data.length)
+                            case 0x75:
+                                if(i+4 >= data.length)
                                     break;
                                 //Toast.makeText(OrientationActivity.this, "Con: "+String.valueOf(data[i + 1] & 0xFF), Toast.LENGTH_SHORT).show();
                                 if(CHECK_DATA) {
+
+                                    int LEDnum = 0;
+                                    try {
+                                        LEDnum = Integer.parseInt(LED_num_edittext.getText().toString());
+                                    } catch(NumberFormatException nfe) {
+                                        Toast.makeText(mBluetoothService, "LED number invalid", Toast.LENGTH_SHORT).show();
+                                        //System.out.println("Could not parse " + nfe);
+                                    }
+
+                                    byte checks = (byte)((byte)0xFF & (byte)(RGB_sync_checkbox.isChecked() ? 1 : 0) << 7);
+                                    checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(RGB_sync_checkbox.isChecked() ? 1 : 0) << 6)));
+
                                     boolean dataCorrect = true;
-                                    if(remote_type_spinner.getSelectedItemPosition() != ((data[i + 1] & 0xF0) >> 4)) dataCorrect = false;
-                                    if(button_type_spinner.getSelectedItemPosition() != (data[i + 1] & 0x0F)) dataCorrect = false;
+                                    if(RGB_type_spinner.getSelectedItemPosition() != ((data[i + 1] & 0xF0) >> 4)) dataCorrect = false;
+                                    if(brake_mode_spinner.getSelectedItemPosition() != (data[i + 1] & 0x0F)) dataCorrect = false;
                                     if(deadzone_seeker.getProgress() != (data[i + 2] & 0xFF)) dataCorrect = false;
-                                    //if(ppm_button_seeker.getProgress() != (data[i + 2] & 0xFF)) dataCorrect = false;
+                                    if(LEDnum != (data[i + 3] & 0xFF)) dataCorrect = false;
+                                    if(RGB_sync_checkbox.isChecked() && (data[i + 4] & 0x80) != 0x80) dataCorrect = false;
+                                    if(brake_always_on_checkbox.isChecked() && (data[i + 4] & 0x40) != 0x40) dataCorrect = false;
                                     if(dataCorrect){
-                                        Toast.makeText(RemoteConfigActivity.this, "Remote config applied successfully", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(LightsConfigActivity.this, "Lights config applied successfully", Toast.LENGTH_SHORT).show();
                                     } else {
-                                        Toast.makeText(RemoteConfigActivity.this, "Remote config failed to apply\nPlease try again", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(LightsConfigActivity.this, "Lights config failed to apply\nPlease try again", Toast.LENGTH_SHORT).show();
                                     }
                                     CHECK_DATA = false;
                                 } else {
-                                    remote_type_spinner.setSelection((data[i + 1] & 0xF0) >> 4);
-                                    button_type_spinner.setSelection(data[i + 1] & 0x0F);
+                                    RGB_type_spinner.setSelection((data[i + 1] & 0xF0) >> 4);
+                                    brake_mode_spinner.setSelection(data[i + 1] & 0x0F);
                                     deadzone_seeker.setProgress(data[i + 2] & 0xFF);
-                                    //ppm_button_seeker.setProgress(data[i + 2] & 0xFF);
+                                    LED_num_edittext.setText(Integer.toString((data[i+3] & 0xFF)));
+                                    RGB_sync_checkbox.setChecked((data[i+4] & 0x80) == 0x80);
+                                    brake_always_on_checkbox.setChecked((data[i+4] & 0x40) == 0x40);
                                 }
-                                i+=2;
+                                i+=4;
                                 break;
                         }
                     }
@@ -259,43 +297,39 @@ public class RemoteConfigActivity extends AppCompatActivity
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         long parent_id = parent.getId();
-        if(parent_id == R.id.remote_button_spinner){
-            switch(pos){
-
-            }
+        if(parent_id == R.id.side_LED_type_spinner){
+            Toast.makeText(mBluetoothService, "The board needs to be restarted if a different side LED type is configured", Toast.LENGTH_LONG).show();
         }
-        String selectedItem = parent.getSelectedItem().toString();
+        //String selectedItem = parent.getSelectedItem().toString();
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent){
     }
 
-    void initializeRemoteTypeList(List<CharSequence> list){
+    void initializeRGBTypeList(List<CharSequence> list){
         list.clear();
-        list.add("PPM");
-        list.add("UART + PPM");
-        list.add("UART (Chuck Struct) Single Axis");
-        list.add("UART (Chuck Struct) Dual Axis");
+        list.add("Analog");
+        list.add("Digital (APA102)");
+        list.add("Digital (SK9822)");
+        list.add("None");
     }
 
-    void initializeButtonTypeList(List<CharSequence> list){
+    void initializeBrakeModeAdapter(List<CharSequence> list){
         list.clear();
-        list.add("None");
-        list.add("Momentary");
-        list.add("Latching");
-        list.add("Latching PPM");
-        list.add("UART (Chuck Struct) C");
-        list.add("UART (Chuck Struct) Z");
-        list.add("Throttle Down");
-        list.add("Throttle Up");
+        list.add("Fade");
+        list.add("Blink");
+        list.add("Fade-Blink");
+        list.add("Blink-Fade");
+        list.add("Fading Blink");
+        list.add("Paced Blink");
     }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        TextView deadzone_number = (TextView) findViewById(R.id.remote_deadzone_number);
+        TextView deadzone_number = (TextView) findViewById(R.id.brake_deadzone_number);
 
-        if (seekBar.getId() == R.id.remote_deadzone_seeker) {
+        if (seekBar.getId() == R.id.brake_deadzone_seeker) {
             Deadzone = (((float)progress));
             deadzone_number.setText("" + Deadzone);
         }
