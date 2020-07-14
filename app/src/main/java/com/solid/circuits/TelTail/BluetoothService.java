@@ -37,6 +37,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Binder;
 import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
+
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.List;
@@ -51,7 +53,10 @@ public class BluetoothService extends Service {
 
     public static final String PREFS_NAME = "MyPrefsFile";
 
-    boolean SEND_OK = true;
+    static boolean SEND_OK = true;
+    static long last_send = 0;
+    static long send_time = 0;
+    static boolean FirstSend = true;
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -273,7 +278,9 @@ public class BluetoothService extends Service {
             }
 
             //Toast.makeText(BluetoothService.this, "Initializing BLE", Toast.LENGTH_SHORT).show();
-        }
+        }//else{
+         //   return false;
+        //}
 
         return true;
     }
@@ -301,9 +308,11 @@ public class BluetoothService extends Service {
                 && mBluetoothGatt != null) {
             //Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
             if (mBluetoothGatt.connect()) {
+                //Log.d(TAG, "SUCCEEDED");
                 mConnectionState = STATE_CONNECTING;
                 return true;
             } else {
+                //Log.d(TAG, "Failed");
                 return false;
             }
         }
@@ -462,21 +471,34 @@ public class BluetoothService extends Service {
         }
     }
 
-    long last_send = 0;
-    boolean FirstSend = true;
-    byte[] temp = new byte[1];
+    //byte[] temp = new byte[1];
     public boolean writeBytes(byte[] data){
-        long time = System.currentTimeMillis();
-        if(bluetoothGattCharacteristicHM_10 != null && ((time - last_send > 50) || FirstSend/*|| SEND_OK*/)) {
+        send_time = System.nanoTime()/1000000;
+        if(last_send > send_time)
+            last_send = 0;
+        if(bluetoothGattCharacteristicHM_10 != null && ((send_time - last_send > 50) || FirstSend/*|| SEND_OK*/)) {
             writeBytes_helper(data);
-            last_send = time;
+            last_send = send_time;
             FirstSend = false;
             return true;
         }
         return false;
     }
 
+    public boolean writeBytesFast(byte[] data){
+        send_time = System.nanoTime()/1000000;
+        if(last_send > send_time)
+            last_send = 0;
+        if(bluetoothGattCharacteristicHM_10 != null && (send_time - last_send > 15)) {
+            writeBytes_helper(data);
+            last_send = send_time;
+            return true;
+        }
+        return false;
+    }
+
     private void writeBytes_helper(byte[] data){
+            //Log.i(TAG, "SENT STUFF");
             bluetoothGattCharacteristicHM_10.setValue(data);
             writeCharacteristic(bluetoothGattCharacteristicHM_10);
             setCharacteristicNotification(bluetoothGattCharacteristicHM_10, true);

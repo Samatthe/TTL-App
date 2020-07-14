@@ -29,6 +29,8 @@
 
     <string name="motor_info_label">Motor Info</string>
 
+    <string name="fw_settings_label">Firmware Settings</string>
+
     <string name="remote_label">Remote</string>
     <string name="remote_button">Remote</string>
     <string name="remote_help">Help</string>

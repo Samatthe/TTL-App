@@ -244,6 +244,36 @@
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer"/>
 
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/default_state_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="Lights On at Startup:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <CheckBox
+                    android:id="@+id/default_state_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/default_state_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
             <!--
             <View android:id="@+id/blue_spacer3"
                 android:layout_width="match_parent"

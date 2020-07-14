@@ -269,6 +269,24 @@
                     android:textSize="@dimen/settings_text_size" />
             </RelativeLayout>
 
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/firmware_settins_button"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:onClick="onButtonClick"
+                android:text="Firmware Settings"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textSize="@dimen/settings_text_size"
+                android:textStyle="normal"
+                android:textColor="@android:color/white"/>
+
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
@@ -308,7 +326,7 @@
             <View android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer" />
-
+<!--
             <Button
                 android:id="@+id/settings_esc_button"
                 android:text="Configure ESC"
@@ -326,6 +344,7 @@
             <View android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer" />
+-->
 
             <Button
                 android:id="@+id/settings_remote_button"

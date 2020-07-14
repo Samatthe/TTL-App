@@ -12,6 +12,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -147,6 +150,14 @@
         <activity
             android:name="com.solid.circuits.TelTail.ESCconfigActivity"
             android:label="@string/esc_config_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.FirmwareSettingsActivity"
+            android:label="@string/fw_settings_label"
             android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

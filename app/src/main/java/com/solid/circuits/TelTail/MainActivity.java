@@ -44,6 +44,8 @@ import com.google.android.material.tabs.TabLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.app.NotificationCompat;
+
+import android.util.Log;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import 	androidx.appcompat.widget.Toolbar;
@@ -264,6 +266,7 @@ public class MainActivity extends AppCompatActivity
     public boolean autoConnect = false;
     private boolean RECIEVE_BLE_DATA = false;
     boolean READ_CURRENT = false;
+    boolean BEEN_CONNECTED = false;
 
     public LoggingService mLoggingService;
     public boolean LOG_MAP = false;
@@ -924,17 +927,23 @@ public class MainActivity extends AppCompatActivity
 
             return true;
         } else if (id == R.id.action_calibrate) {
-            final byte txbuf[] = new byte[]{
-                    (byte) 0x0A5,
-                    (byte) 0x000,
-                    (byte) 0x0AD,
-                    (byte) 0x05A
-            };
-            if (!mBluetoothService.writeBytes(txbuf))
-                Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-            //String txstring = bytesToHex(txbuf);
-            // Toast.makeText(MainActivity.this, txstring, Toast.LENGTH_SHORT).show();
-
+            new AlertDialog.Builder(this)
+                    .setMessage("To Calibrate the IMU:\n1. Place board on level ground\n2. Continue with Calibration\n3. Let board sit for > 5 seconds\n\nAre you sure you want to calibrate the IMU?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            final byte txbuf[] = new byte[] {
+                                    (byte) 0x0A5,
+                                    (byte) 0x000,
+                                    (byte) 0x0AD,
+                                    (byte) 0x05A
+                            };
+                            if(!mBluetoothService.writeBytes(txbuf))
+                                Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
             return true;
         } else if (id == R.id.action_toggle) {
             final byte txbuf[] = new byte[]{
@@ -951,6 +960,7 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_ble) {
             if (mBluetoothService.mBluetoothDeviceAddress != null) {
+                //Log.i(TAG,"CONNECT/DISCONNECT PRESSED");
                 // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
                 // BluetoothAdapter through BluetoothManager.
                 final BluetoothManager bluetoothManager =
@@ -966,6 +976,7 @@ public class MainActivity extends AppCompatActivity
                     } else {
                         bleAction.setTitle("Connecting BLE");
                         bleAction.setEnabled(false);
+                        //Log.i(TAG, "CONNECTING");
                         mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
                     }
                 } else if (mBluetoothService.mConnectionState == 2) {
@@ -1482,15 +1493,18 @@ public class MainActivity extends AppCompatActivity
                 bleAction.setTitle("Disconnect BLE");
                 bleAction.setEnabled(true);
                 Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT).show();
-                if (READ_CURRENT) {
+                //Log.i(TAG, "CONNECTED");
+                if (READ_CURRENT && !BEEN_CONNECTED) {
                     final byte txbuf[] = new byte[]{
                             (byte) 0x0A5,
                             (byte) 0x000,
-                            (byte) 0xCD,
+                            (byte) 0x0CD,
                             (byte) 0x05A
                     };
+                    mBluetoothService.last_send = System.nanoTime()/1000000;
                     while (!mBluetoothService.writeBytes(txbuf)) {
                     }
+                    BEEN_CONNECTED = true;
                     //Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                 }
             } else if (BluetoothService.ACTION_GATT_DISCONNECTED.equals(action)) {
@@ -1498,6 +1512,7 @@ public class MainActivity extends AppCompatActivity
                 bleAction.setTitle("Connect BLE");
                 bleAction.setEnabled(true);
                 Toast.makeText(MainActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
+                BEEN_CONNECTED = false;
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) {
                 TextView nxyText = (TextView) findViewById(R.id.sensor_nunchuck_joy_text);
                 TextView accelText = (TextView) findViewById(R.id.sensor_accel_text);
@@ -1801,6 +1816,7 @@ public class MainActivity extends AppCompatActivity
                                 LightSwitch.setChecked(((data[i + 1] & 0x02) >> 1) == 1);
                                 SensSwitch.setChecked((data[i + 1] & 0x01) == 1);
                                 LED_STRIP_TYPE = (data[i + 2] & 0xFF);
+                                updateModeSpinner();
                                 ModeSpinner.setSelection(led_mode);
                                 i += 2;
                                 break;

@@ -62,7 +62,7 @@ public class ESCconfigActivity extends AppCompatActivity
 
     boolean CHECK_DATA = false;
     long applytimer = 0;
-    long applytime = 100;
+    long applytime = 500;
 
     private final static String TAG = ControlsConfigActivity.class.getSimpleName();
 

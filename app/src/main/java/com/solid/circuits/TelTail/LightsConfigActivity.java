@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
@@ -62,10 +63,12 @@ public class LightsConfigActivity extends AppCompatActivity
     CheckBox brake_always_on_checkbox;
     SeekBar deadzone_seeker;
     EditText LED_num_edittext;
+    CheckBox default_state_checkbox;
 
     boolean CHECK_DATA = false;
     long applytimer = 0;
-    long applytime = 1000;
+    long applytime = 500;
+    boolean IGNORE_SPINNER_CHANGE = false;
 
     private final static String TAG = ControlsConfigActivity.class.getSimpleName();
 
@@ -119,6 +122,7 @@ public class LightsConfigActivity extends AppCompatActivity
         RGB_sync_checkbox = findViewById(R.id.side_sync_checkbox);
         brake_always_on_checkbox = findViewById(R.id.brake_always_on_checkbox);
         LED_num_edittext = findViewById(R.id.LED_num_edittext);
+        default_state_checkbox = findViewById(R.id.default_state_checkbox);
 
         // Aux control assignment spinner
         RGB_type_adapter = new ArrayAdapter<>(this,
@@ -155,6 +159,7 @@ public class LightsConfigActivity extends AppCompatActivity
         editor.putInt("Deadzone", deadzone_seeker.getProgress());
         editor.putInt("BrakeMode", brake_mode_spinner.getSelectedItemPosition());
         editor.putBoolean("BrakeAlwaysOn", brake_always_on_checkbox.isChecked());
+        editor.putBoolean("BrakeAlwaysOn", default_state_checkbox.isChecked());
 
         // Commit the edits!
         editor.commit();
@@ -162,13 +167,16 @@ public class LightsConfigActivity extends AppCompatActivity
 
     void restoresettings() {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-
-        RGB_type_spinner.setSelection(settings.getInt("RGBType", 0));
+        if(settings.getInt("RGBType", 0) != RGB_type_spinner.getSelectedItemPosition()) {
+            IGNORE_SPINNER_CHANGE = true;
+            RGB_type_spinner.setSelection(settings.getInt("RGBType", 0));
+        }
         RGB_sync_checkbox.setChecked(settings.getBoolean("SyncSide", true));
         LED_num_edittext.setText(settings.getString("LEDnum", "0"));
         deadzone_seeker.setProgress(settings.getInt("Deadzone", 50));
         brake_mode_spinner.setSelection(settings.getInt("BrakeMode", 0));
         brake_always_on_checkbox.setChecked(settings.getBoolean("BrakeAlwaysOn", false));
+        default_state_checkbox.setChecked(settings.getBoolean("BrakeAlwaysOn", false));
     }
 
     public void onButtonClick(View view) {
@@ -196,6 +204,7 @@ public class LightsConfigActivity extends AppCompatActivity
 
                 byte checks = (byte)((byte)0xFF & (byte)(RGB_sync_checkbox.isChecked() ? 1 : 0) << 7);
                 checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(brake_always_on_checkbox.isChecked() ? 1 : 0) << 6)));
+                checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(default_state_checkbox.isChecked() ? 1 : 0) << 5)));
 
                 txbuf = new byte[]{
                         (byte) 0x0A5,
@@ -264,6 +273,7 @@ public class LightsConfigActivity extends AppCompatActivity
                                     if(LEDnum != (data[i + 3] & 0xFF)) dataCorrect = false;
                                     if(RGB_sync_checkbox.isChecked() && (data[i + 4] & 0x80) != 0x80) dataCorrect = false;
                                     if(brake_always_on_checkbox.isChecked() && (data[i + 4] & 0x40) != 0x40) dataCorrect = false;
+                                    if(default_state_checkbox.isChecked() && (data[i + 4] & 0x20) != 0x20) dataCorrect = false;
                                     if(dataCorrect){
                                         Toast.makeText(LightsConfigActivity.this, "Lights config applied successfully", Toast.LENGTH_SHORT).show();
                                     } else {
@@ -271,12 +281,15 @@ public class LightsConfigActivity extends AppCompatActivity
                                     }
                                     CHECK_DATA = false;
                                 } else {
+                                    if((data[i + 1] & 0xF0) >> 4 != RGB_type_spinner.getSelectedItemPosition())
+                                        IGNORE_SPINNER_CHANGE = true;
                                     RGB_type_spinner.setSelection((data[i + 1] & 0xF0) >> 4);
                                     brake_mode_spinner.setSelection(data[i + 1] & 0x0F);
                                     deadzone_seeker.setProgress(data[i + 2] & 0xFF);
                                     LED_num_edittext.setText(Integer.toString((data[i+3] & 0xFF)));
                                     RGB_sync_checkbox.setChecked((data[i+4] & 0x80) == 0x80);
                                     brake_always_on_checkbox.setChecked((data[i+4] & 0x40) == 0x40);
+                                    default_state_checkbox.setChecked((data[i+4] & 0x20) == 0x20);
                                 }
                                 i+=4;
                                 break;
@@ -298,7 +311,24 @@ public class LightsConfigActivity extends AppCompatActivity
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         long parent_id = parent.getId();
         if(parent_id == R.id.side_LED_type_spinner){
-            Toast.makeText(mBluetoothService, "The board needs to be restarted if a different side LED type is configured", Toast.LENGTH_LONG).show();
+            if(IGNORE_SPINNER_CHANGE)
+                IGNORE_SPINNER_CHANGE = false;
+            else
+                Toast.makeText(mBluetoothService, "The board needs to be restarted if a different side LED type is configured", Toast.LENGTH_LONG).show();
+
+            TextView LEDcountText = findViewById(R.id.LED_num_text);
+            EditText LEDcountEditText = findViewById(R.id.LED_num_edittext);
+            if(parent.getSelectedItemPosition() == 0){
+                LEDcountText.setEnabled(false);
+                LEDcountEditText.setEnabled(false);
+                LEDcountText.setTextColor(Color.GRAY);
+                LEDcountEditText.setTextColor(Color.GRAY);
+            } else{
+                LEDcountText.setEnabled(true);
+                LEDcountEditText.setEnabled(true);
+                LEDcountText.setTextColor(Color.WHITE);
+                LEDcountEditText.setTextColor(Color.WHITE);
+            }
         }
         //String selectedItem = parent.getSelectedItem().toString();
     }
@@ -365,7 +395,11 @@ public class LightsConfigActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
         savesettings();
+        unregisterReceiver(mGattUpdateReceiver);
     }
 }
 

@@ -45,7 +45,7 @@ public class OrientationActivity extends AppCompatActivity
 
     boolean CHECK_DATA = false;
     long applytimer = 0;
-    long applytime = 100;
+    long applytime = 500;
 
     private BluetoothService mBluetoothService;
     private ServiceConnection mServiceConnection = new ServiceConnection() {

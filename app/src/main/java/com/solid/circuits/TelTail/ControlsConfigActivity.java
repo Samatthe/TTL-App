@@ -128,7 +128,7 @@ public class ControlsConfigActivity extends AppCompatActivity
 
     boolean CHECK_DATA = false;
     long applytimer = 0;
-    long applytime = 100;
+    long applytime = 500;
 
     private final static String TAG = ControlsConfigActivity.class.getSimpleName();
 
@@ -1074,7 +1074,11 @@ public class ControlsConfigActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
         savesettings();
+        unregisterReceiver(mGattUpdateReceiver);
     }
 }
 

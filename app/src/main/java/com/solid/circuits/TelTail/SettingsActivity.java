@@ -119,7 +119,11 @@ public class SettingsActivity extends AppCompatActivity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
         savesettings();
+        unregisterReceiver(mGattUpdateReceiver);
     }
 
     void savesettings(){
@@ -170,7 +174,7 @@ public class SettingsActivity extends AppCompatActivity{
                 //Toast.makeText(mBluetoothService, "hello", Toast.LENGTH_SHORT).show();
 
                 new AlertDialog.Builder(this)
-                        .setMessage("Are you sure you want to calibrate the IMU?")
+                        .setMessage("To Calibrate the IMU:\n1. Place board on level ground\n2. Continue with Calibration\n3. Let board sit for > 5 seconds\n\nAre you sure you want to calibrate the IMU?")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -201,10 +205,10 @@ public class SettingsActivity extends AppCompatActivity{
                 intent = new Intent(this, RemoteConfigActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.settings_esc_button:
-                intent = new Intent(this, ESCconfigActivity.class);
-                startActivity(intent);
-                break;
+            //case R.id.settings_esc_button:
+            //    intent = new Intent(this, ESCconfigActivity.class);
+            //    startActivity(intent);
+            //    break;
             case R.id.led_settins_button:
                 intent = new Intent(this, LightsConfigActivity.class);
                 startActivity(intent);
@@ -218,6 +222,10 @@ public class SettingsActivity extends AppCompatActivity{
                 };
                 if(!mBluetoothService.writeBytes(txbuf))
                     Toast.makeText(SettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.firmware_settins_button:
+                intent = new Intent(this, FirmwareSettingsActivity.class);
+                startActivity(intent);
                 break;
         }
     }

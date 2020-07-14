@@ -10,6 +10,7 @@
     <dimen name="settings_left_pad">6dp</dimen>
     <dimen name="settings_text_size">16dp</dimen>
     <dimen name="settings_height">55dp</dimen>
+    <dimen name="settings_icon_height">45dp</dimen>
     <dimen name="led_ui_height">40dp</dimen>
     <dimen name="led_ui_seek_num_width">40dp</dimen>
     <dimen name="sensor_header_size">18dp</dimen>
