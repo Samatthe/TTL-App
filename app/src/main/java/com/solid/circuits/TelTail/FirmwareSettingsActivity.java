@@ -78,6 +78,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
 
     CheckBox fwAutoCheck;
 
+    int TTL_HW = 0;
     int TTL_FW = 0;
     int Latest_FW = 0;
     File versionFile;
@@ -263,6 +264,8 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
 
         savePreferences();
 
+        unregisterReceiver(mGattUpdateReceiver);
+
         if (mServiceConnection != null) {
             unbindService(mServiceConnection);
         }
@@ -289,7 +292,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
     public void onButtonClick(View view){
         switch(view.getId()){
             case R.id.check_current_fw_button: {
-                Toast.makeText(FirmwareSettingsActivity.this, "Reading Current TTL FW", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(FirmwareSettingsActivity.this, "Reading Current TTL FW", Toast.LENGTH_SHORT).show();
                 if (!mBluetoothService.writeBytes(fw_read))
                     Toast.makeText(FirmwareSettingsActivity.this, "Connect to board and try again", Toast.LENGTH_LONG).show();
                 break;
@@ -525,7 +528,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 finish();
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) {
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                if(data.length >= 1 && data.length <=4) {
+                if(data.length >= 1 && data.length <=5) {
                     if(RESPONSE_EXPECTED){
                         if(data.length == 1){
                             if((data[0] & 0x0FF) == 0x55){
@@ -553,7 +556,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                         for (int i = 0; i < data.length; i++) {
                             switch (data[i] & 0xFF) {
                                 case 0x74:
-                                    if (i + 2 >= data.length)
+                                    if (i + 4 >= data.length)
                                         break;
                                     TTL_FW = 0;
                                     TTL_FW += (data[i + 1] & 0x0FF);
@@ -561,7 +564,13 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                                     TextView TTL_FW_VIEW = findViewById(R.id.current_fw_text);
                                     String TTL_FW_TEXT = "Current Firmware: v" + (TTL_FW / 100) + "." + (TTL_FW % 100);
                                     TTL_FW_VIEW.setText(TTL_FW_TEXT);
-                                    i += 2;
+                                    TTL_HW = 0;
+                                    TTL_HW += (data[i + 3] & 0x0FF);
+                                    TTL_HW += (data[i + 4] & 0x0FF) * 100;
+                                    TextView TTL_HW_VIEW = findViewById(R.id.ttl_hw_text);
+                                    String TTL_HW_TEXT = "TTL Hardware: v" + (TTL_HW / 100) + "." + (TTL_HW % 100);
+                                    TTL_HW_VIEW.setText(TTL_HW_TEXT);
+                                    i += 4;
 
                                     if(FIRST_TTL_FW_READ) {
                                         setWarningIcon(false);
@@ -586,28 +595,34 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
 
     private void downloadBinFile() {
         try {
-            URL u = new URL("https://github.com/Samatthe/TTL-Firmware/raw/master/Release%20FW/Teltail%20HW%204v1.bin");
-            URLConnection conn = u.openConnection();
-            int contentLength = conn.getContentLength();
-
-            DataInputStream stream = new DataInputStream(u.openStream());
-
-            byte[] buffer = new byte[contentLength];
-            stream.readFully(buffer);
-            stream.close();
-
-            if (firmwareFile.exists())
-            {
-                //Toast.makeText(FirmwareSettingsActivity.this, "Firmware: Deleted", Toast.LENGTH_SHORT).show();
-                firmwareFile.delete();
+            URL u = null;
+            if(TTL_HW == 304) {
+                u = new URL("https://github.com/Samatthe/TTL-Firmware/raw/master/Release%20FW/Teltail%20HW%203v4.bin");
+            }else if(TTL_HW == 400 || TTL_HW == 401){
+                u = new URL("https://github.com/Samatthe/TTL-Firmware/raw/master/Release%20FW/Teltail%20HW%204v1.bin");
             }
-            firmwareFile.createNewFile();
+            if(u != null) {
+                URLConnection conn = u.openConnection();
+                int contentLength = conn.getContentLength();
 
-            DataOutputStream fos = new DataOutputStream(new FileOutputStream(firmwareFile));
-            //Toast.makeText(FirmwareSettingsActivity.this, firmwareFile.toString(), Toast.LENGTH_SHORT).show();
-            fos.write(buffer);
-            fos.flush();
-            fos.close();
+                DataInputStream stream = new DataInputStream(u.openStream());
+
+                byte[] buffer = new byte[contentLength];
+                stream.readFully(buffer);
+                stream.close();
+
+                if (firmwareFile.exists()) {
+                    //Toast.makeText(FirmwareSettingsActivity.this, "Firmware: Deleted", Toast.LENGTH_SHORT).show();
+                    firmwareFile.delete();
+                }
+                firmwareFile.createNewFile();
+
+                DataOutputStream fos = new DataOutputStream(new FileOutputStream(firmwareFile));
+                //Toast.makeText(FirmwareSettingsActivity.this, firmwareFile.toString(), Toast.LENGTH_SHORT).show();
+                fos.write(buffer);
+                fos.flush();
+                fos.close();
+            }
         } catch(FileNotFoundException e) {
             Toast.makeText(FirmwareSettingsActivity.this, "Firmware: File not found", Toast.LENGTH_SHORT).show();
             return; // swallow a 404

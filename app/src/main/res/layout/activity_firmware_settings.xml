@@ -15,6 +15,24 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/ttl_hw_text"
+                android:text="TTL Hardware: v?.?"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/darker_gray"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:paddingLeft="16dp"/>
+
+
+            <View android:id="@+id/blue_spacer0"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/ttl_hw_text"/>
+
+
+            <TextView
                 android:id="@+id/current_fw_text"
                 android:text="Current Firmware: v?.?"
                 android:textSize="@dimen/settings_text_size"
@@ -22,7 +40,8 @@
                 android:textColor="@android:color/darker_gray"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/settings_height"
-                android:paddingLeft="16dp"/>
+                android:paddingLeft="16dp"
+                android:layout_below="@id/blue_spacer0"/>
 
             <ImageView
                 android:id="@+id/ttl_fw_warning_icon"
@@ -31,7 +50,8 @@
                 android:layout_toRightOf="@id/current_fw_text"
                 android:gravity="center_vertical"
                 android:src="@mipmap/ic_red_warning_foreground"
-                android:visibility="invisible"/>
+                android:visibility="invisible"
+                android:layout_below="@id/blue_spacer0"/>
 
 
             <View android:id="@+id/blue_spacer1"
@@ -137,8 +157,8 @@
 
 
             <Button
-                android:id="@+id/update_fw_button"
-                android:text="Update TTL Firmware"
+                android:id="@+id/custom_fw_button"
+                android:text="Choose Custom Firmware File"
                 android:textStyle="normal"
                 android:textAlignment="textStart"
                 android:textSize="@dimen/settings_text_size"
@@ -149,10 +169,35 @@
                 android:layout_below="@id/blue_spacer5"
                 android:textAllCaps="false"
                 android:onClick="onButtonClick"
-                android:textColor="@android:color/white"/>
+                android:textColor="@android:color/white"
+                android:visibility="gone"/>
 
 
             <View android:id="@+id/blue_spacer6"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/custom_fw_button"
+                android:visibility="gone"/>
+
+
+            <Button
+                android:id="@+id/update_fw_button"
+                android:text="Update TTL Firmware"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_below="@id/blue_spacer6"
+                android:textAllCaps="false"
+                android:onClick="onButtonClick"
+                android:textColor="@android:color/white"/>
+
+
+            <View android:id="@+id/blue_spacer7"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer"

@@ -253,11 +253,11 @@ public class SettingsActivity extends AppCompatActivity{
                 finish();
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) {
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                if(data.length == 3) {
+                if(data.length == 5) {
                     for (int i = 0; i < data.length; i++) {
                         switch (data[i] & 0xFF) {
                             case 0x74:
-                                if(i+2 >= data.length)
+                                if(i+4 >= data.length)
                                     break;
                                 TTL_FW = 0;
                                 TTL_FW += (data[i + 1] & 0x0FF);
@@ -265,7 +265,7 @@ public class SettingsActivity extends AppCompatActivity{
                                 TextView TTL_FW_VIEW = findViewById(R.id.ttl_fw_text);
                                 String TTL_FW_TEXT = "v"+(TTL_FW/100)+"."+(TTL_FW%100);
                                 TTL_FW_VIEW.setText(TTL_FW_TEXT);
-                                i+=2;
+                                i+=4;
                                 break;
                         }
                     }
