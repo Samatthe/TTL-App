@@ -172,7 +172,7 @@
                     android:layout_height="@dimen/settings_height"
                     android:gravity="center_vertical"
                     android:paddingLeft="18dp"
-                    android:text="Always-on Brake:"
+                    android:text="Always-on Brake Light:"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/settings_text_size" />
 
@@ -227,7 +227,7 @@
                     android:paddingLeft="@dimen/settings_left_pad"
                     android:layout_toLeftOf="@id/brake_deadzone_text2"
                     android:minEms="2"
-                    android:text="1"/>
+                    android:text="50"/>
 
                 <SeekBar android:id="@+id/brake_deadzone_seeker"
                     android:layout_width="match_parent"
@@ -267,6 +267,88 @@
                     android:dropDownWidth="wrap_content"
                     android:popupBackground="#383838"/>
 
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/highbeams_enable_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="Enable High-Beams:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <CheckBox
+                    android:id="@+id/highbeams_enable_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/highbeams_enable_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/lowbeam_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="18dp"
+                    android:text="Low-Beam Level:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <TextView
+                    android:id="@+id/lowbeam_text2"
+                    android:text=" %"
+                    android:textSize="12dp"
+                    android:gravity="center_vertical"
+                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_alignBaseline="@id/lowbeam_text"
+                    android:paddingRight="@dimen/settings_left_pad"
+                    android:layout_alignParentRight="true"/>
+
+                <TextView android:id="@+id/lowbeam_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center"
+                    android:textSize="@dimen/settings_text_size"
+                    android:textColor="@android:color/white"
+                    android:paddingLeft="@dimen/settings_left_pad"
+                    android:layout_toLeftOf="@id/lowbeam_text2"
+                    android:minEms="2"
+                    android:text="70"/>
+
+                <SeekBar android:id="@+id/lowbeam_seeker"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_toRightOf="@id/lowbeam_text"
+                    android:layout_toLeftOf="@id/lowbeam_number"
+                    android:paddingLeft="@dimen/settings_left_pad"
+                    android:progress="70"
+                    android:maxHeight="1000dp"/>
             </RelativeLayout>
 
             <View

@@ -41,9 +41,13 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,7 +68,8 @@ import java.net.URLConnection;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-public class FirmwareSettingsActivity extends AppCompatActivity {
+public class FirmwareSettingsActivity extends AppCompatActivity
+        implements AdapterView.OnItemSelectedListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
@@ -77,10 +82,13 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
     //public boolean onStartup = false;
 
     CheckBox fwAutoCheck;
+    CheckBox manualHWcheck;
+    Spinner manualHWspinner;
 
     int TTL_HW = 0;
     int TTL_FW = 0;
     int Latest_FW = 0;
+    int Latest_HW = 0;
     File versionFile;
     File firmwareFile;
     int APP_MEM_SIZE = 826; // Number of rows used for application flash memory. 1 row = 4 pages = 64*4 byes
@@ -189,9 +197,9 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             //Log.e(TAG, componentName.getClassName());
-            if(componentName.getClassName().equals(BluetoothService.class.getName())) {
+            if (componentName.getClassName().equals(BluetoothService.class.getName())) {
                 mBluetoothService = ((BluetoothService.LocalBinder) service).getService();
-                final byte txbuf[] = new byte[] {
+                final byte txbuf[] = new byte[]{
                         (byte) 0x0A5,
                         (byte) 0x000,
                         (byte) 0x0F9,
@@ -203,7 +211,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            if(componentName.getClassName().equals(BluetoothService.class.getName())) {
+            if (componentName.getClassName().equals(BluetoothService.class.getName())) {
                 mBluetoothService = null;
             }
         }
@@ -221,6 +229,16 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
         fwAutoCheck = (CheckBox) findViewById(R.id.checkbox_auto_check_fw);
+        manualHWcheck = findViewById(R.id.firmware_manual_hw_check);
+        manualHWspinner = findViewById(R.id.manual_hw_spinner);
+
+        // Aux control type spinner
+        manualHWspinner = (Spinner) findViewById(R.id.manual_hw_spinner);
+        ArrayAdapter<CharSequence> manualHWadapter = ArrayAdapter.createFromResource(this,
+                R.array.hardware_array, R.layout.gps_spinner_item);
+        manualHWadapter.setDropDownViewResource(R.layout.gps_spinner_item);
+        manualHWspinner.setAdapter(manualHWadapter);
+        manualHWspinner.setOnItemSelectedListener(this);
 
         loadPreferences();
 
@@ -230,15 +248,15 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
         }
 
         File directory = new File(getFilesDir().toString());
-        versionFile = new File( directory.toString()+"/FW Version.txt");
-        firmwareFile = new File( directory.toString()+"/TTL FW.bin");
+        versionFile = new File(directory.toString() + "/FW Version.txt");
+        firmwareFile = new File(directory.toString() + "/TTL FW.bin");
 
         downloadBinFile();
         downloadVersionFile();
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         loadPreferences();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
@@ -252,7 +270,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
 
         savePreferences();
@@ -272,25 +290,36 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
         mBluetoothService = null;
     }
 
-    private void savePreferences(){
+    private void savePreferences() {
         // We need an Editor object to make preference changes.
         // All objects are from android.context.Context
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("fwAutoCheck", fwAutoCheck.isChecked());
+        editor.putBoolean("manHWcheck", manualHWcheck.isChecked());
         editor.commit();
     }
 
-    private void loadPreferences(){
+    private void loadPreferences() {
+        TextView HardwareVersionText = findViewById(R.id.ttl_hw_text);
+
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         autoCheckFW = settings.getBoolean("fwAutoCheck", false);
+        manualHWcheck.setChecked(settings.getBoolean("manHWcheck", false));
+        if(settings.getBoolean("manHWcheck", false)){
+            HardwareVersionText.setText("TTL Hardware: ");
+            manualHWspinner.setVisibility(View.VISIBLE);
+        }else{
+            HardwareVersionText.setText("TTL Hardware: v?.?");
+            manualHWspinner.setVisibility(View.GONE);
+        }
         fwAutoCheck.setChecked(autoCheckFW);
     }
 
 
-    public void onButtonClick(View view){
-        switch(view.getId()){
+    public void onButtonClick(View view) {
+        switch (view.getId()) {
             case R.id.check_current_fw_button: {
                 //Toast.makeText(FirmwareSettingsActivity.this, "Reading Current TTL FW", Toast.LENGTH_SHORT).show();
                 if (!mBluetoothService.writeBytes(fw_read))
@@ -302,10 +331,18 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 downloadBinFile();
                 downloadVersionFile();
                 break;
-            case R.id.update_fw_button:{
-                if(Latest_FW == 0){
+            case R.id.update_fw_button: {
+                if (Latest_FW == 0) {
                     Toast.makeText(FirmwareSettingsActivity.this, "Latest FW needs to be downloaded first", Toast.LENGTH_LONG).show();
+                } else if (TTL_FW == 0) {
+                    Toast.makeText(FirmwareSettingsActivity.this, "TTL FW needs to be read first", Toast.LENGTH_LONG).show();
+                } else if(TTL_HW == 0){
+                    Toast.makeText(FirmwareSettingsActivity.this, "TTL HW needs to be read/set first", Toast.LENGTH_LONG).show();
                 }else {
+                    if (Latest_HW != TTL_HW) {
+                        downloadBinFile();
+                    }
+
                     final LoadingDialog fwUpdateDialog = new LoadingDialog(FirmwareSettingsActivity.this);
                     fwUpdateDialog.startLoadingDialog();
                     fwUpdateDialog.fwProgressBar.setMax(APP_MEM_SIZE);
@@ -353,11 +390,11 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
         }
     }
 
-    public void update_fw(LoadingDialog fwUpdateDialog){// Eenter Bootloader Mode
+    public void update_fw(LoadingDialog fwUpdateDialog) {// Eenter Bootloader Mode
         if (!mBluetoothService.writeBytes(enter_boot)) {
             //Toast.makeText(FirmwareSettingsActivity.this, "Failed to send bootloader command", Toast.LENGTH_SHORT).show();
 
-            while(!fwUpdateDialog.DialogIsDismissed()) {
+            while (!fwUpdateDialog.DialogIsDismissed()) {
                 fwUpdateDialog.dismissDialog();
             }
             return;
@@ -365,7 +402,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
             // Open the FW file and read it into a byte array
             int fw_size = (int) firmwareFile.length();
             byte[] FW_Bytes = new byte[fw_size];
-            int[] FW_Words = new int[fw_size/4];
+            int[] FW_Words = new int[fw_size / 4];
             try {
                 BufferedInputStream buf = new BufferedInputStream(new FileInputStream(firmwareFile));
                 buf.read(FW_Bytes, 0, FW_Bytes.length);
@@ -374,7 +411,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 //Toast.makeText(FirmwareSettingsActivity.this, "File not found", Toast.LENGTH_SHORT).show();
                 SendGotoApp(); // Jump to application starting address
 
-                while(!fwUpdateDialog.DialogIsDismissed()) {
+                while (!fwUpdateDialog.DialogIsDismissed()) {
                     fwUpdateDialog.dismissDialog();
                 }
                 return;
@@ -382,7 +419,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 //Toast.makeText(FirmwareSettingsActivity.this, "IO Exception", Toast.LENGTH_SHORT).show();
                 SendGotoApp(); // Jump to application starting address
 
-                while(!fwUpdateDialog.DialogIsDismissed()) {
+                while (!fwUpdateDialog.DialogIsDismissed()) {
                     fwUpdateDialog.dismissDialog();
                 }
                 return;
@@ -390,30 +427,32 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
 
             // Erase all of the application memory space, protecting for 0x2000 of bootloader and 0x4000 of EEPROM
             // 0x2000 - 0x3A7FF (231423 bytes)
-            while (!mBluetoothService.writeBytesFast(erase_mem_cmd)){}
+            while (!mBluetoothService.writeBytesFast(erase_mem_cmd)) {
+            }
             RESPONSE_EXPECTED = true;
             boolean ERASE_STARTED = false;
             long timer = System.currentTimeMillis();
             int erase_fail_count = 0;
-            while(bootloader_response < 0x338){//RESPONSE_RECIEVED = false){
-                if(RESPONSE_RECIEVED) {
+            while (bootloader_response < 0x338) {//RESPONSE_RECIEVED = false){
+                if (RESPONSE_RECIEVED) {
                     fwUpdateDialog.fwProgressBar.setProgress(bootloader_response + 1);
                     RESPONSE_RECIEVED = false;
                     ERASE_STARTED = true;
-                }else if(!ERASE_STARTED){
-                    if((System.currentTimeMillis()-timer) > 500){
-                        while (!mBluetoothService.writeBytesFast(erase_mem_cmd)){}
+                } else if (!ERASE_STARTED) {
+                    if ((System.currentTimeMillis() - timer) > 500) {
+                        while (!mBluetoothService.writeBytesFast(erase_mem_cmd)) {
+                        }
                         timer = System.currentTimeMillis();
                         erase_fail_count++;
                     }
-                    if(erase_fail_count == 10){
-                        publishTitle(fwUpdateDialog,"New FW Failed to Upload. Please try again or use USB");
+                    if (erase_fail_count == 10) {
+                        publishTitle(fwUpdateDialog, "New FW Failed to Upload. Please try again or use USB");
 
                         timer = System.currentTimeMillis();
                         while ((System.currentTimeMillis() - timer) < 2000) {
                         }
 
-                        while(!fwUpdateDialog.DialogIsDismissed()) {
+                        while (!fwUpdateDialog.DialogIsDismissed()) {
                             fwUpdateDialog.dismissDialog();
                         }
                         return;
@@ -424,12 +463,13 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
             RESPONSE_RECIEVED = false;
 
             timer = System.currentTimeMillis();
-            while((System.currentTimeMillis()-timer) < 500){}
+            while ((System.currentTimeMillis() - timer) < 500) {
+            }
 //*/
             // Change the progress bar info for writin FW bytes
             fwUpdateDialog.fwProgressBar.setMax(fw_size);
             fwUpdateDialog.fwProgressBar.setProgress(0);
-            publishTitle(fwUpdateDialog,"Writing New FW (" + 1 + "/" + fw_size + ")");
+            publishTitle(fwUpdateDialog, "Writing New FW (" + 1 + "/" + fw_size + ")");
 
 
             // Write the FW to memory word by word
@@ -439,49 +479,49 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
             RESPONSE_EXPECTED = true;
             boolean CATCH_UP = false;
             int drop_number = 0;
-            int i = fw_size-1;
-            while((i+1)%64 != 0){
+            int i = fw_size - 1;
+            while ((i + 1) % 64 != 0) {
                 i++;
             }
-            while(!UPLOAD_COMPLETE && !UPLOAD_FAILED){
-                if(RESPONSE_RECIEVED = true && RESEND_REQUESTED && !CATCH_UP){
+            while (!UPLOAD_COMPLETE && !UPLOAD_FAILED) {
+                if (RESPONSE_RECIEVED = true && RESEND_REQUESTED && !CATCH_UP) {
                     drop_number = i;
                     i = bootloader_response + 16;
                     RESEND_REQUESTED = false;
                     RESPONSE_RECIEVED = false;
                     CATCH_UP = true;
                 }
-                if(i<=fw_size-1) {
-                    tmp_bytes[15-(i % 16)] = FW_Bytes[i];
-                } else{
-                    tmp_bytes[15-(i % 16)] = 0;
+                if (i <= fw_size - 1) {
+                    tmp_bytes[15 - (i % 16)] = FW_Bytes[i];
+                } else {
+                    tmp_bytes[15 - (i % 16)] = 0;
                 }
-                if((i)%16 == 0){
+                if ((i) % 16 == 0) {
                     tmp_bytes[16] = (byte) (((i) & 0x0FF0000) >> 16);
                     tmp_bytes[17] = (byte) (((i) & 0x0FF00) >> 8);
                     tmp_bytes[18] = (byte) ((i) & 0x0FF);
-                    while (!mBluetoothService.writeBytesFast(tmp_bytes)){}
+                    while (!mBluetoothService.writeBytesFast(tmp_bytes)) {
+                    }
                 }
-                if(!CATCH_UP) {
-                    publishTitle(fwUpdateDialog,"Writing New FW (" + (fw_size-i) + "/" + fw_size + ")");
-                    fwUpdateDialog.fwProgressBar.setProgress(fw_size-i);
-                } else if(i == drop_number){
+                if (!CATCH_UP) {
+                    publishTitle(fwUpdateDialog, "Writing New FW (" + (fw_size - i) + "/" + fw_size + ")");
+                    fwUpdateDialog.fwProgressBar.setProgress(fw_size - i);
+                } else if (i == drop_number) {
                     CATCH_UP = false;
                 }
 
-                if(i != 0) {
+                if (i != 0) {
                     i--;
                     timer = System.currentTimeMillis();
-                }
-                else if(i == 0 && (System.currentTimeMillis()-timer) > 2000) {
+                } else if (i == 0 && (System.currentTimeMillis() - timer) > 2000) {
                     break;
                 }
             }
             RESPONSE_EXPECTED = false;
             RESPONSE_RECIEVED = false;
 
-            if(UPLOAD_COMPLETE) {
-                publishTitle(fwUpdateDialog,"New FW Uploaded Successfully!");
+            if (UPLOAD_COMPLETE) {
+                publishTitle(fwUpdateDialog, "New FW Uploaded Successfully!");
 
                 ClearCommandBuff();
 
@@ -490,8 +530,8 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 }
 
                 SendGotoApp(); // Jump to application starting address
-            } else{
-                publishTitle(fwUpdateDialog,"New FW Failed to Uploaded");
+            } else {
+                publishTitle(fwUpdateDialog, "New FW Failed to Uploaded");
 
                 timer = System.currentTimeMillis();
                 while ((System.currentTimeMillis() - timer) < 2000) {
@@ -501,9 +541,10 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
             UPLOAD_FAILED = false;
 //*/
             timer = System.currentTimeMillis();
-            while((System.currentTimeMillis()-timer) < 100){}
+            while ((System.currentTimeMillis() - timer) < 100) {
+            }
 
-            while(!fwUpdateDialog.DialogIsDismissed()) {
+            while (!fwUpdateDialog.DialogIsDismissed()) {
                 fwUpdateDialog.dismissDialog();
             }
         }
@@ -528,51 +569,63 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 finish();
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) {
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                if(data.length >= 1 && data.length <=5) {
-                    if(RESPONSE_EXPECTED){
-                        if(data.length == 1){
-                            if((data[0] & 0x0FF) == 0x55){
+                if (data.length >= 1 && data.length <= 5) {
+                    if (RESPONSE_EXPECTED) {
+                        if (data.length == 1) {
+                            if ((data[0] & 0x0FF) == 0x55) {
                                 UPLOAD_COMPLETE = true;
-                            } else if((data[0] & 0x0FF) == 0x5A){
+                            } else if ((data[0] & 0x0FF) == 0x5A) {
                                 UPLOAD_FAILED = true;
                             }
                             bootloader_response = data[0] & 0x0FF;
-                        }else if(data.length == 2){
-                            bootloader_response = (((data[1]&0x0FF)<<8)|(data[0]&0x0FF)) & 0x0FFFF;
-                        }else if(data.length == 3){
-                            bootloader_response = (((data[0]&0x0FF)<<16)|((data[1]&0x0FF)<<8)|(data[2]&0x0FF)) & 0x0FFFFFF;
-                        }else if(data.length == 4){
-                            if(data[3] == 'R'){
+                        } else if (data.length == 2) {
+                            bootloader_response = (((data[1] & 0x0FF) << 8) | (data[0] & 0x0FF)) & 0x0FFFF;
+                        } else if (data.length == 3) {
+                            bootloader_response = (((data[0] & 0x0FF) << 16) | ((data[1] & 0x0FF) << 8) | (data[2] & 0x0FF)) & 0x0FFFFFF;
+                        } else if (data.length == 4) {
+                            if (data[3] == 'R') {
                                 //Toast.makeText(FirmwareSettingsActivity.this, "Resend Requested", Toast.LENGTH_SHORT).show();
                                 RESEND_REQUESTED = true;
-                                bootloader_response = (((data[2]&0x0FF)<<16)|((data[1]&0x0FF)<<8)|(data[0]&0x0FF)) & 0x0FFFFFF;
-                            }else {
+                                bootloader_response = (((data[2] & 0x0FF) << 16) | ((data[1] & 0x0FF) << 8) | (data[0] & 0x0FF)) & 0x0FFFFFF;
+                            } else {
                                 bootloader_response = (((data[0] & 0x0FF) << 24) | ((data[1] & 0x0FF) << 16) | ((data[2] & 0x0FF) << 8) | (data[3] & 0x0FF));
                             }
                         }
                         //RESPONSE_EXPECTED = false;
                         RESPONSE_RECIEVED = true;
-                    }else {
+                    } else {
                         for (int i = 0; i < data.length; i++) {
                             switch (data[i] & 0xFF) {
                                 case 0x74:
-                                    if (i + 4 >= data.length)
+                                    if (i + 4 == data.length-1) {
+                                        TTL_FW = 0;
+                                        TTL_FW += (data[i + 1] & 0x0FF);
+                                        TTL_FW += (data[i + 2] & 0x0FF) * 100;
+                                        TextView TTL_FW_VIEW = findViewById(R.id.current_fw_text);
+                                        String TTL_FW_TEXT = "Current Firmware: v" + (TTL_FW / 100) + "." + (TTL_FW % 100);
+                                        TTL_FW_VIEW.setText(TTL_FW_TEXT);
+                                        if (!manualHWcheck.isChecked()) {
+                                            TTL_HW = 0;
+                                            TTL_HW += (data[i + 3] & 0x0FF);
+                                            TTL_HW += (data[i + 4] & 0x0FF) * 100;
+                                            TextView TTL_HW_VIEW = findViewById(R.id.ttl_hw_text);
+                                            String TTL_HW_TEXT = "TTL Hardware: v" + (TTL_HW / 100) + "." + (TTL_HW % 100);
+                                            TTL_HW_VIEW.setText(TTL_HW_TEXT);
+                                        }
+                                        i += 4;
+                                    } else if(i + 2 == data.length-1){
+                                        TTL_FW = 0;
+                                        TTL_FW += (data[i + 1] & 0x0FF);
+                                        TTL_FW += (data[i + 2] & 0x0FF) * 100;
+                                        TextView TTL_FW_VIEW = findViewById(R.id.current_fw_text);
+                                        String TTL_FW_TEXT = "Current Firmware: v" + (TTL_FW / 100) + "." + (TTL_FW % 100);
+                                        TTL_FW_VIEW.setText(TTL_FW_TEXT);
+                                        i += 2;
+                                    } else {
                                         break;
-                                    TTL_FW = 0;
-                                    TTL_FW += (data[i + 1] & 0x0FF);
-                                    TTL_FW += (data[i + 2] & 0x0FF) * 100;
-                                    TextView TTL_FW_VIEW = findViewById(R.id.current_fw_text);
-                                    String TTL_FW_TEXT = "Current Firmware: v" + (TTL_FW / 100) + "." + (TTL_FW % 100);
-                                    TTL_FW_VIEW.setText(TTL_FW_TEXT);
-                                    TTL_HW = 0;
-                                    TTL_HW += (data[i + 3] & 0x0FF);
-                                    TTL_HW += (data[i + 4] & 0x0FF) * 100;
-                                    TextView TTL_HW_VIEW = findViewById(R.id.ttl_hw_text);
-                                    String TTL_HW_TEXT = "TTL Hardware: v" + (TTL_HW / 100) + "." + (TTL_HW % 100);
-                                    TTL_HW_VIEW.setText(TTL_HW_TEXT);
-                                    i += 4;
+                                    }
 
-                                    if(FIRST_TTL_FW_READ) {
+                                    if (FIRST_TTL_FW_READ) {
                                         setWarningIcon(false);
                                         FIRST_TTL_FW_READ = false;
                                     } else
@@ -596,12 +649,13 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
     private void downloadBinFile() {
         try {
             URL u = null;
-            if(TTL_HW == 304) {
+            if (TTL_HW == 304) {
                 u = new URL("https://github.com/Samatthe/TTL-Firmware/raw/master/Release%20FW/Teltail%20HW%203v4.bin");
-            }else if(TTL_HW == 400 || TTL_HW == 401){
+            } else if (TTL_HW == 400 || TTL_HW == 401) {
                 u = new URL("https://github.com/Samatthe/TTL-Firmware/raw/master/Release%20FW/Teltail%20HW%204v1.bin");
             }
-            if(u != null) {
+            if (u != null) {
+                Latest_HW = TTL_HW;
                 URLConnection conn = u.openConnection();
                 int contentLength = conn.getContentLength();
 
@@ -622,8 +676,10 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 fos.write(buffer);
                 fos.flush();
                 fos.close();
+            } else {
+                Toast.makeText(FirmwareSettingsActivity.this, "Read hardware version and try again", Toast.LENGTH_SHORT).show();
             }
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Toast.makeText(FirmwareSettingsActivity.this, "Firmware: File not found", Toast.LENGTH_SHORT).show();
             return; // swallow a 404
         } catch (IOException e) {
@@ -632,10 +688,8 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
         }
     }
 
-    public boolean downloadVersionFile()
-    {
-        try
-        {
+    public boolean downloadVersionFile() {
+        try {
             URL u = new URL("https://github.com/Samatthe/TTL-Firmware/raw/master/Release%20FW/FW%20Version.txt");
 
             URLConnection ucon = u.openConnection();
@@ -645,8 +699,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
             InputStream is = ucon.getInputStream();
             BufferedInputStream inStream = new BufferedInputStream(is, 1024 * 5);
 
-            if (versionFile.exists())
-            {
+            if (versionFile.exists()) {
                 //Toast.makeText(FirmwareSettingsActivity.this, "Version: Deleted", Toast.LENGTH_SHORT).show();
                 versionFile.delete();
             }
@@ -658,8 +711,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
             //Toast.makeText(FirmwareSettingsActivity.this, versionFile.toString(), Toast.LENGTH_SHORT).show();
 
             int len;
-            while ((len = inStream.read(buff)) != -1)
-            {
+            while ((len = inStream.read(buff)) != -1) {
                 outStream.write(buff, 0, len);
             }
 
@@ -669,16 +721,14 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
 
             readFirmwareVersionFromFile(versionFile);
 
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Toast.makeText(FirmwareSettingsActivity.this, "Version: Exception", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
     }
 
-    public void readFirmwareVersionFromFile(File inputFile){
+    public void readFirmwareVersionFromFile(File inputFile) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(versionFile));
             String line;
@@ -686,9 +736,9 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
             while ((line = br.readLine()) != null) {
                 String[] split = line.split("\\.");
                 for (int i = 0; i < split.length; i++) {
-                    if(i == 0) {
-                        Latest_FW += Integer.valueOf(split[i])*100;
-                    }else if(i == 1){
+                    if (i == 0) {
+                        Latest_FW += Integer.valueOf(split[i]) * 100;
+                    } else if (i == 1) {
                         Latest_FW += Integer.valueOf(split[i]);
                     }
                     //Toast.makeText(FirmwareSettingsActivity.this, " "+Latest_FW, Toast.LENGTH_SHORT).show();
@@ -697,29 +747,28 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
             br.close();
 
             TextView LATEST_FW_VIEW = findViewById(R.id.latest_fw_text);
-            String LATEST_FW_TEXT = "Latest Firmware: v"+(Latest_FW/100)+"."+(Latest_FW%100);
+            String LATEST_FW_TEXT = "Latest Firmware: v" + (Latest_FW / 100) + "." + (Latest_FW % 100);
             LATEST_FW_VIEW.setText(LATEST_FW_TEXT);
 
-            if(FIRST_FILE_FW_READ) {
+            if (FIRST_FILE_FW_READ) {
                 setWarningIcon(false);
                 FIRST_FILE_FW_READ = false;
             } else
                 setWarningIcon(true);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Toast.makeText(FirmwareSettingsActivity.this, "Read: Exception", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void setWarningIcon(boolean ShowToasts){
+    private void setWarningIcon(boolean ShowToasts) {
         ImageView FW_WARNING_ICON = findViewById(R.id.ttl_fw_warning_icon);
-        if(TTL_FW != 0 && Latest_FW != 0 && TTL_FW != Latest_FW) {
+        if (TTL_FW != 0 && Latest_FW != 0 && TTL_FW != Latest_FW) {
             FW_WARNING_ICON.setVisibility(View.VISIBLE);
-            if(ShowToasts) {
+            if (ShowToasts) {
                 Toast.makeText(FirmwareSettingsActivity.this, "The TTL FW is out of date. Please update the TTL FW now.", Toast.LENGTH_LONG).show();
             }
-        }else{
-            if(ShowToasts) {
+        } else {
+            if (ShowToasts) {
                 if (TTL_FW == 0) {
                     Toast.makeText(FirmwareSettingsActivity.this, "The TTL FW was not read yet", Toast.LENGTH_LONG).show();
                 }
@@ -734,14 +783,15 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
         }
     }
 
-    void SendGotoApp(){
+    void SendGotoApp() {
         // Jump to application starting address
-        while(!mBluetoothService.writeBytes(go_to_app)) {}
+        while (!mBluetoothService.writeBytes(go_to_app)) {
+        }
     }
 
-    void SendEraseRow(int addr){
+    void SendEraseRow(int addr) {
         // Get the size of the FW array as a hex string
-        String hex_addr = int2hex(addr/2, 5);
+        String hex_addr = int2hex(addr / 2, 5);
 
         byte write_ADDR_reg[] = new byte[]{
                 (byte) 0x57,// 'W'
@@ -761,13 +811,17 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 (byte) hex_addr.charAt(4),// ADDR
                 (byte) 0x23// '#'
         };
-        while(!WaitNVMReady()){}
-        while (!mBluetoothService.writeBytesFast(write_ADDR_reg)){}
-        while(!WaitNVMReady()){}
-        while (!mBluetoothService.writeBytesFast(erase_row_cmd)){}
+        while (!WaitNVMReady()) {
+        }
+        while (!mBluetoothService.writeBytesFast(write_ADDR_reg)) {
+        }
+        while (!WaitNVMReady()) {
+        }
+        while (!mBluetoothService.writeBytesFast(erase_row_cmd)) {
+        }
     }
 
-    void SendFWword(int addr, int data){
+    void SendFWword(int addr, int data) {
         String hex_addr = int2hex(addr, 8);
         String hex_data = int2hex(data, 8);
 
@@ -792,14 +846,16 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 (byte) hex_data.charAt(7),// DATA
                 (byte) 0x23// '#'
         };
-        while(!mBluetoothService.writeBytesFast(write_fw_word)){}
+        while (!mBluetoothService.writeBytesFast(write_fw_word)) {
+        }
     }
 
-    void SendPageWriteCMD(){
-        while (!mBluetoothService.writeBytesFast(write_page_cmd)){}
+    void SendPageWriteCMD() {
+        while (!mBluetoothService.writeBytesFast(write_page_cmd)) {
+        }
     }
 
-    int ReadFWword(int addr){
+    int ReadFWword(int addr) {
         // Get the size of the FW array as a hex string
         String hex_addr = int2hex(addr, 5);
 
@@ -814,10 +870,11 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 (byte) 0x23// '#'
         };
         RESPONSE_EXPECTED = true;
-        while (!mBluetoothService.writeBytesFast(read_fw_word)){}
+        while (!mBluetoothService.writeBytesFast(read_fw_word)) {
+        }
         long timer = System.currentTimeMillis();
-        while(RESPONSE_RECIEVED == false){
-            if(System.currentTimeMillis()-timer > 500){
+        while (RESPONSE_RECIEVED == false) {
+            if (System.currentTimeMillis() - timer > 500) {
                 return -1;
             }
         }
@@ -825,28 +882,31 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
         return bootloader_response;
     }
 
-    boolean WaitNVMReady(){
+    boolean WaitNVMReady() {
         RESPONSE_EXPECTED = true;
-        while (!mBluetoothService.writeBytesFast(read_ready_Buf)) {}
+        while (!mBluetoothService.writeBytesFast(read_ready_Buf)) {
+        }
         long timer = System.currentTimeMillis();
-        while (RESPONSE_RECIEVED == false){
-            if(System.currentTimeMillis()-timer>=1250) {
+        while (RESPONSE_RECIEVED == false) {
+            if (System.currentTimeMillis() - timer >= 1250) {
                 return false;
             }
         }
-        if(bootloader_response == 0x01){
+        if (bootloader_response == 0x01) {
             RESPONSE_RECIEVED = false;
             return true;
-        }else {
+        } else {
             RESPONSE_RECIEVED = false;
             return false;
         }
     }
 
-    void SetManPageWrite(){
+    void SetManPageWrite() {
         RESPONSE_EXPECTED = true;
-        while (!mBluetoothService.writeBytesFast(read_CTRLB_Buf)) {}
-        while (RESPONSE_RECIEVED == false){}
+        while (!mBluetoothService.writeBytesFast(read_CTRLB_Buf)) {
+        }
+        while (RESPONSE_RECIEVED == false) {
+        }
         RESPONSE_EXPECTED = false;
 
         bootloader_response = bootloader_response | 0x080;
@@ -854,7 +914,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
         SendFWword(0x41004004, bootloader_response);
     }
 
-    void FWuploadStart(int size){
+    void FWuploadStart(int size) {
         String hex_size = int2hex(size, 8);
 
         byte fw_upload_start[] = new byte[]{
@@ -869,21 +929,66 @@ public class FirmwareSettingsActivity extends AppCompatActivity {
                 (byte) hex_size.charAt(7),// ADDR
                 (byte) 0x23 // '#'
         };
-        while(!mBluetoothService.writeBytesFast(fw_upload_start)){}
+        while (!mBluetoothService.writeBytesFast(fw_upload_start)) {
+        }
     }
 
     String int2hex(int num, int len) {
         String tmp = Long.toHexString(num);
-        for (int i = tmp.length(); i < len*2; i++) {
+        for (int i = tmp.length(); i < len * 2; i++) {
             tmp = '0' + tmp;
             //Toast.makeText(FirmwareSettingsActivity.this, hex_addr, Toast.LENGTH_SHORT).show();
         }
 
-        return tmp.substring(tmp.length()-len);
+        return tmp.substring(tmp.length() - len);
         //return tmp;
     }
 
-    void ClearCommandBuff(){
-        while(!mBluetoothService.writeBytesFast(clear_cmd_buf)){}
+    void ClearCommandBuff() {
+        while (!mBluetoothService.writeBytesFast(clear_cmd_buf)) {
+        }
+    }
+
+    public void onCheckboxClicked(View view) {
+        CheckBox checkbox = (CheckBox) findViewById(view.getId());
+        TextView HardwareVersionText = findViewById(R.id.ttl_hw_text);
+
+        switch (view.getId()) {
+            case R.id.firmware_manual_hw_check:
+                //Toast.makeText(LoggingActivity.this, "Enable is" + checkbox.isChecked(), Toast.LENGTH_SHORT).show();
+                if (manualHWcheck.isChecked()) {
+                    HardwareVersionText.setText("TTL Hardware: ");
+                    manualHWspinner.setVisibility(View.VISIBLE);
+                    updateHWversion(manualHWspinner.getSelectedItemPosition());
+                } else {
+                    TTL_HW = 0;
+                    HardwareVersionText.setText("TTL Hardware: v?.?");
+                    manualHWspinner.setVisibility(View.GONE);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent){
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        long parent_id = parent.getId();
+        String selectedItem = parent.getSelectedItem().toString();
+        TextView HardwareVersionText = findViewById(R.id.ttl_hw_text);
+
+        if(parent_id == R.id.manual_hw_spinner){
+            updateHWversion(pos);
+        }
+    }
+
+    void updateHWversion(int pos){
+        if(pos == 0){
+            TTL_HW = 304;
+        }else if(pos == 1){
+            TTL_HW = 401;
+        }
     }
 }

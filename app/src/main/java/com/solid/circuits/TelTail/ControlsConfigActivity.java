@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import androidx.appcompat.app.AppCompatActivity;
@@ -71,64 +72,70 @@ public class ControlsConfigActivity extends AppCompatActivity
 
     ArrayAdapter<CharSequence> single_button_config_adapter;
     List<CharSequence> single_aux_list = new ArrayList<CharSequence>();
+    List<CharSequence> single_toggle_brights_list = new ArrayList<CharSequence>();
     List<CharSequence> single_toggle_all_list = new ArrayList<CharSequence>();
     List<CharSequence> single_toggle_head_list = new ArrayList<CharSequence>();
     List<CharSequence> single_toggle_side_list = new ArrayList<CharSequence>();
     List<CharSequence> single_mode_up_list = new ArrayList<CharSequence>();
     List<CharSequence> single_mode_down_list = new ArrayList<CharSequence>();
-    List<CharSequence> dual_aux_list = new ArrayList<CharSequence>();
+    /*List<CharSequence> dual_aux_list = new ArrayList<CharSequence>();
     List<CharSequence> dual_toggle_all_list = new ArrayList<CharSequence>();
     List<CharSequence> dual_toggle_head_list = new ArrayList<CharSequence>();
     List<CharSequence> dual_toggle_side_list = new ArrayList<CharSequence>();
     List<CharSequence> dual_mode_up_list = new ArrayList<CharSequence>();
-    List<CharSequence> dual_mode_down_list = new ArrayList<CharSequence>();
+    List<CharSequence> dual_mode_down_list = new ArrayList<CharSequence>();*/
 
     ArrayAdapter<CharSequence> single_aux_adapter;
+    ArrayAdapter<CharSequence> single_toggle_brights_adapter;
     ArrayAdapter<CharSequence> single_mode_down_adapter;
     ArrayAdapter<CharSequence> single_mode_up_adapter;
     ArrayAdapter<CharSequence> single_toggle_all_adapter;
     ArrayAdapter<CharSequence> single_toggle_head_adapter;
     ArrayAdapter<CharSequence> single_toggle_side_adapter;
-    ArrayAdapter<CharSequence> dual_aux_adapter;
+    /*ArrayAdapter<CharSequence> dual_aux_adapter;
     ArrayAdapter<CharSequence> dual_mode_down_adapter;
     ArrayAdapter<CharSequence> dual_mode_up_adapter;
     ArrayAdapter<CharSequence> dual_toggle_all_adapter;
     ArrayAdapter<CharSequence> dual_toggle_head_adapter;
-    ArrayAdapter<CharSequence> dual_toggle_side_adapter;
+    ArrayAdapter<CharSequence> dual_toggle_side_adapter;*/
 
     CheckBox aux_enable_check;
     Spinner aux_type_spinner;
     SeekBar aux_time_seeker;
     Spinner single_aux_control_spinner;
+    Spinner single_brights_toggle_spinner;
     Spinner single_mode_down_spinner;
     Spinner single_mode_up_spinner;
     Spinner single_toggle_all_spinner;
     Spinner single_toggle_head_spinner;
     Spinner single_toggle_side_spinner;
-    Spinner dual_aux_control_spinner;
+    /*Spinner dual_aux_control_spinner;
     Spinner dual_mode_down_spinner;
     Spinner dual_mode_up_spinner;
     Spinner dual_toggle_all_spinner;
     Spinner dual_toggle_head_spinner;
-    Spinner dual_toggle_side_spinner;
+    Spinner dual_toggle_side_spinner;*/
     CheckBox turn_enable_check;
 
     String single_aux_control_last = "None";
+    String single_brights_toggle_last = "None";
     String single_all_toggle_last = "None";
     String single_head_toggle_last = "None";
     String single_side_toggle_last = "None";
     String single_mode_down_last = "None";
     String single_mode_up_last = "None";
-    String dual_aux_control_last = "None";
+    /*String dual_aux_control_last = "None";
     String dual_all_toggle_last = "None";
     String dual_head_toggle_last = "None";
     String dual_side_toggle_last = "None";
     String dual_mode_down_last = "None";
-    String dual_mode_up_last = "None";
+    String dual_mode_up_last = "None";*/
 
     boolean CHECK_DATA = false;
     long applytimer = 0;
     long applytime = 500;
+
+    boolean HIGHBEAMS_ENABLED = false;
 
     private final static String TAG = ControlsConfigActivity.class.getSimpleName();
 
@@ -175,31 +182,33 @@ public class ControlsConfigActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initializeSingleList(single_aux_list);
+        initializeSingleList(single_toggle_brights_list);
         initializeSingleList(single_toggle_all_list);
         initializeSingleList(single_toggle_head_list);
         initializeSingleList(single_toggle_side_list);
         initializeSingleList(single_mode_down_list);
         initializeSingleList(single_mode_up_list);
-        initializeDualList(dual_aux_list);
+        /*initializeDualList(dual_aux_list);
         initializeDualList(dual_toggle_all_list);
         initializeDualList(dual_toggle_head_list);
         initializeDualList(dual_toggle_side_list);
         initializeDualList(dual_mode_down_list);
-        initializeDualList(dual_mode_up_list);
+        initializeDualList(dual_mode_up_list);*/
 
         aux_type_spinner = (Spinner) findViewById(R.id.aux_type_spinner);
         single_aux_control_spinner = (Spinner) findViewById(R.id.single_aux_control_spinner);
+        single_brights_toggle_spinner = (Spinner) findViewById(R.id.single_toggle_brights_spinner);
         single_mode_down_spinner = (Spinner) findViewById(R.id.single_mode_down_spinner);
         single_mode_up_spinner = (Spinner) findViewById(R.id.single_mode_up_spinner);
         single_toggle_all_spinner = (Spinner) findViewById(R.id.single_toggle_all_spinner);
         single_toggle_head_spinner = (Spinner) findViewById(R.id.single_toggle_head_spinner);
         single_toggle_side_spinner = (Spinner) findViewById(R.id.single_toggle_side_spinner);
-        dual_aux_control_spinner = (Spinner) findViewById(R.id.dual_aux_control_spinner);
+        /*dual_aux_control_spinner = (Spinner) findViewById(R.id.dual_aux_control_spinner);
         dual_mode_down_spinner = (Spinner) findViewById(R.id.dual_mode_down_spinner);
         dual_mode_up_spinner = (Spinner) findViewById(R.id.dual_mode_up_spinner);
         dual_toggle_all_spinner = (Spinner) findViewById(R.id.dual_toggle_all_spinner);
         dual_toggle_head_spinner = (Spinner) findViewById(R.id.dual_toggle_head_spinner);
-        dual_toggle_side_spinner = (Spinner) findViewById(R.id.dual_toggle_side_spinner);
+        dual_toggle_side_spinner = (Spinner) findViewById(R.id.dual_toggle_side_spinner);*/
 
         aux_enable_check = (CheckBox) findViewById(R.id.controls_aux_enable_check);
         turn_enable_check = (CheckBox) findViewById(R.id.controls_turn_enable_check);
@@ -220,6 +229,13 @@ public class ControlsConfigActivity extends AppCompatActivity
         single_aux_adapter.setDropDownViewResource(R.layout.gps_spinner_item);
         single_aux_adapter.notifyDataSetChanged();
         single_aux_control_spinner.setAdapter(single_aux_adapter);
+
+        // Brights toggle spinner
+        single_toggle_brights_adapter = new ArrayAdapter<>(this,
+                R.layout.gps_spinner_item, single_toggle_brights_list);
+        single_toggle_brights_adapter.setDropDownViewResource(R.layout.gps_spinner_item);
+        single_toggle_brights_adapter.notifyDataSetChanged();
+        single_brights_toggle_spinner.setAdapter(single_toggle_brights_adapter);
 
         // Single mode down spinner
         single_mode_down_adapter = new ArrayAdapter<>(this,
@@ -257,7 +273,7 @@ public class ControlsConfigActivity extends AppCompatActivity
         single_toggle_side_spinner.setAdapter(single_toggle_side_adapter);
 
         // Aux control assignment spinner
-        dual_aux_adapter = new ArrayAdapter<>(this,
+        /*dual_aux_adapter = new ArrayAdapter<>(this,
                 R.layout.gps_spinner_item, dual_aux_list);
         dual_aux_adapter.setDropDownViewResource(R.layout.gps_spinner_item);
         dual_aux_adapter.notifyDataSetChanged();
@@ -296,21 +312,22 @@ public class ControlsConfigActivity extends AppCompatActivity
                 R.layout.gps_spinner_item, dual_toggle_side_list);
         dual_toggle_side_adapter.setDropDownViewResource(R.layout.gps_spinner_item);
         dual_toggle_side_adapter.notifyDataSetChanged();
-        dual_toggle_side_spinner.setAdapter(dual_toggle_side_adapter);
+        dual_toggle_side_spinner.setAdapter(dual_toggle_side_adapter);*/
 
         aux_type_spinner.setOnItemSelectedListener(this);
         single_aux_control_spinner.setOnItemSelectedListener(this);
+        single_brights_toggle_spinner.setOnItemSelectedListener(this);
         single_mode_down_spinner.setOnItemSelectedListener(this);
         single_mode_up_spinner.setOnItemSelectedListener(this);
         single_toggle_all_spinner.setOnItemSelectedListener(this);
         single_toggle_head_spinner.setOnItemSelectedListener(this);
         single_toggle_side_spinner.setOnItemSelectedListener(this);
-        dual_aux_control_spinner.setOnItemSelectedListener(this);
+        /*dual_aux_control_spinner.setOnItemSelectedListener(this);
         dual_mode_down_spinner.setOnItemSelectedListener(this);
         dual_mode_up_spinner.setOnItemSelectedListener(this);
         dual_toggle_all_spinner.setOnItemSelectedListener(this);
         dual_toggle_head_spinner.setOnItemSelectedListener(this);
-        dual_toggle_side_spinner.setOnItemSelectedListener(this);
+        dual_toggle_side_spinner.setOnItemSelectedListener(this);*/
 
         restoresettings();
 
@@ -344,6 +361,16 @@ public class ControlsConfigActivity extends AppCompatActivity
         aux_enable_check.setChecked(settings.getBoolean("AuxEnable", false));
         aux_type_spinner.setSelection(settings.getInt("AuxType", 0));
         aux_time_seeker.setProgress(settings.getInt("AuxTime", 50));
+
+        TextView brights_toggle_text = findViewById(R.id.single_toggle_brights_text);
+        HIGHBEAMS_ENABLED = settings.getBoolean("HighbeamEnable", false);
+        if(!HIGHBEAMS_ENABLED) {
+            brights_toggle_text.setTextColor(Color.GRAY);
+            single_brights_toggle_spinner.setEnabled(false);
+        }else{
+            brights_toggle_text.setTextColor(Color.WHITE);
+            single_brights_toggle_spinner.setEnabled(true);
+        }
     }
 
     public void onButtonClick(View view) {
@@ -365,16 +392,17 @@ public class ControlsConfigActivity extends AppCompatActivity
                 int checkState2 = turn_enable_check.isChecked() ? 1 : 0;
                 txbuf = new byte[]{
                         (byte) 0x0A5,
-                        (byte) 0x008,
+                        (byte) 0x006,
                         (byte) 0x0C2,
                         (byte) ((checkState1 << 7) | (checkState2 << 6) | aux_type_spinner.getSelectedItemPosition()),
                         (byte) aux_time_seeker.getProgress(),
                         (byte) ((getControlID(single_aux_control_spinner.getSelectedItem().toString()) << 4) | getControlID(single_toggle_all_spinner.getSelectedItem().toString())),
                         (byte) ((getControlID(single_toggle_head_spinner.getSelectedItem().toString()) << 4) | getControlID(single_toggle_side_spinner.getSelectedItem().toString())),
                         (byte) ((getControlID(single_mode_down_spinner.getSelectedItem().toString()) << 4) | getControlID(single_mode_up_spinner.getSelectedItem().toString())),
-                        (byte) ((getControlID(dual_aux_control_spinner.getSelectedItem().toString()) << 4) | getControlID(dual_toggle_all_spinner.getSelectedItem().toString())),
-                        (byte) ((getControlID(dual_toggle_head_spinner.getSelectedItem().toString()) << 4) | getControlID(dual_toggle_side_spinner.getSelectedItem().toString())),
-                        (byte) ((getControlID(dual_mode_down_spinner.getSelectedItem().toString()) << 4) | getControlID(dual_mode_up_spinner.getSelectedItem().toString())),
+                        (byte) getControlID(single_brights_toggle_spinner.getSelectedItem().toString()),
+                        //(byte) ((getControlID(dual_aux_control_spinner.getSelectedItem().toString()) << 4) | getControlID(dual_toggle_all_spinner.getSelectedItem().toString())),
+                        //(byte) ((getControlID(dual_toggle_head_spinner.getSelectedItem().toString()) << 4) | getControlID(dual_toggle_side_spinner.getSelectedItem().toString())),
+                        //(byte) ((getControlID(dual_mode_down_spinner.getSelectedItem().toString()) << 4) | getControlID(dual_mode_up_spinner.getSelectedItem().toString())),
                         (byte) 0x05A
                 };
                 if (!mBluetoothService.writeBytes(txbuf)) {
@@ -410,11 +438,11 @@ public class ControlsConfigActivity extends AppCompatActivity
                     Toast.makeText(ControlsConfigActivity.this, "Remote config failed to apply\nPlease try again", Toast.LENGTH_SHORT).show();
                     CHECK_DATA = false;
                 }
-                else if(data.length == 9) {
+                else if(data.length == 7) {
                     for (int i = 0; i < data.length; i++) {
                         switch (data[i] & 0xFF) {
                             case 0x81:
-                                if(i+8 >= data.length)
+                                if(i+6 >= data.length)
                                     break;
                                 //Toast.makeText(OrientationActivity.this, "Con: "+String.valueOf(data[i + 1] & 0xFF), Toast.LENGTH_SHORT).show();
                                 if(CHECK_DATA) {
@@ -429,12 +457,13 @@ public class ControlsConfigActivity extends AppCompatActivity
                                     if(getControlID(single_toggle_side_spinner.getSelectedItem().toString()) != (data[i + 4] & 0x0F)) dataCorrect = false;
                                     if(getControlID(single_mode_down_spinner.getSelectedItem().toString()) != ((data[i + 5] & 0xF0) >> 4)) dataCorrect = false;
                                     if(getControlID(single_mode_up_spinner.getSelectedItem().toString()) != (data[i + 5] & 0x0F)) dataCorrect = false;
-                                    if(getControlID(dual_aux_control_spinner.getSelectedItem().toString()) != ((data[i + 6] & 0xF0) >> 4)) dataCorrect = false;
-                                    if(getControlID(dual_toggle_all_spinner.getSelectedItem().toString()) != (data[i + 6] & 0x0F)) dataCorrect = false;
-                                    if(getControlID(dual_toggle_head_spinner.getSelectedItem().toString()) != ((data[i + 7] & 0xF0) >> 4)) dataCorrect = false;
-                                    if(getControlID(dual_toggle_side_spinner.getSelectedItem().toString()) != (data[i + 7] & 0x0F)) dataCorrect = false;
-                                    if(getControlID(dual_mode_down_spinner.getSelectedItem().toString()) != ((data[i + 8] & 0xF0) >> 4)) dataCorrect = false;
-                                    if(getControlID(dual_mode_up_spinner.getSelectedItem().toString()) != (data[i + 8] & 0x0F)) dataCorrect = false;
+                                    //if(getControlID(dual_aux_control_spinner.getSelectedItem().toString()) != ((data[i + 6] & 0xF0) >> 4)) dataCorrect = false;
+                                    //if(getControlID(dual_toggle_all_spinner.getSelectedItem().toString()) != (data[i + 6] & 0x0F)) dataCorrect = false;
+                                    //if(getControlID(dual_toggle_head_spinner.getSelectedItem().toString()) != ((data[i + 7] & 0xF0) >> 4)) dataCorrect = false;
+                                    //if(getControlID(dual_toggle_side_spinner.getSelectedItem().toString()) != (data[i + 7] & 0x0F)) dataCorrect = false;
+                                    //if(getControlID(dual_mode_down_spinner.getSelectedItem().toString()) != ((data[i + 8] & 0xF0) >> 4)) dataCorrect = false;
+                                    //if(getControlID(dual_mode_up_spinner.getSelectedItem().toString()) != (data[i + 8] & 0x0F)) dataCorrect = false;
+                                    if(getControlID(single_brights_toggle_spinner.getSelectedItem().toString()) != (data[i + 6] & 0x0F)) dataCorrect = false;
                                     if(dataCorrect){
                                         Toast.makeText(ControlsConfigActivity.this, "Controls applied successfully", Toast.LENGTH_SHORT).show();
                                     } else {
@@ -457,32 +486,34 @@ public class ControlsConfigActivity extends AppCompatActivity
                                         single_side_toggle_last = getControlFromID((data[i + 4] & 0x0F)).toString();
                                         single_mode_down_last = getControlFromID(((data[i + 5] & 0xF0) >> 4)).toString();
                                         single_mode_up_last = getControlFromID((data[i + 5] & 0x0F)).toString();
-                                        dual_aux_control_last = getControlFromID(((data[i + 6] & 0xF0) >> 4)).toString();
-                                        dual_all_toggle_last = getControlFromID((data[i + 6] & 0x0F)).toString();
-                                        dual_head_toggle_last = getControlFromID(((data[i + 7] & 0xF0) >> 4)).toString();
-                                        dual_side_toggle_last = getControlFromID((data[i + 7] & 0x0F)).toString();
-                                        dual_mode_down_last = getControlFromID(((data[i + 8] & 0xF0) >> 4)).toString();
-                                        dual_mode_up_last = getControlFromID((data[i + 8] & 0x0F)).toString();
+                                        single_brights_toggle_last = getControlFromID((data[i + 6] & 0x0F)).toString();
+                                        //dual_aux_control_last = getControlFromID(((data[i + 6] & 0xF0) >> 4)).toString();
+                                        //dual_all_toggle_last = getControlFromID((data[i + 6] & 0x0F)).toString();
+                                        //dual_head_toggle_last = getControlFromID(((data[i + 7] & 0xF0) >> 4)).toString();
+                                        //dual_side_toggle_last = getControlFromID((data[i + 7] & 0x0F)).toString();
+                                        //dual_mode_down_last = getControlFromID(((data[i + 8] & 0xF0) >> 4)).toString();
+                                        //dual_mode_up_last = getControlFromID((data[i + 8] & 0x0F)).toString();
                                         updateAllAdapters();
                                         single_aux_control_spinner.setSelection(single_aux_adapter.getPosition(single_aux_control_last));
+                                        single_brights_toggle_spinner.setSelection(single_toggle_brights_adapter.getPosition(single_brights_toggle_last));
                                         single_toggle_all_spinner.setSelection(single_toggle_all_adapter.getPosition(single_all_toggle_last));
                                         single_toggle_head_spinner.setSelection(single_toggle_head_adapter.getPosition(single_head_toggle_last));
                                         single_toggle_side_spinner.setSelection(single_toggle_side_adapter.getPosition(single_side_toggle_last));
                                         single_mode_down_spinner.setSelection(single_mode_down_adapter.getPosition(single_mode_down_last));
                                         single_mode_up_spinner.setSelection(single_mode_up_adapter.getPosition(single_mode_up_last));
-                                        dual_aux_control_spinner.setSelection(dual_aux_adapter.getPosition(dual_aux_control_last));
-                                        dual_toggle_all_spinner.setSelection(dual_toggle_all_adapter.getPosition(dual_all_toggle_last));
-                                        dual_toggle_head_spinner.setSelection(dual_toggle_head_adapter.getPosition(dual_head_toggle_last));
-                                        dual_toggle_side_spinner.setSelection(dual_toggle_side_adapter.getPosition(dual_side_toggle_last));
-                                        dual_mode_down_spinner.setSelection(dual_mode_down_adapter.getPosition(dual_mode_down_last));
-                                        dual_mode_up_spinner.setSelection(dual_mode_up_adapter.getPosition(dual_mode_up_last));
+                                        //dual_aux_control_spinner.setSelection(dual_aux_adapter.getPosition(dual_aux_control_last));
+                                        //dual_toggle_all_spinner.setSelection(dual_toggle_all_adapter.getPosition(dual_all_toggle_last));
+                                        //dual_toggle_head_spinner.setSelection(dual_toggle_head_adapter.getPosition(dual_head_toggle_last));
+                                        //dual_toggle_side_spinner.setSelection(dual_toggle_side_adapter.getPosition(dual_side_toggle_last));
+                                        //dual_mode_down_spinner.setSelection(dual_mode_down_adapter.getPosition(dual_mode_down_last));
+                                        //dual_mode_up_spinner.setSelection(dual_mode_up_adapter.getPosition(dual_mode_up_last));
                                     }
                                     catch(Exception e){
                                         //Log.e("BUG:", e.toString());
                                         Toast.makeText(ControlsConfigActivity.this, "Could not read settings correctly", Toast.LENGTH_SHORT).show();
                                     }
                                 }
-                                i+=8;
+                                i+=6;
                                 break;
                         }
                     }
@@ -509,48 +540,51 @@ public class ControlsConfigActivity extends AppCompatActivity
                 //resetAdapters();
 
                 single_aux_adapter.add("Hold > 0.5s");
-                dual_aux_adapter.add("Hold > 0.5s");
+                //dual_aux_adapter.add("Hold > 0.5s");
                 single_aux_control_spinner.setSelection(single_aux_adapter.getCount()-1);
-                dual_aux_control_spinner.setSelection(dual_aux_adapter.getCount()-1);
+                //dual_aux_control_spinner.setSelection(dual_aux_adapter.getCount()-1);
 
                 resetAdapters();
+                updateAdapter(single_toggle_brights_adapter, "None", "Medium Press (0.5><1s)");
                 updateAdapter(single_toggle_all_adapter, "None", "Medium Press (0.5><1s)");
                 updateAdapter(single_toggle_head_adapter, "None", "Medium Press (0.5><1s)");
                 updateAdapter(single_toggle_side_adapter, "None", "Medium Press (0.5><1s)");
                 updateAdapter(single_mode_up_adapter, "None", "Medium Press (0.5><1s)");
                 updateAdapter(single_mode_down_adapter, "None", "Medium Press (0.5><1s)");
 
+                updateAdapter(single_toggle_brights_adapter, "None","Long Press (> 1s)");
                 updateAdapter(single_toggle_all_adapter, "None","Long Press (> 1s)");
                 updateAdapter(single_toggle_head_adapter, "None","Long Press (> 1s)");
                 updateAdapter(single_toggle_side_adapter, "None","Long Press (> 1s)");
                 updateAdapter(single_mode_up_adapter, "None","Long Press (> 1s)");
                 updateAdapter(single_mode_down_adapter, "None","Long Press (> 1s)");
 
-                updateAdapter(dual_toggle_all_adapter, "None", "Medium Press (0.5><1s)");
-                updateAdapter(dual_toggle_head_adapter, "None", "Medium Press (0.5><1s)");
-                updateAdapter(dual_toggle_side_adapter, "None", "Medium Press (0.5><1s)");
-                updateAdapter(dual_mode_up_adapter, "None", "Medium Press (0.5><1s)");
-                updateAdapter(dual_mode_down_adapter, "None", "Medium Press (0.5><1s)");
+                //updateAdapter(dual_toggle_all_adapter, "None", "Medium Press (0.5><1s)");
+                //updateAdapter(dual_toggle_head_adapter, "None", "Medium Press (0.5><1s)");
+                //updateAdapter(dual_toggle_side_adapter, "None", "Medium Press (0.5><1s)");
+                //updateAdapter(dual_mode_up_adapter, "None", "Medium Press (0.5><1s)");
+                //updateAdapter(dual_mode_down_adapter, "None", "Medium Press (0.5><1s)");
 
-                updateAdapter(dual_toggle_all_adapter, "None","Long Press (> 1s)");
-                updateAdapter(dual_toggle_head_adapter, "None","Long Press (> 1s)");
-                updateAdapter(dual_toggle_side_adapter, "None","Long Press (> 1s)");
-                updateAdapter(dual_mode_up_adapter, "None","Long Press (> 1s)");
-                updateAdapter(dual_mode_down_adapter, "None","Long Press (> 1s)");
+                //updateAdapter(dual_toggle_all_adapter, "None","Long Press (> 1s)");
+                //updateAdapter(dual_toggle_head_adapter, "None","Long Press (> 1s)");
+                //updateAdapter(dual_toggle_side_adapter, "None","Long Press (> 1s)");
+                //updateAdapter(dual_mode_up_adapter, "None","Long Press (> 1s)");
+                //updateAdapter(dual_mode_down_adapter, "None","Long Press (> 1s)");
 
                 single_aux_control_spinner.setEnabled(false);
+                single_brights_toggle_spinner.setEnabled(HIGHBEAMS_ENABLED);
                 single_mode_down_spinner.setEnabled(true);
                 single_mode_up_spinner.setEnabled(true);
                 single_toggle_all_spinner.setEnabled(true);
                 single_toggle_head_spinner.setEnabled(true);
                 single_toggle_side_spinner.setEnabled(true);
 
-                dual_aux_control_spinner.setEnabled(false);
-                dual_mode_down_spinner.setEnabled(true);
-                dual_mode_up_spinner.setEnabled(true);
-                dual_toggle_all_spinner.setEnabled(true);
-                dual_toggle_head_spinner.setEnabled(true);
-                dual_toggle_side_spinner.setEnabled(true);
+                //dual_aux_control_spinner.setEnabled(false);
+                //dual_mode_down_spinner.setEnabled(true);
+                //dual_mode_up_spinner.setEnabled(true);
+                //dual_toggle_all_spinner.setEnabled(true);
+                //dual_toggle_head_spinner.setEnabled(true);
+                //dual_toggle_side_spinner.setEnabled(true);
 
                 turn_enable_check.setEnabled(false);
             } else {
@@ -558,19 +592,21 @@ public class ControlsConfigActivity extends AppCompatActivity
                     single_aux_control_last = "None";
                     updateAdapter(single_aux_adapter, "None", "Hold > 0.5s");
 
+                    updateAdapter(single_toggle_brights_adapter, "Medium Press (0.5><1s)", "None");
                     updateAdapter(single_toggle_all_adapter, "Medium Press (0.5><1s)", "None");
                     updateAdapter(single_toggle_head_adapter, "Medium Press (0.5><1s)", "None");
                     updateAdapter(single_toggle_side_adapter, "Medium Press (0.5><1s)", "None");
                     updateAdapter(single_mode_up_adapter, "Medium Press (0.5><1s)", "None");
                     updateAdapter(single_mode_down_adapter, "Medium Press (0.5><1s)", "None");
 
+                    updateAdapter(single_toggle_brights_adapter, "Long Press (> 1s)", "None");
                     updateAdapter(single_toggle_all_adapter, "Long Press (> 1s)", "None");
                     updateAdapter(single_toggle_head_adapter, "Long Press (> 1s)", "None");
                     updateAdapter(single_toggle_side_adapter, "Long Press (> 1s)", "None");
                     updateAdapter(single_mode_up_adapter, "Long Press (> 1s)", "None");
                     updateAdapter(single_mode_down_adapter, "Long Press (> 1s)", "None");
                 }
-                if(dual_aux_adapter.getPosition("Hold > 0.5s") != -1){
+                /*if(dual_aux_adapter.getPosition("Hold > 0.5s") != -1){
                     dual_aux_control_last = "None";
                     updateAdapter(dual_aux_adapter, "None", "Hold > 0.5s");
 
@@ -585,21 +621,22 @@ public class ControlsConfigActivity extends AppCompatActivity
                     updateAdapter(dual_toggle_side_adapter, "Long Press (> 1s)", "None");
                     updateAdapter(dual_mode_up_adapter, "Long Press (> 1s)", "None");
                     updateAdapter(dual_mode_down_adapter, "Long Press (> 1s)", "None");
-                }
+                }*/
 
                 single_aux_control_spinner.setEnabled(true);
+                single_brights_toggle_spinner.setEnabled(HIGHBEAMS_ENABLED);
                 single_mode_down_spinner.setEnabled(true);
                 single_mode_up_spinner.setEnabled(true);
                 single_toggle_all_spinner.setEnabled(true);
                 single_toggle_head_spinner.setEnabled(true);
                 single_toggle_side_spinner.setEnabled(true);
 
-                dual_aux_control_spinner.setEnabled(true);
+                /*dual_aux_control_spinner.setEnabled(true);
                 dual_mode_down_spinner.setEnabled(true);
                 dual_mode_up_spinner.setEnabled(true);
                 dual_toggle_all_spinner.setEnabled(true);
                 dual_toggle_head_spinner.setEnabled(true);
-                dual_toggle_side_spinner.setEnabled(true);
+                dual_toggle_side_spinner.setEnabled(true);*/
 
                 turn_enable_check.setEnabled(true);
             }
@@ -607,6 +644,7 @@ public class ControlsConfigActivity extends AppCompatActivity
         } else if (parent_id == R.id.single_aux_control_spinner) {
             if(selectedItem != single_aux_control_last) {
                 //Toast.makeText(mBluetoothService, single_aux_control_last, Toast.LENGTH_SHORT).show();
+                updateAdapter(single_toggle_brights_adapter, single_aux_control_last, selectedItem);
                 updateAdapter(single_toggle_all_adapter, single_aux_control_last, selectedItem);
                 updateAdapter(single_toggle_head_adapter, single_aux_control_last, selectedItem);
                 updateAdapter(single_toggle_side_adapter, single_aux_control_last, selectedItem);
@@ -614,10 +652,22 @@ public class ControlsConfigActivity extends AppCompatActivity
                 updateAdapter(single_mode_up_adapter, single_aux_control_last, selectedItem);
                 single_aux_control_last = selectedItem;
             }
+        } else if (parent_id == R.id.single_toggle_brights_spinner) {
+            if(selectedItem != single_brights_toggle_last) {
+                //Toast.makeText(mBluetoothService, single_mode_down_last, Toast.LENGTH_SHORT).show();
+                updateAdapter(single_aux_adapter, single_brights_toggle_last, selectedItem);
+                updateAdapter(single_toggle_all_adapter, single_brights_toggle_last, selectedItem);
+                updateAdapter(single_toggle_head_adapter, single_brights_toggle_last, selectedItem);
+                updateAdapter(single_toggle_side_adapter, single_brights_toggle_last, selectedItem);
+                updateAdapter(single_mode_down_adapter, single_brights_toggle_last, selectedItem);
+                updateAdapter(single_mode_up_adapter, single_brights_toggle_last, selectedItem);
+                single_brights_toggle_last = selectedItem;
+            }
         } else if (parent_id == R.id.single_mode_down_spinner) {
             if(selectedItem != single_mode_down_last) {
                 //Toast.makeText(mBluetoothService, single_mode_down_last, Toast.LENGTH_SHORT).show();
                 updateAdapter(single_aux_adapter, single_mode_down_last, selectedItem);
+                updateAdapter(single_toggle_brights_adapter, single_mode_down_last, selectedItem);
                 updateAdapter(single_toggle_all_adapter, single_mode_down_last, selectedItem);
                 updateAdapter(single_toggle_head_adapter, single_mode_down_last, selectedItem);
                 updateAdapter(single_toggle_side_adapter, single_mode_down_last, selectedItem);
@@ -628,6 +678,7 @@ public class ControlsConfigActivity extends AppCompatActivity
                 if(selectedItem != single_mode_up_last) {
                 //Toast.makeText(mBluetoothService, single_mode_up_last, Toast.LENGTH_SHORT).show();
                 updateAdapter(single_aux_adapter, single_mode_up_last, selectedItem);
+                updateAdapter(single_toggle_brights_adapter, single_mode_up_last, selectedItem);
                 updateAdapter(single_toggle_all_adapter, single_mode_up_last, selectedItem);
                 updateAdapter(single_toggle_head_adapter, single_mode_up_last, selectedItem);
                 updateAdapter(single_toggle_side_adapter, single_mode_up_last, selectedItem);
@@ -638,6 +689,7 @@ public class ControlsConfigActivity extends AppCompatActivity
             if(selectedItem != single_all_toggle_last) {
                 //Toast.makeText(mBluetoothService, single_head_toggle_last, Toast.LENGTH_SHORT).show();
                 updateAdapter(single_aux_adapter, single_all_toggle_last, selectedItem);
+                updateAdapter(single_toggle_brights_adapter, single_all_toggle_last, selectedItem);
                 updateAdapter(single_toggle_head_adapter, single_all_toggle_last, selectedItem);
                 updateAdapter(single_toggle_side_adapter, single_all_toggle_last, selectedItem);
                 updateAdapter(single_mode_down_adapter, single_all_toggle_last, selectedItem);
@@ -648,6 +700,7 @@ public class ControlsConfigActivity extends AppCompatActivity
             if(selectedItem != single_head_toggle_last) {
                 //Toast.makeText(mBluetoothService, single_head_toggle_last, Toast.LENGTH_SHORT).show();
                 updateAdapter(single_aux_adapter, single_head_toggle_last, selectedItem);
+                updateAdapter(single_toggle_brights_adapter, single_head_toggle_last, selectedItem);
                 updateAdapter(single_toggle_all_adapter, single_head_toggle_last, selectedItem);
                 updateAdapter(single_toggle_side_adapter, single_head_toggle_last, selectedItem);
                 updateAdapter(single_mode_down_adapter, single_head_toggle_last, selectedItem);
@@ -658,13 +711,14 @@ public class ControlsConfigActivity extends AppCompatActivity
             if(selectedItem != single_side_toggle_last) {
                 //Toast.makeText(mBluetoothService, single_side_toggle_last, Toast.LENGTH_SHORT).show();
                 updateAdapter(single_aux_adapter, single_side_toggle_last, selectedItem);
+                updateAdapter(single_toggle_brights_adapter, single_side_toggle_last, selectedItem);
                 updateAdapter(single_toggle_all_adapter, single_side_toggle_last, selectedItem);
                 updateAdapter(single_toggle_head_adapter, single_side_toggle_last, selectedItem);
                 updateAdapter(single_mode_down_adapter, single_side_toggle_last, selectedItem);
                 updateAdapter(single_mode_up_adapter, single_side_toggle_last, selectedItem);
                 single_side_toggle_last = selectedItem;
             }
-        } else if (parent_id == R.id.dual_aux_control_spinner) {
+        } /*else if (parent_id == R.id.dual_aux_control_spinner) {
             if(selectedItem != dual_aux_control_last) {
                 //Toast.makeText(mBluetoothService, dual_aux_control_last, Toast.LENGTH_SHORT).show();
                 updateAdapter(dual_toggle_all_adapter, dual_aux_control_last, selectedItem);
@@ -724,7 +778,7 @@ public class ControlsConfigActivity extends AppCompatActivity
                 updateAdapter(dual_mode_up_adapter, dual_side_toggle_last, selectedItem);
                 dual_side_toggle_last = selectedItem;
             }
-        }
+        }*/
     }
 
     @Override
@@ -736,37 +790,39 @@ public class ControlsConfigActivity extends AppCompatActivity
         Spinner aux_type_spinner = (Spinner) findViewById(R.id.aux_type_spinner);
         SeekBar aux_time_seeker = (SeekBar) findViewById(R.id.aux_time_seeker);
         Spinner single_aux_control_spinner = (Spinner) findViewById(R.id.single_aux_control_spinner);
-        Spinner dual_aux_control_spinner = (Spinner) findViewById(R.id.dual_aux_control_spinner);
+        //Spinner dual_aux_control_spinner = (Spinner) findViewById(R.id.dual_aux_control_spinner);
         switch (view.getId()) {
             case R.id.controls_aux_enable_check:
                 aux_type_spinner.setEnabled(checkbox.isChecked());
                 aux_time_seeker.setEnabled(checkbox.isChecked() && aux_type_spinner.getSelectedItemPosition()==2);
                 single_aux_control_spinner.setEnabled(checkbox.isChecked() && aux_type_spinner.getSelectedItemPosition()!=0);
-                dual_aux_control_spinner.setEnabled(checkbox.isChecked() && aux_type_spinner.getSelectedItemPosition()!=0);
+                //dual_aux_control_spinner.setEnabled(checkbox.isChecked() && aux_type_spinner.getSelectedItemPosition()!=0);
                 if(aux_type_spinner.getSelectedItemPosition()==0 && checkbox.isChecked()) {
                     resetAdapters();
 
                     single_aux_adapter.add("Hold > 0.5s");
-                    dual_aux_adapter.add("Hold > 0.5s");
+                    //dual_aux_adapter.add("Hold > 0.5s");
                     single_aux_control_last = "Hold > 0.5s";
-                    dual_aux_control_last = "Hold > 0.5s";
+                    //dual_aux_control_last = "Hold > 0.5s";
                     single_aux_control_spinner.setSelection(single_aux_adapter.getCount() - 1);
-                    dual_aux_control_spinner.setSelection(dual_aux_adapter.getCount() - 1);
+                    //dual_aux_control_spinner.setSelection(dual_aux_adapter.getCount() - 1);
 
                     //resetAdapters();
+                    updateAdapter(single_toggle_brights_adapter, "None", "Medium Press (0.5><1s)");
                     updateAdapter(single_toggle_all_adapter, "None", "Medium Press (0.5><1s)");
                     updateAdapter(single_toggle_head_adapter, "None", "Medium Press (0.5><1s)");
                     updateAdapter(single_toggle_side_adapter, "None", "Medium Press (0.5><1s)");
                     updateAdapter(single_mode_up_adapter, "None", "Medium Press (0.5><1s)");
                     updateAdapter(single_mode_down_adapter, "None", "Medium Press (0.5><1s)");
 
+                    updateAdapter(single_toggle_brights_adapter, "None", "Long Press (> 1s)");
                     updateAdapter(single_toggle_all_adapter, "None", "Long Press (> 1s)");
                     updateAdapter(single_toggle_head_adapter, "None", "Long Press (> 1s)");
                     updateAdapter(single_toggle_side_adapter, "None", "Long Press (> 1s)");
                     updateAdapter(single_mode_up_adapter, "None", "Long Press (> 1s)");
                     updateAdapter(single_mode_down_adapter, "None", "Long Press (> 1s)");
 
-                    updateAdapter(dual_toggle_all_adapter, "None", "Medium Press (0.5><1s)");
+                    /*updateAdapter(dual_toggle_all_adapter, "None", "Medium Press (0.5><1s)");
                     updateAdapter(dual_toggle_head_adapter, "None", "Medium Press (0.5><1s)");
                     updateAdapter(dual_toggle_side_adapter, "None", "Medium Press (0.5><1s)");
                     updateAdapter(dual_mode_up_adapter, "None", "Medium Press (0.5><1s)");
@@ -776,21 +832,22 @@ public class ControlsConfigActivity extends AppCompatActivity
                     updateAdapter(dual_toggle_head_adapter, "None", "Long Press (> 1s)");
                     updateAdapter(dual_toggle_side_adapter, "None", "Long Press (> 1s)");
                     updateAdapter(dual_mode_up_adapter, "None", "Long Press (> 1s)");
-                    updateAdapter(dual_mode_down_adapter, "None", "Long Press (> 1s)");
+                    updateAdapter(dual_mode_down_adapter, "None", "Long Press (> 1s)");*/
 
                     single_aux_control_spinner.setEnabled(false);
+                    single_brights_toggle_spinner.setEnabled(HIGHBEAMS_ENABLED);
                     single_mode_down_spinner.setEnabled(true);
                     single_mode_up_spinner.setEnabled(true);
                     single_toggle_all_spinner.setEnabled(true);
                     single_toggle_head_spinner.setEnabled(true);
                     single_toggle_side_spinner.setEnabled(true);
 
-                    dual_aux_control_spinner.setEnabled(false);
+                    /*dual_aux_control_spinner.setEnabled(false);
                     dual_mode_down_spinner.setEnabled(true);
                     dual_mode_up_spinner.setEnabled(true);
                     dual_toggle_all_spinner.setEnabled(true);
                     dual_toggle_head_spinner.setEnabled(true);
-                    dual_toggle_side_spinner.setEnabled(true);
+                    dual_toggle_side_spinner.setEnabled(true);*/
 
                     turn_enable_check.setEnabled(false);
                 } else if(!checkbox.isChecked()) {
@@ -798,19 +855,21 @@ public class ControlsConfigActivity extends AppCompatActivity
                         single_aux_control_last = "None";
                         updateAdapter(single_aux_adapter, "None", "Hold > 0.5s");
 
+                        updateAdapter(single_toggle_brights_adapter, "Medium Press (0.5><1s)", "None");
                         updateAdapter(single_toggle_all_adapter, "Medium Press (0.5><1s)", "None");
                         updateAdapter(single_toggle_head_adapter, "Medium Press (0.5><1s)", "None");
                         updateAdapter(single_toggle_side_adapter, "Medium Press (0.5><1s)", "None");
                         updateAdapter(single_mode_up_adapter, "Medium Press (0.5><1s)", "None");
                         updateAdapter(single_mode_down_adapter, "Medium Press (0.5><1s)", "None");
 
+                        updateAdapter(single_toggle_brights_adapter, "Long Press (> 1s)", "None");
                         updateAdapter(single_toggle_all_adapter, "Long Press (> 1s)", "None");
                         updateAdapter(single_toggle_head_adapter, "Long Press (> 1s)", "None");
                         updateAdapter(single_toggle_side_adapter, "Long Press (> 1s)", "None");
                         updateAdapter(single_mode_up_adapter, "Long Press (> 1s)", "None");
                         updateAdapter(single_mode_down_adapter, "Long Press (> 1s)", "None");
                     }
-                    if(dual_aux_adapter.getPosition("Hold > 0.5s") != -1){
+                    /*if(dual_aux_adapter.getPosition("Hold > 0.5s") != -1){
                         dual_aux_control_last = "None";
                         updateAdapter(dual_aux_adapter, "None", "Hold > 0.5s");
 
@@ -825,7 +884,7 @@ public class ControlsConfigActivity extends AppCompatActivity
                         updateAdapter(dual_toggle_side_adapter, "Long Press (> 1s)", "None");
                         updateAdapter(dual_mode_up_adapter, "Long Press (> 1s)", "None");
                         updateAdapter(dual_mode_down_adapter, "Long Press (> 1s)", "None");
-                    }
+                    }*/
 
                     turn_enable_check.setEnabled(true);
                 }
@@ -844,6 +903,8 @@ public class ControlsConfigActivity extends AppCompatActivity
         adapter.sort(new ControlSort());
         if(adapter == single_aux_adapter)
             single_aux_control_spinner.setSelection(adapter.getPosition(single_aux_control_last));
+        else if(adapter == single_toggle_brights_adapter)
+            single_brights_toggle_spinner.setSelection(adapter.getPosition(single_brights_toggle_last));
         else if(adapter == single_mode_down_adapter)
             single_mode_down_spinner.setSelection(adapter.getPosition(single_mode_down_last));
         else if(adapter == single_mode_up_adapter)
@@ -855,7 +916,7 @@ public class ControlsConfigActivity extends AppCompatActivity
         else if(adapter == single_toggle_side_adapter)
             single_toggle_side_spinner.setSelection(adapter.getPosition(single_side_toggle_last));
 
-        if(adapter == dual_aux_adapter)
+        /*if(adapter == dual_aux_adapter)
             dual_aux_control_spinner.setSelection(adapter.getPosition(dual_aux_control_last));
         else if(adapter == dual_mode_down_adapter)
             dual_mode_down_spinner.setSelection(adapter.getPosition(dual_mode_down_last));
@@ -866,7 +927,7 @@ public class ControlsConfigActivity extends AppCompatActivity
         else if(adapter == dual_toggle_head_adapter)
             dual_toggle_head_spinner.setSelection(adapter.getPosition(dual_head_toggle_last));
         else if(adapter == dual_toggle_side_adapter)
-            dual_toggle_side_spinner.setSelection(adapter.getPosition(dual_side_toggle_last));
+            dual_toggle_side_spinner.setSelection(adapter.getPosition(dual_side_toggle_last));*/
     }
 
     void initializeSingleList(List<CharSequence> list){
@@ -879,7 +940,7 @@ public class ControlsConfigActivity extends AppCompatActivity
         list.add("Long Press (> 1s)");
     }
 
-    void initializeDualList(List<CharSequence> list){
+    /*void initializeDualList(List<CharSequence> list){
         list.clear();
         list.add("None");
         list.add("Single Tap");
@@ -889,7 +950,7 @@ public class ControlsConfigActivity extends AppCompatActivity
         list.add("Right + Single Tap");
         list.add("Medium Press (0.5><1s)");
         list.add("Long Press (> 1s)");
-    }
+    }*/
 
     int getControlID(String controlText) {
         List<CharSequence> controls = new ArrayList<CharSequence>();
@@ -920,43 +981,56 @@ public class ControlsConfigActivity extends AppCompatActivity
     }
 
     void updateAllAdapters(){
+        if(single_brights_toggle_last != "None") single_aux_adapter.remove(single_brights_toggle_last);
         if(single_all_toggle_last != "None") single_aux_adapter.remove(single_all_toggle_last);
         if(single_head_toggle_last != "None") single_aux_adapter.remove(single_head_toggle_last);
         if(single_side_toggle_last != "None") single_aux_adapter.remove(single_side_toggle_last);
         if(single_mode_down_last != "None") single_aux_adapter.remove(single_mode_down_last);
         if(single_mode_up_last != "None") single_aux_adapter.remove(single_mode_up_last);
 
+        if(single_aux_control_last != "None") single_toggle_brights_adapter.remove(single_aux_control_last);
+        if(single_all_toggle_last != "None") single_toggle_brights_adapter.remove(single_all_toggle_last);
+        if(single_head_toggle_last != "None") single_toggle_brights_adapter.remove(single_head_toggle_last);
+        if(single_side_toggle_last != "None") single_toggle_brights_adapter.remove(single_side_toggle_last);
+        if(single_mode_down_last != "None") single_toggle_brights_adapter.remove(single_mode_down_last);
+        if(single_mode_up_last != "None") single_toggle_brights_adapter.remove(single_mode_up_last);
+
         if(single_aux_control_last != "None") single_toggle_all_adapter.remove(single_aux_control_last);
+        if(single_brights_toggle_last != "None") single_toggle_all_adapter.remove(single_brights_toggle_last);
         if(single_head_toggle_last != "None") single_toggle_all_adapter.remove(single_head_toggle_last);
         if(single_side_toggle_last != "None") single_toggle_all_adapter.remove(single_side_toggle_last);
         if(single_mode_down_last != "None") single_toggle_all_adapter.remove(single_mode_down_last);
         if(single_mode_up_last != "None") single_toggle_all_adapter.remove(single_mode_up_last);
 
         if(single_aux_control_last != "None") single_toggle_head_adapter.remove(single_aux_control_last);
+        if(single_brights_toggle_last != "None") single_toggle_head_adapter.remove(single_brights_toggle_last);
         if(single_all_toggle_last != "None") single_toggle_head_adapter.remove(single_all_toggle_last);
         if(single_side_toggle_last != "None") single_toggle_head_adapter.remove(single_side_toggle_last);
         if(single_mode_down_last != "None") single_toggle_head_adapter.remove(single_mode_down_last);
         if(single_mode_up_last != "None") single_toggle_head_adapter.remove(single_mode_up_last);
 
         if(single_aux_control_last != "None") single_toggle_side_adapter.remove(single_aux_control_last);
+        if(single_brights_toggle_last != "None") single_toggle_side_adapter.remove(single_brights_toggle_last);
         if(single_all_toggle_last != "None") single_toggle_side_adapter.remove(single_all_toggle_last);
         if(single_head_toggle_last != "None") single_toggle_side_adapter.remove(single_head_toggle_last);
         if(single_mode_down_last != "None") single_toggle_side_adapter.remove(single_mode_down_last);
         if(single_mode_up_last != "None") single_toggle_side_adapter.remove(single_mode_up_last);
 
         if(single_aux_control_last != "None") single_mode_down_adapter.remove(single_aux_control_last);
+        if(single_brights_toggle_last != "None") single_mode_down_adapter.remove(single_brights_toggle_last);
         if(single_all_toggle_last != "None") single_mode_down_adapter.remove(single_all_toggle_last);
         if(single_head_toggle_last != "None") single_mode_down_adapter.remove(single_head_toggle_last);
         if(single_side_toggle_last != "None") single_mode_down_adapter.remove(single_side_toggle_last);
         if(single_mode_up_last != "None") single_mode_down_adapter.remove(single_mode_up_last);
 
         if(single_aux_control_last != "None") single_mode_up_adapter.remove(single_aux_control_last);
+        if(single_brights_toggle_last != "None") single_mode_up_adapter.remove(single_brights_toggle_last);
         if(single_all_toggle_last != "None") single_mode_up_adapter.remove(single_all_toggle_last);
         if(single_head_toggle_last != "None") single_mode_up_adapter.remove(single_head_toggle_last);
         if(single_side_toggle_last != "None") single_mode_up_adapter.remove(single_side_toggle_last);
         if(single_mode_down_last != "None") single_mode_up_adapter.remove(single_mode_down_last);
 
-        if(dual_all_toggle_last != "None") dual_aux_adapter.remove(dual_all_toggle_last);
+        /*if(dual_all_toggle_last != "None") dual_aux_adapter.remove(dual_all_toggle_last);
         if(dual_head_toggle_last != "None") dual_aux_adapter.remove(dual_head_toggle_last);
         if(dual_side_toggle_last != "None") dual_aux_adapter.remove(dual_side_toggle_last);
         if(dual_mode_down_last != "None") dual_aux_adapter.remove(dual_mode_down_last);
@@ -990,48 +1064,51 @@ public class ControlsConfigActivity extends AppCompatActivity
         if(dual_all_toggle_last != "None") dual_mode_up_adapter.remove(dual_all_toggle_last);
         if(dual_head_toggle_last != "None") dual_mode_up_adapter.remove(dual_head_toggle_last);
         if(dual_side_toggle_last != "None") dual_mode_up_adapter.remove(dual_side_toggle_last);
-        if(dual_mode_down_last != "None") dual_mode_up_adapter.remove(dual_mode_down_last);
+        if(dual_mode_down_last != "None") dual_mode_up_adapter.remove(dual_mode_down_last);*/
     }
 
     void resetAdapters(){
         single_aux_control_spinner.setSelection(0);
+        single_brights_toggle_spinner.setSelection(0);
         single_toggle_all_spinner.setSelection(0);
         single_toggle_head_spinner.setSelection(0);
         single_toggle_side_spinner.setSelection(0);
         single_mode_up_spinner.setSelection(0);
         single_mode_down_spinner.setSelection(0);
-        dual_aux_control_spinner.setSelection(0);
+        /*dual_aux_control_spinner.setSelection(0);
         dual_toggle_all_spinner.setSelection(0);
         dual_toggle_head_spinner.setSelection(0);
         dual_toggle_side_spinner.setSelection(0);
         dual_mode_up_spinner.setSelection(0);
-        dual_mode_down_spinner.setSelection(0);
+        dual_mode_down_spinner.setSelection(0);*/
 
         single_aux_control_last = "None";
+        single_brights_toggle_last = "None";
         single_all_toggle_last = "None";
         single_head_toggle_last = "None";
         single_side_toggle_last = "None";
         single_mode_up_last = "None";
         single_mode_down_last = "None";
-        dual_aux_control_last = "None";
+        /*dual_aux_control_last = "None";
         dual_all_toggle_last = "None";
         dual_head_toggle_last = "None";
         dual_side_toggle_last = "None";
         dual_mode_up_last = "None";
-        dual_mode_down_last = "None";
+        dual_mode_down_last = "None";*/
 
         initializeSingleList(single_aux_list);
+        initializeSingleList(single_toggle_brights_list);
         initializeSingleList(single_toggle_all_list);
         initializeSingleList(single_toggle_head_list);
         initializeSingleList(single_toggle_side_list);
         initializeSingleList(single_mode_down_list);
         initializeSingleList(single_mode_up_list);
-        initializeDualList(dual_aux_list);
+        /*initializeDualList(dual_aux_list);
         initializeDualList(dual_toggle_all_list);
         initializeDualList(dual_toggle_head_list);
         initializeDualList(dual_toggle_side_list);
         initializeDualList(dual_mode_down_list);
-        initializeDualList(dual_mode_up_list);
+        initializeDualList(dual_mode_up_list);*/
     }
 
     @Override

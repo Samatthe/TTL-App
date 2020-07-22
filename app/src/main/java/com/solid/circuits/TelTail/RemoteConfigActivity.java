@@ -275,8 +275,8 @@ public class RemoteConfigActivity extends AppCompatActivity
         list.clear();
         list.add("PPM");
         list.add("UART + PPM");
-        list.add("UART (Chuck Struct) Single Axis");
-        list.add("UART (Chuck Struct) Dual Axis");
+        list.add("UART Only");//(Chuck Struct) Single Axis");
+        //list.add("UART (Chuck Struct) Dual Axis");
     }
 
     void initializeButtonTypeList(List<CharSequence> list){

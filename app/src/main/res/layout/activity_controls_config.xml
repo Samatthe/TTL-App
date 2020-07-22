@@ -53,7 +53,7 @@
                     android:textSize="@dimen/settings_text_size"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
-                    android:text="Aux Output Settings"/>
+                    android:text="Horn (Aux) Output Settings"/>
 
                 <View
                     android:layout_width="match_parent"
@@ -75,7 +75,7 @@
                     android:layout_height="@dimen/settings_height"
                     android:gravity="center_vertical"
                     android:paddingLeft="16dp"
-                    android:text="Aux Output Enabled:"
+                    android:text="Horn Output Enabled:"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/settings_text_size" />
 
@@ -105,7 +105,7 @@
                     android:gravity="center_vertical"
                     android:paddingLeft="16dp"
                     android:layout_marginLeft="16dp"
-                    android:text="Aux Output Type:"
+                    android:text="Horn Output Type:"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/settings_text_size" />
 
@@ -183,7 +183,7 @@
                     android:textSize="@dimen/settings_text_size"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
-                    android:text="Single Axis Remotes"/>
+                    android:text="Button Action Settings"/>
 
                 <View
                     android:layout_width="match_parent"
@@ -208,11 +208,47 @@
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/settings_text_size" />
 
-            <View android:id="@+id/single_spacer0"
+                <Spinner
+                    android:id="@+id/single_aux_control_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:popupBackground="#383838"/>
+
+            <View android:id="@+id/single_spacer5"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer"
                 android:layout_below="@id/single_aux_control_text"/>
+
+                <TextView
+                    android:id="@+id/single_toggle_brights_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Toggle Brights:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"
+                    android:layout_below="@id/single_spacer5"/>
+
+                <Spinner
+                    android:id="@+id/single_toggle_brights_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/single_spacer5"
+                    android:popupBackground="#383838"/>
+
+            <View android:id="@+id/single_spacer0"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/single_toggle_brights_text"/>
 
                 <TextView
                     android:id="@+id/single_toggle_all_text"
@@ -224,6 +260,16 @@
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/settings_text_size"
                     android:layout_below="@id/single_spacer0"/>
+
+                <Spinner
+                    android:id="@+id/single_toggle_all_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/single_spacer0"
+                    android:popupBackground="#383838"/>
 
             <View android:id="@+id/single_spacer1"
                 android:layout_width="match_parent"
@@ -241,6 +287,16 @@
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/settings_text_size"
                     android:layout_below="@id/single_spacer1"/>
+
+                <Spinner
+                    android:id="@+id/single_toggle_head_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:layout_toRightOf="@id/single_toggle_side_text"
+                    android:dropDownWidth="wrap_content"
+                    android:layout_below="@id/single_spacer1"
+                    android:popupBackground="#383838"/>
 
             <View android:id="@+id/single_spacer2"
                 android:layout_width="match_parent"
@@ -267,35 +323,6 @@
                     android:layout_toRightOf="@id/single_toggle_side_text"
                     android:dropDownWidth="wrap_content"
                     android:layout_below="@id/single_spacer2"
-                    android:popupBackground="#383838"/>
-
-                <Spinner
-                    android:id="@+id/single_toggle_all_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/settings_height"
-                    android:gravity="center_vertical"
-                    android:layout_toRightOf="@id/single_toggle_side_text"
-                    android:dropDownWidth="wrap_content"
-                    android:layout_below="@id/single_spacer0"
-                    android:popupBackground="#383838"/>
-
-                <Spinner
-                    android:id="@+id/single_aux_control_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/settings_height"
-                    android:gravity="center_vertical"
-                    android:layout_toRightOf="@id/single_toggle_side_text"
-                    android:dropDownWidth="wrap_content"
-                    android:popupBackground="#383838"/>
-
-                <Spinner
-                    android:id="@+id/single_toggle_head_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/settings_height"
-                    android:gravity="center_vertical"
-                    android:layout_toRightOf="@id/single_toggle_side_text"
-                    android:dropDownWidth="wrap_content"
-                    android:layout_below="@id/single_spacer1"
                     android:popupBackground="#383838"/>
 
             <View android:id="@+id/single_spacer3"
@@ -355,7 +382,8 @@
 
             <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone">
                 <TextView android:id="@+id/controls_dual_text"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"
@@ -378,12 +406,12 @@
 
             <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone">
                 <TextView
                     android:id="@+id/dual_aux_control_text"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/settings_height"
-                    android:layout_below="@id/log_spacer1"
                     android:gravity="center_vertical"
                     android:paddingLeft="16dp"
                     android:text="Aux Control:"
@@ -564,7 +592,8 @@
 
             <View android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@drawable/button_spacer" />
+                android:background="@drawable/button_spacer"
+                android:visibility="gone"/>
 
         </LinearLayout>
     </ScrollView>

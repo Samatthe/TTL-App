@@ -49,6 +49,7 @@ public class LightsConfigActivity extends AppCompatActivity
 
     public static final String PREFS_NAME = "MyPrefsFile";
     float Deadzone = 0;
+    float Lowbeam_Level = 0;
 
     ArrayAdapter<CharSequence> single_button_config_adapter;
     List<CharSequence> RGB_type_list = new ArrayList<CharSequence>();
@@ -64,6 +65,8 @@ public class LightsConfigActivity extends AppCompatActivity
     SeekBar deadzone_seeker;
     EditText LED_num_edittext;
     CheckBox default_state_checkbox;
+    CheckBox highbeam_enable_checkbox;
+    SeekBar lowbeam_level_seeker;
 
     boolean CHECK_DATA = false;
     long applytimer = 0;
@@ -117,12 +120,15 @@ public class LightsConfigActivity extends AppCompatActivity
         initializeRGBTypeList(RGB_type_list);
         initializeBrakeModeAdapter(brake_mode_list);
 
-        RGB_type_spinner = (Spinner) findViewById(R.id.side_LED_type_spinner);
-        brake_mode_spinner = (Spinner) findViewById(R.id.brake_light_mode_spinner);
+        RGB_type_spinner = findViewById(R.id.side_LED_type_spinner);
+        brake_mode_spinner = findViewById(R.id.brake_light_mode_spinner);
         RGB_sync_checkbox = findViewById(R.id.side_sync_checkbox);
         brake_always_on_checkbox = findViewById(R.id.brake_always_on_checkbox);
         LED_num_edittext = findViewById(R.id.LED_num_edittext);
         default_state_checkbox = findViewById(R.id.default_state_checkbox);
+        highbeam_enable_checkbox = findViewById(R.id.highbeams_enable_checkbox);
+        deadzone_seeker = findViewById(R.id.brake_deadzone_seeker);
+        lowbeam_level_seeker = findViewById(R.id.lowbeam_seeker);
 
         // Aux control assignment spinner
         RGB_type_adapter = new ArrayAdapter<>(this,
@@ -140,8 +146,8 @@ public class LightsConfigActivity extends AppCompatActivity
         RGB_type_spinner.setOnItemSelectedListener(this);
         brake_mode_spinner.setOnItemSelectedListener(this);
 
-        deadzone_seeker = findViewById(R.id.brake_deadzone_seeker);
         deadzone_seeker.setOnSeekBarChangeListener(this);
+        lowbeam_level_seeker.setOnSeekBarChangeListener(this);
 
         restoresettings();
 
@@ -160,6 +166,8 @@ public class LightsConfigActivity extends AppCompatActivity
         editor.putInt("BrakeMode", brake_mode_spinner.getSelectedItemPosition());
         editor.putBoolean("BrakeAlwaysOn", brake_always_on_checkbox.isChecked());
         editor.putBoolean("BrakeAlwaysOn", default_state_checkbox.isChecked());
+        editor.putBoolean("HighbeamEnable", highbeam_enable_checkbox.isChecked());
+        editor.putInt("LowbeamLevel", lowbeam_level_seeker.getProgress());
 
         // Commit the edits!
         editor.commit();
@@ -177,6 +185,8 @@ public class LightsConfigActivity extends AppCompatActivity
         brake_mode_spinner.setSelection(settings.getInt("BrakeMode", 0));
         brake_always_on_checkbox.setChecked(settings.getBoolean("BrakeAlwaysOn", false));
         default_state_checkbox.setChecked(settings.getBoolean("BrakeAlwaysOn", false));
+        highbeam_enable_checkbox.setChecked(settings.getBoolean("HighbeamEnable", false));
+        lowbeam_level_seeker.setProgress(settings.getInt("LowbeamLevel", 70));
     }
 
     public void onButtonClick(View view) {
@@ -205,15 +215,17 @@ public class LightsConfigActivity extends AppCompatActivity
                 byte checks = (byte)((byte)0xFF & (byte)(RGB_sync_checkbox.isChecked() ? 1 : 0) << 7);
                 checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(brake_always_on_checkbox.isChecked() ? 1 : 0) << 6)));
                 checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(default_state_checkbox.isChecked() ? 1 : 0) << 5)));
+                checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(highbeam_enable_checkbox.isChecked() ? 1 : 0) << 4)));
 
                 txbuf = new byte[]{
                         (byte) 0x0A5,
-                        (byte) 0x004,
+                        (byte) 0x005,
                         (byte) 0x0C5,
                         (byte) ((RGB_type_spinner.getSelectedItemPosition() << 4) | brake_mode_spinner.getSelectedItemPosition()),
                         (byte) (deadzone_seeker.getProgress()),
                         (byte) (LEDnum),
                         (byte) checks,
+                        (byte) (lowbeam_level_seeker.getProgress()),
                         (byte) 0x05A
                 };
                 if (!mBluetoothService.writeBytes(txbuf)) {
@@ -246,11 +258,11 @@ public class LightsConfigActivity extends AppCompatActivity
                     Toast.makeText(LightsConfigActivity.this, "Response Timed Out\nPlease try again", Toast.LENGTH_SHORT).show();
                     CHECK_DATA = false;
                 }
-                else if(data.length == 5) {
+                else if(data.length == 6) {
                     for (int i = 0; i < data.length; i++) {
                         switch (data[i] & 0xFF) {
                             case 0x75:
-                                if(i+4 >= data.length)
+                                if(i+5 >= data.length)
                                     break;
                                 //Toast.makeText(OrientationActivity.this, "Con: "+String.valueOf(data[i + 1] & 0xFF), Toast.LENGTH_SHORT).show();
                                 if(CHECK_DATA) {
@@ -274,6 +286,8 @@ public class LightsConfigActivity extends AppCompatActivity
                                     if(RGB_sync_checkbox.isChecked() && (data[i + 4] & 0x80) != 0x80) dataCorrect = false;
                                     if(brake_always_on_checkbox.isChecked() && (data[i + 4] & 0x40) != 0x40) dataCorrect = false;
                                     if(default_state_checkbox.isChecked() && (data[i + 4] & 0x20) != 0x20) dataCorrect = false;
+                                    if(highbeam_enable_checkbox.isChecked() && (data[i + 4] & 0x10) != 0x10) dataCorrect = false;
+                                    if(lowbeam_level_seeker.getProgress() != (data[i + 5] & 0xFF)) dataCorrect = false;
                                     if(dataCorrect){
                                         Toast.makeText(LightsConfigActivity.this, "Lights config applied successfully", Toast.LENGTH_SHORT).show();
                                     } else {
@@ -290,8 +304,10 @@ public class LightsConfigActivity extends AppCompatActivity
                                     RGB_sync_checkbox.setChecked((data[i+4] & 0x80) == 0x80);
                                     brake_always_on_checkbox.setChecked((data[i+4] & 0x40) == 0x40);
                                     default_state_checkbox.setChecked((data[i+4] & 0x20) == 0x20);
+                                    highbeam_enable_checkbox.setChecked((data[i+4] & 0x10) == 0x10);
+                                    lowbeam_level_seeker.setProgress(data[i + 5] & 0xFF);
                                 }
-                                i+=4;
+                                i+=5;
                                 break;
                         }
                     }
@@ -357,11 +373,15 @@ public class LightsConfigActivity extends AppCompatActivity
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        TextView deadzone_number = (TextView) findViewById(R.id.brake_deadzone_number);
+        TextView deadzone_number = findViewById(R.id.brake_deadzone_number);
+        TextView lowbeam_number = findViewById(R.id.lowbeam_number);
 
         if (seekBar.getId() == R.id.brake_deadzone_seeker) {
             Deadzone = (((float)progress));
             deadzone_number.setText("" + Deadzone);
+        } else if (seekBar.getId() == R.id.lowbeam_seeker) {
+            Lowbeam_Level = (((float)progress));
+            lowbeam_number.setText("" + Lowbeam_Level);
         }
     }
 

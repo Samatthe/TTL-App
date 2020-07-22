@@ -164,6 +164,11 @@
         <item>Blink-Fade</item>
     </string-array>
 
+    <string-array name="hardware_array">
+        <item>v3.4</item>
+        <item>v4.1</item>
+    </string-array>
+
     <!--    Permissions    -->
     <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
     <string name="location_permission_denied">This app requires location permission to enable the \'my location\' layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Google Maps API Demos\'.</string>
