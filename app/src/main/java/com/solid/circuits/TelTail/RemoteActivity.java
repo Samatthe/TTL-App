@@ -456,7 +456,15 @@ public class RemoteActivity extends AppCompatActivity
             };
             //Log.d(TAG, bytesToHex(txbuf));
             if(!mBluetoothService.writeBytes(txbuf)) {
-                Toast.makeText(RemoteActivity.this, "Failed to send aux release command", Toast.LENGTH_SHORT).show();
+                for(int i = 0; i < 10; i++){
+                    try {
+                        Thread.sleep(10);
+                    }catch (Exception e){}
+                    if(mBluetoothService.writeBytes(txbuf)) {
+                        AUX_PRESSED = false;
+                        break;
+                    }
+                }
             } else {
                 AUX_PRESSED = false;
             }

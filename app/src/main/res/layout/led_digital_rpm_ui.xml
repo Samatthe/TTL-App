@@ -4,6 +4,32 @@
     android:layout_height="match_parent"
     android:id="@+id/led_digital_rpm_ui">
 
+    <RelativeLayout
+        android:id="@+id/digital_rpm_shuffle_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/digital_rpm_shuffle_check"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:layout_marginLeft="11dp"
+            android:onClick="onCheckboxClicked"
+            android:buttonTint="#EFEFEF"/>
+
+        <TextView
+            android:id="@+id/digital_rpm_shuffle_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:gravity="center_vertical"
+            android:text="@string/shuffle_text"
+            android:paddingLeft="17dp"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/settings_text_size"
+            android:layout_toRightOf="@id/digital_rpm_shuffle_check"/>
+
+    </RelativeLayout>
+
     <TextView android:id="@+id/digital_rpm_zoom_text"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/led_ui_height"
@@ -11,7 +37,8 @@
         android:textSize="@dimen/settings_text_size"
         android:textColor="@android:color/black"
         android:paddingLeft="@dimen/settings_left_pad"
-        android:text="Zoom:"/>
+        android:text="Zoom:"
+        android:layout_below="@id/digital_rpm_shuffle_layout"/>
 
     <TextView android:id="@+id/digital_rpm_zoom_number"
         android:layout_width="wrap_content"
@@ -23,7 +50,8 @@
         android:paddingLeft="@dimen/settings_left_pad"
         android:paddingRight="@dimen/settings_left_pad"
         android:layout_alignParentRight="true"
-        android:text="50"/>
+        android:text="50"
+        android:layout_below="@id/digital_rpm_shuffle_layout"/>
 
     <SeekBar android:id="@+id/digital_rpm_zoom_seeker"
         android:layout_width="240dp"
@@ -34,7 +62,8 @@
         android:progress="7"
         android:max="15"
         android:min="1"
-        android:maxHeight="1000dp"/>
+        android:maxHeight="1000dp"
+        android:layout_below="@id/digital_rpm_shuffle_layout"/>
 
     <TextView android:id="@+id/digital_rpm_rate_text"
         android:layout_width="wrap_content"

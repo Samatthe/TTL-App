@@ -72,6 +72,24 @@
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer" />
 
+            <Button
+                android:id="@+id/settings_import_export_menu_button"
+                android:text="Settings Import/Export"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
@@ -79,7 +97,6 @@
                     android:id="@+id/settings_disp_notif_text"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/settings_height"
-                    android:layout_below="@id/log_spacer1"
                     android:gravity="center_vertical"
                     android:paddingLeft="16dp"
                     android:text="Display Notification"
@@ -200,7 +217,6 @@
                     android:id="@+id/settings_read_current_text"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/settings_height"
-                    android:layout_below="@id/log_spacer1"
                     android:gravity="center_vertical"
                     android:paddingLeft="16dp"
                     android:text="Read LED Settings on Startup"
@@ -287,6 +303,24 @@
                 android:textStyle="normal"
                 android:textColor="@android:color/white"/>
 
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/LED_test_button"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:onClick="onButtonClick"
+                android:text="Test TTL Ouputs"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textSize="@dimen/settings_text_size"
+                android:textStyle="normal"
+                android:textColor="@android:color/white"/>
+
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
@@ -344,7 +378,7 @@
             <View android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer" />
--->
+            -->
 
             <Button
                 android:id="@+id/settings_remote_button"
@@ -359,6 +393,32 @@
                 style="?android:attr/borderlessButtonStyle"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/settings_detect_esc_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Auto Detect ESC: "
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+                <CheckBox
+                    android:id="@+id/settings_detect_esc_check"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_marginLeft="@dimen/settings_left_pad"
+                    android:layout_toRightOf="@id/settings_detect_esc_text"
+                    android:onClick="onCheckboxClicked"
+                    android:theme="@style/checkbox_white"/>
+            </RelativeLayout>
 
         </LinearLayout>
     </ScrollView>

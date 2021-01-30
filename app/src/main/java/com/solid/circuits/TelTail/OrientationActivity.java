@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,6 +40,8 @@ public class OrientationActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
+
+    public static final String PREFS_NAME = "MyPrefsFile";
 
     int connector_orientation = 0;
     int power_orientation = 0;
@@ -110,6 +113,29 @@ public class OrientationActivity extends AppCompatActivity
         pow_orient_spinner.setSelection(0);
     }
 
+    void savesettings() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putInt("ConnectorOrient", connector_orientation);
+        editor.putInt("PowerOrient", power_orientation);
+
+        // Commit the edits!
+        editor.commit();
+    }
+
+    void restoresettings() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        Spinner con_orient_spinner = (Spinner) findViewById(R.id.connect_orientation_spinner);
+        Spinner pow_orient_spinner = (Spinner) findViewById(R.id.power_orientation_spinner);
+
+        connector_orientation = (settings.getInt("ConnectorOrient", 0));
+        power_orientation = (settings.getInt("PowerOrient", 0));
+
+        con_orient_spinner.setSelection(connector_orientation);
+        pow_orient_spinner.setSelection(power_orientation);
+    }
+
     @Override
     protected  void onResume(){
         super.onResume();
@@ -130,6 +156,12 @@ public class OrientationActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //savesettings();
+
+        if (mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
+        unregisterReceiver(mGattUpdateReceiver);
     }
 
     @Override

@@ -125,6 +125,10 @@ public class LoggingActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         savesettings();
+
+        if (mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
     }
 
     public void onCheckboxClicked(View view) {
@@ -166,5 +170,8 @@ public class LoggingActivity extends AppCompatActivity {
         logSizeText1.setEnabled(logEnable);
         logSizeText2.setEnabled(logEnable);
         logSizeText3.setEnabled(logEnable);
+
+        EditText LogSize = findViewById(R.id.log_size_text1);
+        LogSize.setText(""+LogSize);
     }
 }

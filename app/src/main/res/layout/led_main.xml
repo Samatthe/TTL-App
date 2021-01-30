@@ -123,7 +123,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/led_ui_height"
                 android:layout_below="@id/led_side_switch"
-                android:paddingLeft="@dimen/settings_left_pad"/>
+                android:paddingLeft="@dimen/settings_left_pad"
+                android:visibility="gone"/>
 
             <TextView android:id="@+id/led_light_text"
                 android:layout_width="wrap_content"
@@ -134,7 +135,8 @@
                 android:paddingLeft="@dimen/settings_left_pad"
                 android:layout_below="@id/led_side_switch"
                 android:layout_toRightOf="@id/led_light_switch"
-                android:text="Light Sensor"/>
+                android:text="Light Sensor"
+                android:visibility="gone"/>
 
             <Switch android:id="@+id/led_sensor_switch"
                 android:layout_width="wrap_content"
@@ -151,58 +153,58 @@
                 android:paddingLeft="@dimen/settings_left_pad"
                 android:layout_below="@id/led_light_switch"
                 android:layout_toRightOf="@id/led_sensor_switch"
-                android:text="Sensor Control"/>
+                android:text="Auto On/Off"/>
 
             <include
-                layout = "@layout/led_static_ui"
+                layout = "@layout/led_analog_static_ui"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>
 
             <include
-                layout = "@layout/led_cycle_ui"
+                layout = "@layout/led_analog_cycle_ui"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>
 
             <include
-                layout = "@layout/led_compass_ui"
+                layout = "@layout/led_analog_compass_ui"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>
 
             <include
-                layout = "@layout/led_throttle_ui"
+                layout = "@layout/led_analog_throttle_ui"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>
 
             <include
-                layout = "@layout/led_rpm_ui"
+                layout = "@layout/led_analog_rpm_ui"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>
 
             <include
-                layout = "@layout/led_rpm_throttle_ui"
+                layout = "@layout/led_analog_rpm_throttle_ui"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>
 
             <include
-                layout = "@layout/led_x_accel_ui"
+                layout = "@layout/led_analog_x_accel_ui"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>
 
             <include
-                layout = "@layout/led_y_accel_ui"
+                layout = "@layout/led_analog_y_accel_ui"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>
 
             <include
-                layout = "@layout/led_custom_ui"
+                layout = "@layout/led_analog_custom_ui"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/led_sensor_text"/>

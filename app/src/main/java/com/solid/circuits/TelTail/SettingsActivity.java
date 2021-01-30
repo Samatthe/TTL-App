@@ -58,13 +58,16 @@ public class SettingsActivity extends AppCompatActivity{
             //Log.e(TAG, componentName.getClassName());
             if(componentName.getClassName().equals(BluetoothService.class.getName())) {
                 mBluetoothService = ((BluetoothService.LocalBinder) service).getService();
-                final byte txbuf[] = new byte[] {
+                byte txbuf[] = new byte[] {
                         (byte) 0x0A5,
                         (byte) 0x000,
                         (byte) 0x0F9,
                         (byte) 0x05A
                 };
                 mBluetoothService.writeBytes(txbuf);
+                txbuf[2] = (byte) 0x0A3;
+                long send_timer = System.currentTimeMillis();
+                while(!mBluetoothService.writeBytes(txbuf)){if(System.currentTimeMillis()-send_timer > 250) break;}
             } else if (componentName.getClassName().equals(LoggingService.class.getName())) {
                 //Toast.makeText(MainActivity.this, "Binding Log", Toast.LENGTH_SHORT).show();
                 mLoggingService = ((LoggingService.LocalBinder) service).getService();
@@ -134,7 +137,7 @@ public class SettingsActivity extends AppCompatActivity{
         SharedPreferences.Editor editor = settings.edit();
         CheckBox read_current = findViewById(R.id.settings_read_current_check);
         CheckBox disp_notif = findViewById(R.id.settings_disp_notif_check);
-        editor.putBoolean("ReadCurrent", read_current.isChecked());
+        editor.putBoolean("ReadCurrentLED", read_current.isChecked());
         editor.putBoolean("DispNotif", disp_notif.isChecked());
 
         // Commit the edits!
@@ -143,7 +146,7 @@ public class SettingsActivity extends AppCompatActivity{
 
     void restoresettings(){
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        READ_CURRENT = settings.getBoolean("ReadCurrent", false);
+        READ_CURRENT = settings.getBoolean("ReadCurrentLED", false);
         DispNitifaction = settings.getBoolean("DispNotif", true);
         CheckBox read_current = findViewById(R.id.settings_read_current_check);
         CheckBox disp_notif = findViewById(R.id.settings_disp_notif_check);
@@ -171,8 +174,6 @@ public class SettingsActivity extends AppCompatActivity{
                 startActivity(intent);
                 break;*/
             case R.id.calibrate_button:
-                //Toast.makeText(mBluetoothService, "hello", Toast.LENGTH_SHORT).show();
-
                 new AlertDialog.Builder(this)
                         .setMessage("To Calibrate the IMU:\n1. Place board on level ground\n2. Continue with Calibration\n3. Let board sit for > 5 seconds\n\nAre you sure you want to calibrate the IMU?")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -190,8 +191,27 @@ public class SettingsActivity extends AppCompatActivity{
                         })
                         .setNegativeButton("No", null)
                         .show();
-                //String txstring = bytesToHex(txbuf);
-                // Toast.makeText(MainActivity.this, txstring, Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.LED_test_button:
+                new AlertDialog.Builder(this)
+                        .setMessage("This test will turn on all LED and horn outputs. If a horn is connected, it will activate.")
+                        .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                final byte txbuf[] = new byte[] {
+                                        (byte) 0x0A5,
+                                        (byte) 0x000,
+                                        (byte) 0x0FF,
+                                        (byte) 0x05A
+                                };
+                                if(!mBluetoothService.writeBytes(txbuf))
+                                    Toast.makeText(SettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .setIcon(R.drawable.ic_warning)
+                        .setTitle("Output Test Warning")
+                        .show();
                 break;
             case R.id.orientation_button:
                 intent = new Intent(this, OrientationActivity.class);
@@ -227,11 +247,15 @@ public class SettingsActivity extends AppCompatActivity{
                 intent = new Intent(this, FirmwareSettingsActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.settings_import_export_menu_button:
+                intent = new Intent(this, ImportExportSettingsActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 
     public void onCheckboxClicked(View view) {
-        CheckBox checkbox = (CheckBox) findViewById(view.getId());
+        final CheckBox checkbox = (CheckBox) findViewById(view.getId());
 
         switch (view.getId()) {
             case R.id.settings_read_current_check:
@@ -241,6 +265,85 @@ public class SettingsActivity extends AppCompatActivity{
                 DispNitifaction = checkbox.isChecked();
                 mLoggingService.DispNotifiaction = DispNitifaction;
                 mLoggingService.updateNotification();
+                break;
+            case R.id.settings_detect_esc_check:
+                if(checkbox.isChecked()){
+                    new AlertDialog.Builder(this)
+                            .setMessage("This will configure the TTL to not begin UART comms until an ESC is detected\n\nThis may cause UART to not work on certain ESCs")
+                            .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    byte txbuf[] = new byte[]{
+                                            (byte) 0x0A5,
+                                            (byte) 0x001,
+                                            (byte) 0x0A2,
+                                            (byte) 0x001,
+                                            (byte) 0x05A
+                                    };
+                                    if (!mBluetoothService.writeBytes(txbuf)) {
+                                        Toast.makeText(SettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                                        checkbox.setChecked(false);
+                                    } else {
+                                        txbuf = new byte[]{
+                                                (byte) 0x0A5,
+                                                (byte) 0x000,
+                                                (byte) 0x0A3,
+                                                (byte) 0x05A
+                                        };
+                                        while (!mBluetoothService.writeBytes(txbuf)) {}
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    checkbox.setChecked(false);
+                                }
+                            })
+                            .setCancelable(false)
+                            .setIcon(R.drawable.ic_warning)
+                            //.setTitle("")
+                            .show();
+                } else {
+                    new AlertDialog.Builder(this)
+                            .setMessage("This will configure the TTL to begin communicating over UART immediately at startup\n\nThis can burn out some ESCs if the TTL is powered while the ESC is not")
+                            .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    byte txbuf[] = new byte[]{
+                                            (byte) 0x0A5,
+                                            (byte) 0x001,
+                                            (byte) 0x0A2,
+                                            (byte) 0x000,
+                                            (byte) 0x05A
+                                    };
+                                    if (!mBluetoothService.writeBytes(txbuf)) {
+                                        Toast.makeText(SettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                                        checkbox.setChecked(true);
+                                    } else {
+                                        txbuf = new byte[]{
+                                                (byte) 0x0A5,
+                                                (byte) 0x000,
+                                                (byte) 0x0A3,
+                                                (byte) 0x05A
+                                        };
+                                        while (!mBluetoothService.writeBytes(txbuf)) {}
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    checkbox.setChecked(true);
+                                }
+                            })
+                            .setCancelable(false)
+                            .setIcon(R.drawable.ic_warning)
+                            //.setTitle("Output Test Warning")
+                            .show();
+                }
+                READ_CURRENT = checkbox.isChecked();
+                break;
         }
     }
 
@@ -253,7 +356,7 @@ public class SettingsActivity extends AppCompatActivity{
                 finish();
             } else if (BluetoothService.ACTION_DATA_AVAILABLE.equals(action)) {
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                if(data.length == 5 || data.length == 3) {
+                if(data.length == 5 || data.length == 3 || data.length == 2) {
                     for (int i = 0; i < data.length; i++) {
                         switch (data[i] & 0xFF) {
                             case 0x74:
@@ -274,6 +377,13 @@ public class SettingsActivity extends AppCompatActivity{
                                     TTL_FW_VIEW.setText(TTL_FW_TEXT);
                                     i += 2;
                                 }
+                                break;
+                            case 0x78:
+                                if(i+1 != data.length-1)
+                                    break;
+                                CheckBox check = (findViewById(R.id.settings_detect_esc_check));
+                                check.setChecked(data[i+1] == 0x01);
+                                i+=1;
                                 break;
                         }
                     }

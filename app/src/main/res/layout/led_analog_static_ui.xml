@@ -5,9 +5,36 @@
     android:id="@+id/led_static_ui">
 
     <RelativeLayout
-        android:id="@+id/static_link_layout"
+        android:id="@+id/static_shuffle_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/LED_static_shuffle_check"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:layout_marginLeft="11dp"
+            android:onClick="onCheckboxClicked"
+            android:buttonTint="#EFEFEF"/>
+
+        <TextView
+            android:id="@+id/LED_static_shuffle_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:gravity="center_vertical"
+            android:text="@string/shuffle_text"
+            android:paddingLeft="17dp"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/settings_text_size"
+            android:layout_toRightOf="@id/LED_static_shuffle_check"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/static_link_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/static_shuffle_layout">
 
         <CheckBox
             android:id="@+id/LED_static_link_check"

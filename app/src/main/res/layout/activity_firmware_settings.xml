@@ -21,13 +21,14 @@
                 android:gravity="center_vertical"
                 android:textColor="@android:color/darker_gray"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/settings_height"
-                android:paddingLeft="16dp"/>
+                android:layout_height="@dimen/settings_info_height"
+                android:paddingLeft="16dp"
+                android:layout_marginTop="10dp"/>
 
             <Spinner
                 android:id="@+id/manual_hw_spinner"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/settings_height"
+                android:layout_height="@dimen/settings_info_height"
                 android:gravity="center_vertical"
                 android:layout_toRightOf="@id/ttl_hw_text"
                 android:dropDownWidth="wrap_content"
@@ -38,7 +39,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer"
-                android:layout_below="@id/ttl_hw_text"/>
+                android:layout_below="@id/ttl_hw_text"
+                android:visibility="gone"/>
 
 
             <TextView
@@ -48,16 +50,15 @@
                 android:gravity="center_vertical"
                 android:textColor="@android:color/darker_gray"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/settings_height"
+                android:layout_height="@dimen/settings_info_height"
                 android:paddingLeft="16dp"
                 android:layout_below="@id/blue_spacer0"/>
 
             <ImageView
                 android:id="@+id/ttl_fw_warning_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/settings_height"
+                android:layout_width="50dp"
+                android:layout_height="@dimen/settings_info_height"
                 android:layout_toRightOf="@id/current_fw_text"
-                android:gravity="center_vertical"
                 android:src="@mipmap/ic_red_warning_foreground"
                 android:visibility="invisible"
                 android:layout_below="@id/blue_spacer0"/>
@@ -67,7 +68,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@drawable/button_spacer"
-                android:layout_below="@id/current_fw_text"/>
+                android:layout_below="@id/current_fw_text"
+                android:visibility="gone"/>
 
 
             <TextView
@@ -77,16 +79,44 @@
                 android:gravity="center_vertical"
                 android:textColor="@android:color/darker_gray"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/settings_height"
+                android:layout_height="@dimen/settings_info_height"
                 android:layout_below="@id/blue_spacer1"
-                android:paddingLeft="16dp"/>
+                android:paddingLeft="16dp"
+                android:layout_marginBottom="10dp"/>
 
 
             <View android:id="@+id/blue_spacer2"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="2.5dp"
                 android:background="@drawable/button_spacer"
                 android:layout_below="@id/latest_fw_text"/>
+
+
+            <TextView
+                android:id="@+id/on_start_text"
+                android:text="Check Latest Firmware on Start:"
+                android:textSize="@dimen/settings_text_size"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:layout_below="@id/blue_spacer2"
+                android:paddingLeft="16dp"/>
+
+            <CheckBox android:id="@+id/checkbox_auto_check_fw"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/settings_height"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_below="@id/blue_spacer2"
+                android:layout_toRightOf="@id/on_start_text"
+                android:theme="@style/checkbox_white"/>
+
+
+            <View android:id="@+id/blue_spacer5"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/on_start_text"/>
 
             <TextView
                 android:id="@+id/firmware_manual_hw_text"
@@ -97,7 +127,7 @@
                 android:text="Choose HW Version Manually:"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/settings_text_size"
-                android:layout_below="@id/blue_spacer2"/>
+                android:layout_below="@id/blue_spacer5"/>
 
             <CheckBox
                 android:id="@+id/firmware_manual_hw_check"
@@ -105,7 +135,7 @@
                 android:layout_height="@dimen/settings_height"
                 android:layout_marginLeft="@dimen/settings_left_pad"
                 android:layout_toRightOf="@id/firmware_manual_hw_text"
-                android:layout_below="@id/blue_spacer2"
+                android:layout_below="@id/blue_spacer5"
                 android:onClick="onCheckboxClicked"
                 android:theme="@style/checkbox_white"/>
 
@@ -118,8 +148,8 @@
 
 
             <Button
-                android:id="@+id/check_current_fw_button"
-                android:text="Check Current Firmware"
+                android:id="@+id/custom_fw_button"
+                android:text="Upload Custom Firmware File"
                 android:textStyle="normal"
                 android:textAlignment="textStart"
                 android:textSize="@dimen/settings_text_size"
@@ -128,6 +158,29 @@
                 android:layout_height="@dimen/settings_height"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_below="@id/blue_spacer8"
+                android:textAllCaps="false"
+                android:onClick="onButtonClick"
+                android:textColor="@android:color/white"/>
+
+
+            <View android:id="@+id/blue_spacer6"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer"
+                android:layout_below="@id/custom_fw_button"/>
+
+
+            <Button
+                android:id="@+id/check_current_fw_button"
+                android:text="1. Check Current HW &amp; Firmware"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_below="@id/blue_spacer6"
                 android:textAllCaps="false"
                 android:onClick="onButtonClick"
                 android:textColor="@android:color/white"/>
@@ -142,7 +195,7 @@
 
             <Button
                 android:id="@+id/check_latest_fw_button"
-                android:text="Check Latest Firmware"
+                android:text="2. Check Latest Firmware"
                 android:textStyle="normal"
                 android:textAlignment="textStart"
                 android:textSize="@dimen/settings_text_size"
@@ -163,64 +216,9 @@
                 android:layout_below="@id/check_latest_fw_button"/>
 
 
-            <TextView
-                android:id="@+id/on_start_text"
-                android:text="Automatically Check Latest Firmware"
-                android:textSize="@dimen/settings_text_size"
-                android:gravity="center_vertical"
-                android:textColor="@android:color/white"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/settings_height"
-                android:layout_below="@id/blue_spacer4"
-                android:paddingLeft="16dp"
-                android:visibility="gone"/>
-
-            <CheckBox android:id="@+id/checkbox_auto_check_fw"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/settings_height"
-                android:layout_marginLeft="@dimen/settings_left_pad"
-                android:layout_below="@id/blue_spacer4"
-                android:layout_toRightOf="@id/on_start_text"
-                android:theme="@style/checkbox_white"
-                android:visibility="gone"/>
-
-
-            <View android:id="@+id/blue_spacer5"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@drawable/button_spacer"
-                android:layout_below="@id/on_start_text"
-                android:visibility="gone"/>
-
-
-            <Button
-                android:id="@+id/custom_fw_button"
-                android:text="Choose Custom Firmware File"
-                android:textStyle="normal"
-                android:textAlignment="textStart"
-                android:textSize="@dimen/settings_text_size"
-                android:layout_marginLeft="@dimen/settings_left_pad"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/settings_height"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_below="@id/blue_spacer5"
-                android:textAllCaps="false"
-                android:onClick="onButtonClick"
-                android:textColor="@android:color/white"
-                android:visibility="gone"/>
-
-
-            <View android:id="@+id/blue_spacer6"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@drawable/button_spacer"
-                android:layout_below="@id/custom_fw_button"
-                android:visibility="gone"/>
-
-
             <Button
                 android:id="@+id/update_fw_button"
-                android:text="Update TTL Firmware"
+                android:text="3. Update TTL Firmware"
                 android:textStyle="normal"
                 android:textAlignment="textStart"
                 android:textSize="@dimen/settings_text_size"
@@ -228,7 +226,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/settings_height"
                 style="?android:attr/borderlessButtonStyle"
-                android:layout_below="@id/blue_spacer6"
+                android:layout_below="@id/blue_spacer4"
                 android:textAllCaps="false"
                 android:onClick="onButtonClick"
                 android:textColor="@android:color/white"/>

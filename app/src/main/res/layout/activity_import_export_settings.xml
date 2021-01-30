@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.solid.circuits.TelTail.ImportExportSettingsActivity"
+    android:background="@drawable/default_content">
+
+    <ScrollView android:id="@+id/logging_main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/import_export_ttl_settings_button"
+                android:text="All TTL Settings"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/import_export_led_mode_settings_button"
+                android:text="LED Mode Settings"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_import_sub_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/import_export_lights_config_settings_button"
+                android:text="Lights Config Settings"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_import_sub_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/import_export_remote_settings_button"
+                android:text="Remote Settings"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_import_sub_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/import_export_control_settings_button"
+                android:text="Control Settings"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_import_sub_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/import_export_orientation_settings_button"
+                android:text="Orientation Settings"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_import_sub_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/import_export_app_settings_button"
+                android:text="App Settings"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
+                android:id="@+id/import_export_all_settings_button"
+                android:text="All Settings"
+                android:textStyle="normal"
+                android:textAlignment="textStart"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/write_on_import_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Write to TTL on Import: "
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size" />
+
+                <CheckBox
+                    android:id="@+id/write_on_import_check"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_marginLeft="@dimen/settings_left_pad"
+                    android:layout_toRightOf="@id/write_on_import_text"
+                    android:theme="@style/checkbox_white"
+                    android:checked="true"/>
+
+            </RelativeLayout>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/read_on_export_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/settings_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="16dp"
+                    android:text="Read From TTL on Export: "
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/settings_text_size"/>
+
+                <CheckBox
+                    android:id="@+id/read_on_export_check"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/settings_height"
+                    android:layout_marginLeft="@dimen/settings_left_pad"
+                    android:layout_toRightOf="@id/read_on_export_text"
+                    android:theme="@style/checkbox_white"
+                    android:checked="true"/>
+
+            </RelativeLayout>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -4,4 +4,30 @@
     android:layout_height="match_parent"
     android:id="@+id/led_digital_compass_snake_ui">
 
+    <RelativeLayout
+        android:id="@+id/digital_compass_snake_shuffle_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/digital_compass_snake_shuffle_check"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:layout_marginLeft="11dp"
+            android:onClick="onCheckboxClicked"
+            android:buttonTint="#EFEFEF"/>
+
+        <TextView
+            android:id="@+id/digital_compass_snake_shuffle_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:gravity="center_vertical"
+            android:text="@string/shuffle_text"
+            android:paddingLeft="17dp"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/settings_text_size"
+            android:layout_toRightOf="@id/digital_compass_snake_shuffle_check"/>
+
+    </RelativeLayout>
+
 </RelativeLayout>

@@ -20,6 +20,7 @@
 package com.solid.circuits.TelTail;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
@@ -36,6 +37,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -45,6 +47,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.app.NotificationCompat;
 
+import android.text.BoringLayout;
 import android.util.Log;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
@@ -77,6 +80,15 @@ import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,6 +147,26 @@ public class MainActivity extends AppCompatActivity
     CheckBox sensorCheck4;
     CheckBox sensorCheck5;
     CheckBox sensorCheck6;
+    CheckBox sensorCheck7;
+
+    RelativeLayout AnalogStaticShuffleLayout;
+    RelativeLayout AnalogCycleShuffleLayout;
+    RelativeLayout AnalogCompassShuffleLayout;
+    RelativeLayout AnalogThrottleShuffleLayout;
+    RelativeLayout AnalogRPMShuffleLayout;
+    RelativeLayout AnalogRPMThrottleShuffleLayout;
+    RelativeLayout AnalogXAccelShuffleLayout;
+    RelativeLayout AnalogYaccelShuffleLayout;
+    RelativeLayout AnalogCustomShuffleLayout;
+    RelativeLayout DigitalStaticShuffleLayout;
+    RelativeLayout DigitalCycleShuffleLayout;
+    RelativeLayout DigitalCompassShuffleLayout;
+    RelativeLayout DigitalThrottleShuffleLayout;
+    RelativeLayout DigitalRPMShuffleLayout;
+    RelativeLayout DigitalRPMThrottleShuffleLayout;
+    RelativeLayout DigitalSkittlesShuffleLayout;
+    RelativeLayout DigitalCompassSnakeShuffleLayout;
+    RelativeLayout DigitalCompassWheelShuffleLayout;
 
     private Menu menu;
 
@@ -164,6 +196,7 @@ public class MainActivity extends AppCompatActivity
     boolean COMP = false;
     boolean LGHT = false;
     boolean HEAD = false;
+    boolean IMU_TEMP = false;
     double graph_index = 0;
     LineGraphSeries<DataPoint> BC_LineSeries = new LineGraphSeries<>();
     LineGraphSeries<DataPoint> BV_LineSeries = new LineGraphSeries<>();
@@ -188,6 +221,7 @@ public class MainActivity extends AppCompatActivity
     LineGraphSeries<DataPoint> CZ_LineSeries = new LineGraphSeries<>();
     LineGraphSeries<DataPoint> LGHT_LineSeries = new LineGraphSeries<>();
     LineGraphSeries<DataPoint> HEAD_LineSeries = new LineGraphSeries<>();
+    LineGraphSeries<DataPoint> IMU_Temp_LinSeries = new LineGraphSeries<>();
     float battery_current = 0;
     float battery_voltage = 0;
     float previous_voltage = 0;
@@ -220,6 +254,7 @@ public class MainActivity extends AppCompatActivity
     int compass_z = 0;
     int light_sense = 0;
     float heading = 0;
+    float IMU_temp = 0;
 
     // LED Mode ui state variables
     int led_mode = 0;
@@ -265,14 +300,31 @@ public class MainActivity extends AppCompatActivity
     private BluetoothAdapter mBluetoothAdapter;
     public boolean autoConnect = false;
     private boolean RECIEVE_BLE_DATA = false;
-    boolean READ_CURRENT = false;
+    boolean READ_CURRENT_LED_SETTINGS = false;
+    boolean READ_CURRENT_FW = false;
     boolean BEEN_CONNECTED = false;
+    boolean SHUFFLE_LED_MODES = false;
+    boolean STORE_SHUFFLE = false;
 
     public LoggingService mLoggingService;
     public boolean LOG_MAP = false;
     public boolean LOG_MOTOR = false;
     public boolean LOG_SENSOR = false;
     public boolean LOG_ENABLED = false;
+
+    int ttl_error_code = 0;
+
+    File versionFile;
+    int Latest_FW = 0;
+    int TTL_FW = 0;
+    boolean FW_Download_Atempted = false;
+
+    final byte fw_read[] = new byte[]{
+            (byte) 0x0A5,
+            (byte) 0x000,
+            (byte) 0x0F9,
+            (byte) 0x05A
+    };
 
     // Code to manage Service lifecycle.
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -367,6 +419,25 @@ public class MainActivity extends AppCompatActivity
         vDigitalRPMThrottle = findViewById(R.id.led_digital_rpm_throttle_ui);
         vDigitalCompassWheel = findViewById(R.id.led_digital_compass_wheel_ui);
         vDigitalCompassSnake = findViewById(R.id.led_digital_compass_snake_ui);
+
+        AnalogStaticShuffleLayout = findViewById(R.id.static_shuffle_layout);
+        AnalogCycleShuffleLayout = findViewById(R.id.cycle_shuffle_layout);
+        AnalogCompassShuffleLayout = findViewById(R.id.compass_shuffle_layout);
+        AnalogThrottleShuffleLayout = findViewById(R.id.throttle_shuffle_layout);
+        AnalogRPMShuffleLayout = findViewById(R.id.rpm_shuffle_layout);
+        AnalogRPMThrottleShuffleLayout = findViewById(R.id.rpm_throttle_shuffle_layout);
+        AnalogXAccelShuffleLayout = findViewById(R.id.x_accel_shuffle_layout);
+        AnalogYaccelShuffleLayout = findViewById(R.id.y_accel_shuffle_layout);
+        AnalogCustomShuffleLayout = findViewById(R.id.custom_shuffle_layout);
+        DigitalStaticShuffleLayout = findViewById(R.id.digital_static_shuffle_layout);
+        DigitalCycleShuffleLayout = findViewById(R.id.digital_cycle_shuffle_layout);
+        DigitalCompassShuffleLayout = findViewById(R.id.digital_compass_shuffle_layout);
+        DigitalThrottleShuffleLayout = findViewById(R.id.digital_throttle_shuffle_layout);
+        DigitalRPMShuffleLayout = findViewById(R.id.digital_rpm_shuffle_layout);
+        DigitalRPMThrottleShuffleLayout = findViewById(R.id.digital_rpm_throttle_shuffle_layout);
+        DigitalSkittlesShuffleLayout = findViewById(R.id.digital_skittles_shuffle_layout);
+        DigitalCompassSnakeShuffleLayout = findViewById(R.id.digital_compass_snake_shuffle_layout);
+        DigitalCompassWheelShuffleLayout = findViewById(R.id.digital_compass_wheel_shuffle_layout);
 
         if (LED_STRIP_TYPE == 0) {
             vStatic.setVisibility(View.VISIBLE);
@@ -606,6 +677,8 @@ public class MainActivity extends AppCompatActivity
         LGHT_LineSeries.setColor(0xFF00FF99);
         HEAD_LineSeries.setTitle("Heading");
         HEAD_LineSeries.setColor(0xDFA9DF59);
+        IMU_Temp_LinSeries.setTitle("IMU Temp");
+        IMU_Temp_LinSeries.setColor(0xFF006666);
 
         updateSensorGraphContent();
         updateMotorGraphContent();
@@ -640,6 +713,10 @@ public class MainActivity extends AppCompatActivity
         sensorCheck4 = (CheckBox) findViewById(R.id.sensor_heading_check);
         sensorCheck5 = (CheckBox) findViewById(R.id.sensor_light_check);
         sensorCheck6 = (CheckBox) findViewById(R.id.sensor_nunchuck_joy_check);
+        sensorCheck7 = (CheckBox) findViewById(R.id.sensor_temp_check);
+
+        File directory = new File(getFilesDir().toString());
+        versionFile = new File(directory.toString() + "/FW Version.txt");
 
         loadPreferences();
 
@@ -735,7 +812,11 @@ public class MainActivity extends AppCompatActivity
         previous_wh_used = settings.getFloat("WhUsed", 0);
         previous_wh_charged = settings.getFloat("WhUsed", 0);
         STATIC_LINK = settings.getBoolean("staticLink", false);
-        READ_CURRENT = settings.getBoolean("ReadCurrent", false);
+        READ_CURRENT_LED_SETTINGS = settings.getBoolean("ReadCurrentLED",false);
+        READ_CURRENT_FW = settings.getBoolean("fwAutoCheck",false);
+        SHUFFLE_LED_MODES = settings.getBoolean("ShuffleEnable",false);
+        //led_mode = settings.getInt("LEDmode", 0);
+        //led_switch_hb = settings.getBoolean("",false);
 
         LED_STRIP_TYPE = settings.getInt("RGBType", 0);
 
@@ -753,6 +834,7 @@ public class MainActivity extends AppCompatActivity
         DTY = ((MotorChecks & 0x2) == 0x2);
         BC = ((MotorChecks & 0x1) == 0x1);
 
+        IMU_TEMP = ((SensorChecks & 0x40) == 0x40);
         NUNCHUCK = ((SensorChecks & 0x20) == 0x20);
         LGHT = ((SensorChecks & 0x10) == 0x10);
         HEAD = ((SensorChecks & 0x8) == 0x8);
@@ -780,6 +862,7 @@ public class MainActivity extends AppCompatActivity
         sensorCheck4.setChecked(HEAD);
         sensorCheck5.setChecked(LGHT);
         sensorCheck6.setChecked(NUNCHUCK);
+        sensorCheck7.setChecked(IMU_TEMP);
 
         ToggleButton MapLog = (ToggleButton) findViewById(R.id.gps_log_button);
         ToggleButton MotorLog = (ToggleButton) findViewById(R.id.motor_log_button);
@@ -793,7 +876,7 @@ public class MainActivity extends AppCompatActivity
         static_link.setChecked(STATIC_LINK);
 
         TextView left_title = (TextView) findViewById(R.id.left_LED_text);
-        RelativeLayout right_layout = (RelativeLayout) findViewById(R.id.right_LED_layout);
+        RelativeLayout right_layout = findViewById(R.id.right_LED_layout);
         if (static_link.isChecked()) {
             left_title.setText("LED Color");
             right_layout.setVisibility(View.GONE);
@@ -811,6 +894,8 @@ public class MainActivity extends AppCompatActivity
             MotorLog.setVisibility(View.GONE);
             SensorLog.setVisibility(View.GONE);
         }
+
+        updateShuffleCheckVisibility();
     }
 
     private void savePreferences() {
@@ -836,19 +921,26 @@ public class MainActivity extends AppCompatActivity
         int SensorCheck4 = (HEAD ? 1 : 0);
         int SensorCheck5 = (LGHT ? 1 : 0);
         int SensorCheck6 = (NUNCHUCK ? 1 : 0);
+        int SensorCheck7 = (IMU_TEMP ? 1 : 0);
 
         int MotorChecks = (MotorCheck10 << 9) | (MotorCheck9 << 8) | (MotorCheck8 << 7) | (MotorCheck7 << 6) | (MotorCheck6 << 5) | (MotorCheck5 << 4) | (MotorCheck4 << 3) | (MotorCheck3 << 2) | (MotorCheck2 << 1) | (MotorCheck1);
-        int SensorChecks = (SensorCheck6 << 5) | (SensorCheck5 << 4) | (SensorCheck4 << 3) | (SensorCheck3 << 2) | (SensorCheck2 << 1) | (SensorCheck1);
+        int SensorChecks = (SensorCheck7 << 6) | (SensorCheck6 << 5) | (SensorCheck5 << 4) | (SensorCheck4 << 3) | (SensorCheck3 << 2) | (SensorCheck2 << 1) | (SensorCheck1);
         editor.putInt("MotorChecks", MotorChecks);
         editor.putInt("SensorChecks", SensorChecks);
         editor.putBoolean("staticLink", STATIC_LINK);
-        editor.putInt("RGBType",LED_STRIP_TYPE);
+
+        save_LED_mode_values(editor);
+
         if (mBluetoothService != null && mBluetoothService.mConnectionState == 2 && battery_voltage > 0) {
             editor.putFloat("BattVolt", battery_voltage);
             editor.putFloat("mAhUsed", mAh_used + previous_mAh_used);
             editor.putFloat("mAhCharged", mAh_charged + previous_mAh_charged);
             editor.putFloat("WhUsed", wh_used + previous_wh_used);
             editor.putFloat("WhCharged", wh_charged + previous_wh_charged);
+        }
+        if(STORE_SHUFFLE) {
+            editor.putBoolean("ShuffleEnable", SHUFFLE_LED_MODES);
+            STORE_SHUFFLE = false;
         }
         // Commit the edits!
         editor.commit();
@@ -1387,6 +1479,10 @@ public class MainActivity extends AppCompatActivity
                 HEAD = checkbox.isChecked();
                 updateSensorGraphContent();
                 break;
+            case R.id.sensor_temp_check:
+                IMU_TEMP = checkbox.isChecked();
+                updateSensorGraphContent();
+                break;
             case R.id.sensor_light_check:
                 LGHT = checkbox.isChecked();
                 updateSensorGraphContent();
@@ -1478,7 +1574,7 @@ public class MainActivity extends AppCompatActivity
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, Intent intent) {
             //NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             //Menu navMenu = navigationView.getMenu();
             //MenuItem bleStatus = navMenu.findItem(R.id.bluetooth_status);
@@ -1494,18 +1590,23 @@ public class MainActivity extends AppCompatActivity
                 bleAction.setEnabled(true);
                 Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT).show();
                 //Log.i(TAG, "CONNECTED");
-                if (READ_CURRENT && !BEEN_CONNECTED) {
-                    final byte txbuf[] = new byte[]{
-                            (byte) 0x0A5,
-                            (byte) 0x000,
-                            (byte) 0x0CD,
-                            (byte) 0x05A
-                    };
-                    mBluetoothService.last_send = System.nanoTime()/1000000;
-                    while (!mBluetoothService.writeBytes(txbuf)) {
+                if(!BEEN_CONNECTED) {
+                    if (READ_CURRENT_LED_SETTINGS) {
+                        final byte txbuf[] = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x000,
+                                (byte) 0x0CD,
+                                (byte) 0x05A
+                        };
+                        mBluetoothService.last_send = System.nanoTime() / 1000000;
+                        while (!mBluetoothService.writeBytes(txbuf)) {
+                        }
+                        //Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                    }
+                    if(READ_CURRENT_FW){
+                        while (!mBluetoothService.writeBytes(fw_read)) {}
                     }
                     BEEN_CONNECTED = true;
-                    //Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                 }
             } else if (BluetoothService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 bleTitleBar.setImageResource(R.mipmap.ic_ble_black);
@@ -1520,10 +1621,11 @@ public class MainActivity extends AppCompatActivity
                 TextView compText = (TextView) findViewById(R.id.sensor_compass_text);
                 TextView lightText = (TextView) findViewById(R.id.sensor_light_text);
                 TextView headingText = (TextView) findViewById(R.id.sensor_heading_text);
+                TextView IMUtempText = (TextView) findViewById(R.id.sensor_temp_text);
                 int temp;
 
                 final byte[] data = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                if ((data.length == 10 || data.length == 11 || data.length == 15 || data.length == 16 || data.length == 18 || data.length == 19 || data.length == 20) && RECIEVE_BLE_DATA) {
+                if ((data.length == 5 ||data.length == 4 ||data.length == 3 ||data.length == 10 || data.length == 11 || data.length == 15 || data.length == 16 || data.length == 17 || data.length == 18 || data.length == 19 || data.length == 20) && RECIEVE_BLE_DATA) {
                     for (int i = 0; i < data.length; i++) {
                         temp = 0;
                         if (i >= data.length)
@@ -1799,8 +1901,14 @@ public class MainActivity extends AppCompatActivity
                                 headingText.setText("Heading: " + heading + "°");
                                 i += 2;
                                 break;
-                            case 0xDE:
-                                graph_index++;
+                            case 0x2F:
+                                if (i + 2 >= data.length)
+                                    break;
+                                IMU_temp = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
+                                IMU_temp = IMU_temp / 16;
+                                IMU_Temp_LinSeries.appendData(new DataPoint(graph_index, IMU_temp), true, MAX_DATA_POINTS);
+                                IMUtempText.setText("TTL Temp: " + String.format("%.1f", IMU_temp) + " °C");
+                                i += 2;
                                 break;
                             case 0x31:
                                 if (i + 2 >= data.length)
@@ -1972,6 +2080,102 @@ public class MainActivity extends AppCompatActivity
                                 DigitalRPMBright.setProgress(data[i + 3] & 0xFF);
                                 i += 3;
                                 break;
+                            case 0x40:
+                                if (i + 5 >= data.length)
+                                    break;
+                                CheckBox AnalogStaticShuffleCheck = findViewById(R.id.LED_static_shuffle_check);
+                                CheckBox AnalogCycleShuffleCheck = findViewById(R.id.LED_cycle_shuffle_check);
+                                CheckBox AnalogCompassShuffleCheck = findViewById(R.id.LED_compass_shuffle_check);
+                                CheckBox AnalogThrottleShuffleCheck = findViewById(R.id.LED_throttle_shuffle_check);
+                                CheckBox AnalogRPMShuffleCheck = findViewById(R.id.LED_rpm_shuffle_check);
+                                CheckBox AnalogRPMThrottleShuffleCheck = findViewById(R.id.LED_rpm_throttle_shuffle_check);
+                                CheckBox AnalogXAccelShuffleCheck = findViewById(R.id.LED_x_accel_shuffle_check);
+                                CheckBox AnalogYaccelShuffleCheck = findViewById(R.id.LED_y_accel_shuffle_check);
+                                CheckBox AnalogCustomShuffleCheck = findViewById(R.id.LED_custom_shuffle_check);
+                                CheckBox DigitalStaticShuffleCheck = findViewById(R.id.digital_static_shuffle_check);
+                                CheckBox DigitalCycleShuffleCheck = findViewById(R.id.digital_cycle_shuffle_check);
+                                CheckBox DigitalCompassShuffleCheck = findViewById(R.id.digital_compass_shuffle_check);
+                                CheckBox DigitalThrottleShuffleCheck = findViewById(R.id.digital_throttle_shuffle_check);
+                                CheckBox DigitalRPMShuffleCheck = findViewById(R.id.digital_rpm_shuffle_check);
+                                CheckBox DigitalRPMThrottleShuffleCheck = findViewById(R.id.digital_rpm_throttle_shuffle_check);
+                                CheckBox DigitalSkittlesShuffleCheck = findViewById(R.id.digital_skittles_shuffle_check);
+                                CheckBox DigitalCompassSnakeShuffleCheck = findViewById(R.id.digital_compass_snake_shuffle_check);
+                                CheckBox DigitalCompassWheelShuffleCheck = findViewById(R.id.digital_compass_wheel_shuffle_check);
+
+                                SHUFFLE_LED_MODES = (data[i + 1] & 0x01) == 1;
+                                AnalogStaticShuffleCheck.setChecked(((data[i + 2] & 0x01)) == 1);
+                                AnalogCycleShuffleCheck.setChecked(((data[i + 2] & 0x02) >> 1) == 1);
+                                AnalogCompassShuffleCheck.setChecked(((data[i + 2] & 0x04) >> 2) == 1);
+                                AnalogThrottleShuffleCheck.setChecked(((data[i + 2] & 0x08) >> 3) == 1);
+                                AnalogRPMShuffleCheck.setChecked(((data[i + 2] & 0x10) >> 4) == 1);
+                                AnalogRPMThrottleShuffleCheck.setChecked(((data[i + 2] & 0x20) >> 5) == 1);
+                                AnalogXAccelShuffleCheck.setChecked(((data[i + 2] & 0x40) >> 6) == 1);
+                                AnalogYaccelShuffleCheck.setChecked(((data[i + 2] & 0x80) >> 7) == 1);
+                                AnalogCustomShuffleCheck.setChecked(((data[i + 3] & 0x01)) == 1);
+                                DigitalStaticShuffleCheck.setChecked(((data[i + 4] & 0x01)) == 1);
+                                DigitalSkittlesShuffleCheck.setChecked(((data[i + 4] & 0x02) >> 1) == 1);
+                                DigitalCycleShuffleCheck.setChecked(((data[i + 4] & 0x04) >> 2) == 1);
+                                DigitalCompassShuffleCheck.setChecked(((data[i + 4] & 0x08) >> 3) == 1);
+                                DigitalThrottleShuffleCheck.setChecked(((data[i + 4] & 0x10) >> 4) == 1);
+                                DigitalRPMShuffleCheck.setChecked(((data[i + 4] & 0x20) >> 5) == 1);
+                                DigitalRPMThrottleShuffleCheck.setChecked(((data[i + 4] & 0x40) >> 6) == 1);
+                                DigitalCompassWheelShuffleCheck.setChecked(((data[i + 4] & 0x80) >> 7) == 1);
+                                DigitalCompassSnakeShuffleCheck.setChecked(((data[i + 5] & 0x01)) == 1);
+
+                                updateShuffleCheckVisibility();
+                                STORE_SHUFFLE = true;
+                                i += 5;
+                                break;
+                            case 0x74:
+                                downloadVersionFile download = new downloadVersionFile();
+                                download.execute();
+                                if (i + 4 == data.length-1) {
+                                    TTL_FW = 0;
+                                    TTL_FW += (data[i + 1] & 0x0FF);
+                                    TTL_FW += (data[i + 2] & 0x0FF) * 100;
+                                    i += 4;
+                                } else if(i + 2 == data.length-1){
+                                    TTL_FW = 0;
+                                    TTL_FW += (data[i + 1] & 0x0FF);
+                                    TTL_FW += (data[i + 2] & 0x0FF) * 100;
+                                    i += 2;
+                                } else {
+                                    break;
+                                }
+
+                                if (READ_CURRENT_FW) {
+                                    while(!FW_Download_Atempted){download.getStatus();}
+                                    if(TTL_FW == 0){
+                                        Toast.makeText(context, "TTL FW Not Read", Toast.LENGTH_SHORT).show();
+                                    } else if(Latest_FW == 0){
+                                        Toast.makeText(context, "Latest FW Not Read", Toast.LENGTH_SHORT).show();
+                                    } else if(TTL_FW != Latest_FW && TTL_FW != 0 && Latest_FW != 0){
+                                        Toast.makeText(context, "TTL FW Out-of-Date", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(context, "TTL FW Up-to-Date", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                break;
+                            case 0x76:
+                                if (i + 2 >= data.length)
+                                    break;
+                                ttl_error_code = ((data[i+1]&0x00FF)<<8);
+                                ttl_error_code |= (data[i+2]&0x00FF);
+                                //Toast.makeText(MainActivity.this, ""+ttl_error_code, Toast.LENGTH_SHORT).show();
+                                break;
+                            case 0x77:
+                                if (i + 19 >= data.length)
+                                    break;
+                                String temp_string = new String(data,i+1,19, StandardCharsets.US_ASCII);
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setMessage(temp_string)
+                                        .setPositiveButton("OK", null)
+                                        .setTitle("TTL Info Message")
+                                        .show();
+                                break;
+                            case 0xDE:
+                                graph_index++;
+                                break;
                         }
                     }
                 }
@@ -2091,10 +2295,12 @@ public class MainActivity extends AppCompatActivity
                 if(LED_STRIP_TYPE == 0) {
                     if (led_mode == 0) { // Static
                         CheckBox linkCheck = (CheckBox) findViewById(R.id.LED_static_link_check);
+                        CheckBox shuffleCheck = findViewById(R.id.LED_static_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         if (linkCheck.isChecked()) {
                             txbuf = new byte[]{
                                     (byte) 0x0A5,
-                                    (byte) 0x007,
+                                    (byte) 0x008,
                                     (byte) 0x0ED,
                                     switches_led_type,
                                     (byte) ((leftColor & 0x00FF0000) >> 16), //Red
@@ -2103,12 +2309,13 @@ public class MainActivity extends AppCompatActivity
                                     (byte) ((leftColor & 0x00FF0000) >> 16), //Red
                                     (byte) ((leftColor & 0x0000FF00) >> 8), //Green
                                     (byte) (leftColor & 0x000000FF), //Blue
+                                    mode_bools,
                                     (byte) 0x05A
                             };
                         } else {
                             txbuf = new byte[]{
                                     (byte) 0x0A5,
-                                    (byte) 0x007,
+                                    (byte) 0x008,
                                     (byte) 0x0ED,
                                     switches_led_type,
                                     (byte) ((leftColor & 0x00FF0000) >> 16), //Red
@@ -2117,106 +2324,130 @@ public class MainActivity extends AppCompatActivity
                                     (byte) ((rightColor & 0x00FF0000) >> 16), //Red
                                     (byte) ((rightColor & 0x0000FF00) >> 8), //Green
                                     (byte) (rightColor & 0x000000FF), //Blue
+                                    mode_bools,
                                     (byte) 0x05A
                             };
                         }
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 1) { // Color Cycle
+                        CheckBox shuffleCheck = findViewById(R.id.LED_cycle_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.cycle_speed_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         vProgress = (SeekBar) findViewById(R.id.cycle_bright_seeker);
                         byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x003,
+                                (byte) 0x004,
                                 (byte) 0x0EC,
                                 switches_led_type,
                                 progress1, //rate
                                 progress2, //brightness
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 2) { // Compass Cycle
+                        CheckBox shuffleCheck = findViewById(R.id.LED_compass_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.compass_bright_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x002,
+                                (byte) 0x003,
                                 (byte) 0x0EB,
                                 switches_led_type,
                                 progress1, //sensitivity
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 3) { // Throttle
+                        CheckBox shuffleCheck = findViewById(R.id.LED_throttle_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.throttle_speed_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         vProgress = (SeekBar) findViewById(R.id.throttle_bright_seeker);
                         byte progress2 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x003,
+                                (byte) 0x004,
                                 (byte) 0x0EA,
                                 switches_led_type,
                                 progress1, //sensitivity
                                 progress2, //brightness
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 4) { // RPM
+                        CheckBox shuffleCheck = findViewById(R.id.LED_rpm_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.rpm_speed_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x002,
+                                (byte) 0x003,
                                 (byte) 0x0E9,
                                 switches_led_type,
                                 progress1, //rate
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 5) { // RPM + Throttle
+                        CheckBox shuffleCheck = findViewById(R.id.LED_rpm_throttle_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x001,
+                                (byte) 0x002,
                                 (byte) 0x0E8,
                                 switches_led_type,
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 6) { // X Accel
+                        CheckBox shuffleCheck = findViewById(R.id.LED_x_accel_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.x_accel_rate_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x002,
+                                (byte) 0x003,
                                 (byte) 0x0E7,
                                 switches_led_type,
                                 progress1,
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 7) { // Y Accel
+                        CheckBox shuffleCheck = findViewById(R.id.LED_y_accel_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.y_accel_speed_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x002,
+                                (byte) 0x003,
                                 (byte) 0x0E6,
                                 switches_led_type,
                                 progress1,
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 8) { // Custom
+                        CheckBox shuffleCheck = findViewById(R.id.LED_custom_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.custom_rate_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         vProgress = (SeekBar) findViewById(R.id.custom_brightness_seeker);
@@ -2230,7 +2461,7 @@ public class MainActivity extends AppCompatActivity
                         if (linkCheck.isChecked()) {
                             txbuf = new byte[]{
                                     (byte) 0x0A5,
-                                    (byte) 0x00B,
+                                    (byte) 0x00C,
                                     (byte) 0x0B1,
                                     switches_led_type,
                                     (byte) (ColorBaseSpin.getSelectedItemPosition() & 0x0FF),
@@ -2243,12 +2474,13 @@ public class MainActivity extends AppCompatActivity
                                     (byte) (customLeftColor & 0x000000FF), //Blue
                                     progress1, // Rate
                                     progress2, // Brightness
+                                    mode_bools,
                                     (byte) 0x05A
                             };
                         } else {
                             txbuf = new byte[]{
                                     (byte) 0x0A5,
-                                    (byte) 0x00B,
+                                    (byte) 0x00C,
                                     (byte) 0x0B1,
                                     switches_led_type,
                                     (byte) (ColorBaseSpin.getSelectedItemPosition() & 0x0FF),
@@ -2261,6 +2493,7 @@ public class MainActivity extends AppCompatActivity
                                     (byte) (customRightColor & 0x000000FF), //Blue
                                     progress1, // Rate
                                     progress2, // Brightness
+                                    mode_bools,
                                     (byte) 0x05A
                             };
                         }
@@ -2270,6 +2503,8 @@ public class MainActivity extends AppCompatActivity
                 }
                 else {
                     if (led_mode == 0) { // Static
+                        CheckBox shuffleCheck = findViewById(R.id.digital_static_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.digital_static_zoom_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         vProgress = (SeekBar) findViewById(R.id.digital_static_shift_seeker);
@@ -2278,30 +2513,36 @@ public class MainActivity extends AppCompatActivity
                         byte progress3 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x004,
+                                (byte) 0x005,
                                 (byte) 0x0B9,
                                 switches_led_type,
                                 progress1, //zoom
                                 progress2, //shift
                                 progress3, //brightness
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                    } else if (led_mode == 1) { // Color Cycle
+                    } else if (led_mode == 1) { // Skittles
+                        CheckBox shuffleCheck = findViewById(R.id.digital_skittles_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.digital_skittles_bright_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x002,
+                                (byte) 0x003,
                                 (byte) 0x0BA,
                                 switches_led_type,
                                 progress1, //brightness
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 2) { // Color Cycle
+                        CheckBox shuffleCheck = findViewById(R.id.digital_cycle_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.digital_cycle_zoom_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         vProgress = (SeekBar) findViewById(R.id.digital_cycle_rate_seeker);
@@ -2310,30 +2551,36 @@ public class MainActivity extends AppCompatActivity
                         byte progress3 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x004,
+                                (byte) 0x005,
                                 (byte) 0x0BB,
                                 switches_led_type,
                                 progress1, //zoom
                                 progress2, //rate
                                 progress3, //brightness
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 3) { // Compass Cycle
+                        CheckBox shuffleCheck = findViewById(R.id.digital_compass_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.digital_compass_bright_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x002,
+                                (byte) 0x003,
                                 (byte) 0x0BC,
                                 switches_led_type,
                                 progress1, //brightness
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 4) { // Throttle
+                        CheckBox shuffleCheck = findViewById(R.id.digital_throttle_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.digital_throttle_zoom_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         vProgress = (SeekBar) findViewById(R.id.digital_throttle_shift_seeker);
@@ -2344,18 +2591,21 @@ public class MainActivity extends AppCompatActivity
                         byte progress4 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x005,
+                                (byte) 0x006,
                                 (byte) 0x0C0,
                                 switches_led_type,
                                 progress1, //zoom
                                 progress2, //shift
                                 progress3, //sensitivity
                                 progress4, //brightness
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 5) { // RPM
+                        CheckBox shuffleCheck = findViewById(R.id.digital_rpm_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         vProgress = (SeekBar) findViewById(R.id.digital_rpm_zoom_seeker);
                         byte progress1 = (byte) (vProgress.getProgress() & 0xFF);
                         vProgress = (SeekBar) findViewById(R.id.digital_rpm_rate_seeker);
@@ -2364,42 +2614,52 @@ public class MainActivity extends AppCompatActivity
                         byte progress3 = (byte) (vProgress.getProgress() & 0xFF);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x004,
+                                (byte) 0x005,
                                 (byte) 0x0BE,
                                 switches_led_type,
                                 progress1, //zoom
                                 progress2, //rate
                                 progress3, //brightness
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     } else if (led_mode == 6) { // RPM + Throttle
+                        CheckBox shuffleCheck = findViewById(R.id.digital_rpm_throttle_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x001,
+                                (byte) 0x002,
                                 (byte) 0x0BF,
                                 switches_led_type,
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                    } else if (led_mode == 7) { // RPM + Throttle
+                    } else if (led_mode == 7) { // Compass Wheel
+                        CheckBox shuffleCheck = findViewById(R.id.digital_compass_wheel_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x001,
+                                (byte) 0x002,
                                 (byte) 0x0C1,
                                 switches_led_type,
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
                             Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                    } else if (led_mode == 8) { // RPM + Throttle
+                    } else if (led_mode == 8) { // Compass Snake
+                        CheckBox shuffleCheck = findViewById(R.id.digital_compass_snake_shuffle_check);
+                        byte mode_bools = (byte) (((byte) (shuffleCheck.isChecked() ? 1 : 0)) << 7);
                         txbuf = new byte[]{
                                 (byte) 0x0A5,
-                                (byte) 0x001,
+                                (byte) 0x002,
                                 (byte) 0x0C6,
                                 switches_led_type,
+                                mode_bools,
                                 (byte) 0x05A
                         };
                         if (!mBluetoothService.writeBytes(txbuf))
@@ -2519,6 +2779,11 @@ public class MainActivity extends AppCompatActivity
             vSensorGraph.addSeries(HEAD_LineSeries);
         } else {
             vSensorGraph.removeSeries(HEAD_LineSeries);
+        }
+        if (IMU_TEMP) {
+            vSensorGraph.addSeries(IMU_Temp_LinSeries);
+        } else {
+            vSensorGraph.removeSeries(IMU_Temp_LinSeries);
         }
         if (LGHT)
             vSensorGraph.addSeries(LGHT_LineSeries);
@@ -2756,7 +3021,7 @@ public class MainActivity extends AppCompatActivity
         SwitchToView(led_mode);
     }
 
-    void updateModeSpinner(){
+    public void updateModeSpinner(){
         Spinner modeSpinner = (Spinner) findViewById(R.id.modes_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> modeAdapter;
@@ -2771,5 +3036,243 @@ public class MainActivity extends AppCompatActivity
         modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         modeSpinner.setAdapter(modeAdapter);
+    }
+
+    private class downloadVersionFile extends AsyncTask<Void, Void, Boolean> {
+        //boolean FW_Download_Atempted = false;
+        @Override
+        public Boolean doInBackground(Void... params) {
+            try {
+                URL u = new URL("https://github.com/Samatthe/TTL-Firmware/raw/master/Release%20FW/FW%20Version.txt");
+
+                URLConnection ucon = u.openConnection();
+                ucon.setReadTimeout(5000);
+                ucon.setConnectTimeout(10000);
+
+                InputStream is = ucon.getInputStream();
+                BufferedInputStream inStream = new BufferedInputStream(is, 1024 * 5);
+
+                if (versionFile.exists()) {
+                    versionFile.delete();
+                }
+                versionFile.createNewFile();
+
+                FileOutputStream outStream = new FileOutputStream(versionFile);
+                byte[] buff = new byte[5 * 1024];
+
+                int len;
+                while ((len = inStream.read(buff)) != -1) {
+                    outStream.write(buff, 0, len);
+                }
+
+                outStream.flush();
+                outStream.close();
+                inStream.close();
+
+                readFirmwareVersionFromFile(versionFile);
+
+            } catch (final Exception e) {
+                FW_Download_Atempted = true;
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+                return false;
+            }
+            FW_Download_Atempted = true;
+            return true;
+        }
+    }
+
+    public void readFirmwareVersionFromFile(File inputFile) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(versionFile));
+            String line;
+            Latest_FW = 0;
+            while ((line = br.readLine()) != null) {
+                String[] split = line.split("\\.");
+                for (int i = 0; i < split.length; i++) {
+                    if (i == 0) {
+                        Latest_FW += Integer.valueOf(split[i]) * 100;
+                    } else if (i == 1) {
+                        Latest_FW += Integer.valueOf(split[i]);
+                    }
+                }
+            }
+            br.close();
+        } catch (final Exception e) {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    public void updateShuffleCheckVisibility(){
+        AnalogStaticShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        AnalogCycleShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        AnalogCompassShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        AnalogThrottleShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        AnalogRPMShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        AnalogRPMThrottleShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        AnalogXAccelShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        AnalogYaccelShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        AnalogCustomShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        DigitalStaticShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        DigitalCycleShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        DigitalCompassShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        DigitalThrottleShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        DigitalRPMShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        DigitalRPMThrottleShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        DigitalSkittlesShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        DigitalCompassSnakeShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+        DigitalCompassWheelShuffleLayout.setVisibility(SHUFFLE_LED_MODES? View.VISIBLE : View.GONE);
+    }
+
+    void save_LED_mode_values(SharedPreferences.Editor editor){
+        Spinner ModeSpinner = findViewById(R.id.modes_spinner);
+        Switch SideSwitch = findViewById(R.id.led_side_switch);
+        Switch HeadSwitch = findViewById(R.id.led_hb_switch);
+        Switch LightSwitch = findViewById(R.id.led_light_switch);
+        Switch SensSwitch = findViewById(R.id.led_sensor_switch);
+        editor.putInt("RGBType", LED_STRIP_TYPE);
+        editor.putInt("LEDMode", ModeSpinner.getSelectedItemPosition());
+        editor.putBoolean("HeadSwitch", HeadSwitch.isChecked());
+        editor.putBoolean("SideSwitch", SideSwitch.isChecked());
+        editor.putBoolean("LightSwitch", LightSwitch.isChecked());
+        editor.putBoolean("SensSwitch", SensSwitch.isChecked());
+
+        SeekBar StaticLR = findViewById(R.id.left_red_seeker);
+        SeekBar StaticLG = findViewById(R.id.left_green_seeker);
+        SeekBar StaticLB = findViewById(R.id.left_blue_seeker);
+        SeekBar StaticRR = findViewById(R.id.right_red_seeker);
+        SeekBar StaticRG = findViewById(R.id.right_green_seeker);
+        SeekBar StaticRB = findViewById(R.id.right_blue_seeker);
+        editor.putInt("StaticLR", StaticLR.getProgress());
+        editor.putInt("StaticLG", StaticLG.getProgress());
+        editor.putInt("StaticLB", StaticLB.getProgress());
+        editor.putInt("StaticRR", StaticRR.getProgress());
+        editor.putInt("StaticRG", StaticRG.getProgress());
+        editor.putInt("StaticRB", StaticRB.getProgress());
+
+        SeekBar CycleRate = findViewById(R.id.cycle_speed_seeker);
+        SeekBar CycleBright = findViewById(R.id.cycle_bright_seeker);
+        editor.putInt("CycleRate", CycleRate.getProgress());
+        editor.putInt("CycleBright", CycleBright.getProgress());
+
+        SeekBar CompBright = findViewById(R.id.compass_bright_seeker);
+        editor.putInt("CompBright", CompBright.getProgress());
+
+        SeekBar ThrottleSens = findViewById(R.id.throttle_speed_seeker);
+        SeekBar ThrottleBright = findViewById(R.id.throttle_bright_seeker);
+        editor.putInt("ThrottleSens", ThrottleSens.getProgress());
+        editor.putInt("ThrottleBright", ThrottleBright.getProgress());
+
+        SeekBar rpmRate = findViewById(R.id.rpm_speed_seeker);
+        editor.putInt("rpmRate", rpmRate.getProgress());
+
+        SeekBar XaccelRate = findViewById(R.id.x_accel_rate_seeker);
+        editor.putInt("XaccelRate", XaccelRate.getProgress());
+
+        SeekBar YaccelRate = findViewById(R.id.y_accel_speed_seeker);
+        editor.putInt("YaccelRate", YaccelRate.getProgress());
+
+        Spinner ColorSpin = findViewById(R.id.custom_color_select_spinner);
+        Spinner RateSpin = findViewById(R.id.custom_rate_select_spinner);
+        Spinner BrightSpin = findViewById(R.id.custom_brightness_select_spinner);
+        SeekBar CustomLR = findViewById(R.id.custom_left_red_seeker);
+        SeekBar CustomLG = findViewById(R.id.custom_left_green_seeker);
+        SeekBar CustomLB = findViewById(R.id.custom_left_blue_seeker);
+        SeekBar CustomRR = findViewById(R.id.custom_right_red_seeker);
+        SeekBar CustomRG = findViewById(R.id.custom_right_green_seeker);
+        SeekBar CustomRB = findViewById(R.id.custom_right_blue_seeker);
+        SeekBar CustomRate = findViewById(R.id.custom_rate_seeker);
+        SeekBar CustomBright = findViewById(R.id.custom_brightness_seeker);
+        editor.putInt("ColorSpin", ColorSpin.getSelectedItemPosition());
+        editor.putInt("RateSpin", RateSpin.getSelectedItemPosition());
+        editor.putInt("BrightSpin", BrightSpin.getSelectedItemPosition());
+        editor.putInt("CustomLR", CustomLR.getProgress());
+        editor.putInt("CustomLG", CustomLG.getProgress());
+        editor.putInt("CustomLB", CustomLB.getProgress());
+        editor.putInt("CustomRR", CustomRR.getProgress());
+        editor.putInt("CustomRG", CustomRG.getProgress());
+        editor.putInt("CustomRB", CustomRB.getProgress());
+        editor.putInt("CustomRate", CustomRate.getProgress());
+        editor.putInt("CustomBright", CustomBright.getProgress());
+
+        SeekBar DigitalStaticZoom = findViewById(R.id.digital_static_zoom_seeker);
+        SeekBar DigitalStaticShift = findViewById(R.id.digital_static_shift_seeker);
+        SeekBar DigitalStaticBright = findViewById(R.id.digital_static_bright_seeker);
+        editor.putInt("DigitalStaticZoom", DigitalStaticZoom.getProgress());
+        editor.putInt("DigitalStaticShift", DigitalStaticShift.getProgress());
+        editor.putInt("DigitalStaticBright", DigitalStaticBright.getProgress());
+
+        SeekBar DigitalSkittlesBright = findViewById(R.id.digital_skittles_bright_seeker);
+        editor.putInt("DigitalSkittlesBright", DigitalSkittlesBright.getProgress());
+
+        SeekBar DigitalCycleZoom = findViewById(R.id.digital_cycle_zoom_seeker);
+        SeekBar DigitalCycleRate = findViewById(R.id.digital_cycle_rate_seeker);
+        SeekBar DigitalCycleBright = findViewById(R.id.digital_cycle_bright_seeker);
+        editor.putInt("DigitalCycleZoom", DigitalCycleZoom.getProgress());
+        editor.putInt("DigitalCycleRate", DigitalCycleRate.getProgress());
+        editor.putInt("DigitalCycleBright", DigitalCycleBright.getProgress());
+
+        SeekBar DigitalCompassBright = findViewById(R.id.digital_compass_bright_seeker);
+        editor.putInt("DigitalCompassBright", DigitalCompassBright.getProgress());
+
+        SeekBar DigitalThrottleZoom = findViewById(R.id.digital_throttle_zoom_seeker);
+        SeekBar DigitalThrottleShift = findViewById(R.id.digital_throttle_shift_seeker);
+        SeekBar DigitalThrottleSens = findViewById(R.id.digital_throttle_sens_seeker);
+        SeekBar DigitalThrottleBright = findViewById(R.id.digital_throttle_bright_seeker);
+        editor.putInt("DigitalThrottleZoom", DigitalThrottleZoom.getProgress());
+        editor.putInt("DigitalThrottleShift", DigitalThrottleShift.getProgress());
+        editor.putInt("DigitalThrottleSens", DigitalThrottleSens.getProgress());
+        editor.putInt("DigitalThrottleBright", DigitalThrottleBright.getProgress());
+
+        SeekBar DigitalRPMZoom = findViewById(R.id.digital_rpm_zoom_seeker);
+        SeekBar DigitalRPMRate = findViewById(R.id.digital_rpm_rate_seeker);
+        SeekBar DigitalRPMBright = findViewById(R.id.digital_rpm_bright_seeker);
+        editor.putInt("DigitalRPMZoom", DigitalRPMZoom.getProgress());
+        editor.putInt("DigitalRPMRate", DigitalRPMRate.getProgress());
+        editor.putInt("DigitalRPMBright", DigitalRPMBright.getProgress());
+
+        CheckBox AnalogStaticShuffleCheck = findViewById(R.id.LED_static_shuffle_check);
+        CheckBox AnalogCycleShuffleCheck = findViewById(R.id.LED_cycle_shuffle_check);
+        CheckBox AnalogCompassShuffleCheck = findViewById(R.id.LED_compass_shuffle_check);
+        CheckBox AnalogThrottleShuffleCheck = findViewById(R.id.LED_throttle_shuffle_check);
+        CheckBox AnalogRPMShuffleCheck = findViewById(R.id.LED_rpm_shuffle_check);
+        CheckBox AnalogRPMThrottleShuffleCheck = findViewById(R.id.LED_rpm_throttle_shuffle_check);
+        CheckBox AnalogXAccelShuffleCheck = findViewById(R.id.LED_x_accel_shuffle_check);
+        CheckBox AnalogYaccelShuffleCheck = findViewById(R.id.LED_y_accel_shuffle_check);
+        CheckBox AnalogCustomShuffleCheck = findViewById(R.id.LED_custom_shuffle_check);
+        CheckBox DigitalStaticShuffleCheck = findViewById(R.id.digital_static_shuffle_check);
+        CheckBox DigitalCycleShuffleCheck = findViewById(R.id.digital_cycle_shuffle_check);
+        CheckBox DigitalCompassShuffleCheck = findViewById(R.id.digital_compass_shuffle_check);
+        CheckBox DigitalThrottleShuffleCheck = findViewById(R.id.digital_throttle_shuffle_check);
+        CheckBox DigitalRPMShuffleCheck = findViewById(R.id.digital_rpm_shuffle_check);
+        CheckBox DigitalRPMThrottleShuffleCheck = findViewById(R.id.digital_rpm_throttle_shuffle_check);
+        CheckBox DigitalSkittlesShuffleCheck = findViewById(R.id.digital_skittles_shuffle_check);
+        CheckBox DigitalCompassSnakeShuffleCheck = findViewById(R.id.digital_compass_snake_shuffle_check);
+        CheckBox DigitalCompassWheelShuffleCheck = findViewById(R.id.digital_compass_wheel_shuffle_check);
+        editor.putBoolean("AnalogStaticShuffleCheck", AnalogStaticShuffleCheck.isChecked());
+        editor.putBoolean("AnalogCycleShuffleCheck", AnalogCycleShuffleCheck.isChecked());
+        editor.putBoolean("AnalogCompassShuffleCheck", AnalogCompassShuffleCheck.isChecked());
+        editor.putBoolean("AnalogThrottleShuffleCheck", AnalogThrottleShuffleCheck.isChecked());
+        editor.putBoolean("AnalogRPMShuffleCheck", AnalogRPMShuffleCheck.isChecked());
+        editor.putBoolean("AnalogRPMThrottleShuffleCheck", AnalogRPMThrottleShuffleCheck.isChecked());
+        editor.putBoolean("AnalogXAccelShuffleCheck", AnalogXAccelShuffleCheck.isChecked());
+        editor.putBoolean("AnalogYaccelShuffleCheck", AnalogYaccelShuffleCheck.isChecked());
+        editor.putBoolean("AnalogCustomShuffleCheck", AnalogCustomShuffleCheck.isChecked());
+        editor.putBoolean("DigitalStaticShuffleCheck", DigitalStaticShuffleCheck.isChecked());
+        editor.putBoolean("DigitalCycleShuffleCheck", DigitalCycleShuffleCheck.isChecked());
+        editor.putBoolean("DigitalCompassShuffleCheck", DigitalCompassShuffleCheck.isChecked());
+        editor.putBoolean("DigitalThrottleShuffleCheck", DigitalThrottleShuffleCheck.isChecked());
+        editor.putBoolean("DigitalRPMShuffleCheck", DigitalRPMShuffleCheck.isChecked());
+        editor.putBoolean("DigitalRPMThrottleShuffleCheck", DigitalRPMThrottleShuffleCheck.isChecked());
+        editor.putBoolean("DigitalSkittlesShuffleCheck", DigitalSkittlesShuffleCheck.isChecked());
+        editor.putBoolean("DigitalCompassSnakeShuffleCheck", DigitalCompassSnakeShuffleCheck.isChecked());
+        editor.putBoolean("DigitalCompassWheelShuffleCheck", DigitalCompassWheelShuffleCheck.isChecked());
     }
 }

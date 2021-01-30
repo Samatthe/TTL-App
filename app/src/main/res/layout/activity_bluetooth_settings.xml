@@ -92,7 +92,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/settings_height"
                 android:layout_below="@id/blue_spacer3"
-                android:paddingLeft="16dp"/>
+                android:paddingLeft="16dp"
+                android:visibility="gone"/>
 
             <CheckBox android:id="@+id/checkbox_auto"
                 android:layout_width="wrap_content"
@@ -100,7 +101,8 @@
                 android:layout_marginLeft="@dimen/settings_left_pad"
                 android:layout_below="@id/blue_spacer3"
                 android:layout_toRightOf="@id/auto_text"
-                android:theme="@style/checkbox_white"/>
+                android:theme="@style/checkbox_white"
+                android:visibility="gone"/>
 
 
             <View android:id="@+id/blue_spacer4"

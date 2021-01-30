@@ -19,6 +19,8 @@
 
 package com.solid.circuits.TelTail;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
@@ -32,6 +34,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -43,6 +46,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -66,14 +70,18 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 
 public class FirmwareSettingsActivity extends AppCompatActivity
-        implements AdapterView.OnItemSelectedListener {
+        implements AdapterView.OnItemSelectedListener{
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
     public static final String PREFS_NAME = "MyPrefsFile";
+
+    private static final int MY_REQUEST_CODE_PERMISSION = 1000;
+    private static final int MY_RESULT_CODE_FILECHOOSER = 2000;
 
     private BluetoothService mBluetoothService;
     private BluetoothAdapter mBluetoothAdapter;
@@ -84,6 +92,11 @@ public class FirmwareSettingsActivity extends AppCompatActivity
     CheckBox fwAutoCheck;
     CheckBox manualHWcheck;
     Spinner manualHWspinner;
+    Button CustomFWButton;
+    String CustomFWPath = null;
+
+    boolean UploadCustomFW = false;
+    boolean NewCustomFWChosen = false;
 
     int TTL_HW = 0;
     int TTL_FW = 0;
@@ -100,6 +113,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity
     boolean UPLOAD_FAILED = false;
     boolean FIRST_TTL_FW_READ = true;
     boolean FIRST_FILE_FW_READ = true;
+    boolean READ_CURRENT_FW = false;
 
     final byte fw_read[] = new byte[]{
             (byte) 0x0A5,
@@ -225,6 +239,8 @@ public class FirmwareSettingsActivity extends AppCompatActivity
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        CustomFWButton = findViewById(R.id.custom_fw_button);
+
         Intent gattServiceIntent = new Intent(this, BluetoothService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
@@ -297,6 +313,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("fwAutoCheck", fwAutoCheck.isChecked());
         editor.putBoolean("manHWcheck", manualHWcheck.isChecked());
+        editor.putBoolean("fwAutoCheck", fwAutoCheck.isChecked());
         editor.commit();
     }
 
@@ -307,6 +324,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         autoCheckFW = settings.getBoolean("fwAutoCheck", false);
         manualHWcheck.setChecked(settings.getBoolean("manHWcheck", false));
+        READ_CURRENT_FW = settings.getBoolean("fwAutoCheck", false);
         if(settings.getBoolean("manHWcheck", false)){
             HardwareVersionText.setText("TTL Hardware: ");
             manualHWspinner.setVisibility(View.VISIBLE);
@@ -320,6 +338,28 @@ public class FirmwareSettingsActivity extends AppCompatActivity
 
     public void onButtonClick(View view) {
         switch (view.getId()) {
+            case R.id.custom_fw_button:{
+                // With Android Level >= 23, you have to ask the user
+                // for permission to access External Storage.
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) { // Level 23
+
+                    // Check if we have Call permission
+                    int permisson = ActivityCompat.checkSelfPermission(FirmwareSettingsActivity.this
+                            ,
+                            Manifest.permission.READ_EXTERNAL_STORAGE);
+
+                    if (permisson != PackageManager.PERMISSION_GRANTED) {
+                        // If don't have permission so prompt the user.
+                        this.requestPermissions(
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                MY_REQUEST_CODE_PERMISSION
+                        );
+                        return;
+                    }
+                }
+                doBrowseFile();
+                break;
+            }
             case R.id.check_current_fw_button: {
                 //Toast.makeText(FirmwareSettingsActivity.this, "Reading Current TTL FW", Toast.LENGTH_SHORT).show();
                 if (!mBluetoothService.writeBytes(fw_read))
@@ -348,49 +388,86 @@ public class FirmwareSettingsActivity extends AppCompatActivity
                     fwUpdateDialog.fwProgressBar.setMax(APP_MEM_SIZE);
                     fwUpdateDialog.fwProgressBar.setProgress(0);
                     fwUpdateDialog.fwProgressText.setText("Erasing Existing FW");
-                    //update_fw(fwUpdateDialog);
                     final Thread thrd = new Thread(new Runnable() {
                         public void run() {
-                            update_fw(fwUpdateDialog);
+                            upload_fw(fwUpdateDialog, firmwareFile);
                         }
                     });
 
-                    new AlertDialog.Builder(FirmwareSettingsActivity.this)
-                            .setMessage("Are you sure you want to update to the latest FW?")
-                            .setIcon(R.drawable.ic_warning)
-                            .setTitle("Confirm Update")
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (!mBluetoothService.writeBytes(restart_cmd)) {
-                                        Toast.makeText(FirmwareSettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    } else {
-                                        Handler boot_handler = new Handler();
-                                        Runnable r = new Runnable() {
-                                            public void run() {
-                                                thrd.start();
-                                            }
-                                        };
-                                        boot_handler.postDelayed(r, 100);
+                    if (TTL_FW == Latest_FW) {
+                        new AlertDialog.Builder(FirmwareSettingsActivity.this)
+                                .setMessage("Your FW is up to date.\n\nUpdate anyways?")
+                                .setIcon(R.drawable.ic_warning)
+                                .setTitle("Confirm Update")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (!mBluetoothService.writeBytes(restart_cmd)) {
+                                            Toast.makeText(FirmwareSettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        } else {
+                                            Handler boot_handler = new Handler();
+                                            Runnable r = new Runnable() {
+                                                public void run() {
+                                                    thrd.start();
+                                                }
+                                            };
+                                            boot_handler.postDelayed(r, 100);
+                                        }
                                     }
-                                }
-                            })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    fwUpdateDialog.dismissDialog();
-                                }
-                            })
-                            .setCancelable(false)
-                            .show();//*/
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        fwUpdateDialog.dismissDialog();
+                                    }
+                                })
+                                .setCancelable(false)
+                                .show();//*/
+                    } else {
+                        new AlertDialog.Builder(FirmwareSettingsActivity.this)
+                                .setMessage("Are you sure you want to update to the latest FW?")
+                                .setIcon(R.drawable.ic_warning)
+                                .setTitle("Confirm Update")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (!mBluetoothService.writeBytes(restart_cmd)) {
+                                            Toast.makeText(FirmwareSettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        } else {
+                                            Handler boot_handler = new Handler();
+                                            Runnable r = new Runnable() {
+                                                public void run() {
+                                                    thrd.start();
+                                                }
+                                            };
+                                            boot_handler.postDelayed(r, 100);
+                                        }
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        fwUpdateDialog.dismissDialog();
+                                    }
+                                })
+                                .setCancelable(false)
+                                .show();//*/
+                    }
                 }
                 break;
             }
         }
     }
 
-    public void update_fw(LoadingDialog fwUpdateDialog) {// Eenter Bootloader Mode
+    public void upload_fw(LoadingDialog fwUpdateDialog, File FWfile) {
+        // Eenter Bootloader Mode
+        //int fw_size = (int) FWfile.length();
+        //String hex_size = int2hex(fw_size, 8);
+        //publishTitle(fwUpdateDialog, hex_size + "   " + fw_size);
+        //long timer = System.currentTimeMillis();
+
         if (!mBluetoothService.writeBytes(enter_boot)) {
             //Toast.makeText(FirmwareSettingsActivity.this, "Failed to send bootloader command", Toast.LENGTH_SHORT).show();
 
@@ -400,11 +477,11 @@ public class FirmwareSettingsActivity extends AppCompatActivity
             return;
         } else {
             // Open the FW file and read it into a byte array
-            int fw_size = (int) firmwareFile.length();
+            int fw_size = (int) FWfile.length();
             byte[] FW_Bytes = new byte[fw_size];
             int[] FW_Words = new int[fw_size / 4];
             try {
-                BufferedInputStream buf = new BufferedInputStream(new FileInputStream(firmwareFile));
+                BufferedInputStream buf = new BufferedInputStream(new FileInputStream(FWfile));
                 buf.read(FW_Bytes, 0, FW_Bytes.length);
                 buf.close();
             } catch (FileNotFoundException e) {
@@ -465,7 +542,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity
             timer = System.currentTimeMillis();
             while ((System.currentTimeMillis() - timer) < 500) {
             }
-//*/
+
             // Change the progress bar info for writin FW bytes
             fwUpdateDialog.fwProgressBar.setMax(fw_size);
             fwUpdateDialog.fwProgressBar.setProgress(0);
@@ -935,6 +1012,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity
 
     String int2hex(int num, int len) {
         String tmp = Long.toHexString(num);
+        //Toast.makeText(FirmwareSettingsActivity.this, num, Toast.LENGTH_SHORT).show();
         for (int i = tmp.length(); i < len * 2; i++) {
             tmp = '0' + tmp;
             //Toast.makeText(FirmwareSettingsActivity.this, hex_addr, Toast.LENGTH_SHORT).show();
@@ -966,6 +1044,9 @@ public class FirmwareSettingsActivity extends AppCompatActivity
                     manualHWspinner.setVisibility(View.GONE);
                 }
                 break;
+            case R.id.checkbox_auto_check_fw:
+                READ_CURRENT_FW = checkbox.isChecked();
+                break;
         }
     }
 
@@ -990,5 +1071,82 @@ public class FirmwareSettingsActivity extends AppCompatActivity
         }else if(pos == 1){
             TTL_HW = 401;
         }
+    }
+
+    private void doBrowseFile()  {
+        Intent chooseFileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        chooseFileIntent.setType("application/octet-stream");
+        // Only return URIs that can be opened with ContentResolver
+        chooseFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        chooseFileIntent = Intent.createChooser(chooseFileIntent, "Choose a file");
+        startActivityForResult(chooseFileIntent, MY_RESULT_CODE_FILECHOOSER);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case MY_RESULT_CODE_FILECHOOSER:
+                if (resultCode == Activity.RESULT_OK ) {
+                    if(data != null)  {
+                        Uri fileUri = data.getData();
+                        Log.i(TAG, "Uri: " + fileUri);
+
+                        try {
+                            CustomFWPath = FileUtils.getPath(FirmwareSettingsActivity.this,fileUri);
+                            Toast.makeText(FirmwareSettingsActivity.this, CustomFWPath, Toast.LENGTH_LONG).show();
+
+                            final LoadingDialog fwUpdateDialog = new LoadingDialog(FirmwareSettingsActivity.this);
+                            fwUpdateDialog.startLoadingDialog();
+                            fwUpdateDialog.fwProgressBar.setMax(APP_MEM_SIZE);
+                            fwUpdateDialog.fwProgressBar.setProgress(0);
+                            fwUpdateDialog.fwProgressText.setText("Erasing Existing FW");
+                            final Thread thrd = new Thread(new Runnable() {
+                                public void run() {
+                                    File CustomFirmwareFile = new File(CustomFWPath);
+                                    upload_fw(fwUpdateDialog, CustomFirmwareFile);
+                                }
+                            });
+
+                            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case DialogInterface.BUTTON_POSITIVE: {
+                                            if (!mBluetoothService.writeBytes(restart_cmd)) {
+                                                Toast.makeText(FirmwareSettingsActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
+                                                return;
+                                            } else {
+                                                Handler boot_handler = new Handler();
+                                                Runnable r = new Runnable() {
+                                                    public void run() {
+                                                        thrd.start();
+                                                    }
+                                                };
+                                                boot_handler.postDelayed(r, 100);
+                                            }
+
+                                        }
+                                            break;
+
+                                        case DialogInterface.BUTTON_NEGATIVE:
+                                            //No button clicked
+                                            fwUpdateDialog.dismissDialog();
+                                            break;
+                                    }
+                                }
+                            };
+                            AlertDialog.Builder builder = new AlertDialog.Builder(FirmwareSettingsActivity.this);
+                            builder.setMessage("Are you sure you would like to upload this custom FW:\n\n" + CustomFWPath ).setPositiveButton("Yes", dialogClickListener)
+                                    .setNegativeButton("No", dialogClickListener).show();
+                        } catch (Exception e) {
+                            Log.e(TAG,"Error: " + e);
+                            Toast.makeText(FirmwareSettingsActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

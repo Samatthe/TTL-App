@@ -273,8 +273,8 @@ public class RemoteConfigActivity extends AppCompatActivity
 
     void initializeRemoteTypeList(List<CharSequence> list){
         list.clear();
-        list.add("PPM");
-        list.add("UART + PPM");
+        list.add("PWM");
+        list.add("UART + PWM");
         list.add("UART Only");//(Chuck Struct) Single Axis");
         //list.add("UART (Chuck Struct) Dual Axis");
     }
@@ -284,7 +284,7 @@ public class RemoteConfigActivity extends AppCompatActivity
         list.add("None");
         list.add("Momentary");
         list.add("Latching");
-        list.add("Latching PPM");
+        list.add("Latching PWM");
         list.add("UART (Chuck Struct) C");
         list.add("UART (Chuck Struct) Z");
         list.add("Throttle Down");
@@ -332,6 +332,12 @@ public class RemoteConfigActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         savesettings();
+
+        if (mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
+        mBluetoothService = null;
+        unregisterReceiver(mGattUpdateReceiver);
     }
 }
 

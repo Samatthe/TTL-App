@@ -67,6 +67,8 @@ public class LightsConfigActivity extends AppCompatActivity
     CheckBox default_state_checkbox;
     CheckBox highbeam_enable_checkbox;
     SeekBar lowbeam_level_seeker;
+    CheckBox standby_enable_checkbox;
+    CheckBox shuffle_enable_checkbox;
 
     boolean CHECK_DATA = false;
     long applytimer = 0;
@@ -129,6 +131,8 @@ public class LightsConfigActivity extends AppCompatActivity
         highbeam_enable_checkbox = findViewById(R.id.highbeams_enable_checkbox);
         deadzone_seeker = findViewById(R.id.brake_deadzone_seeker);
         lowbeam_level_seeker = findViewById(R.id.lowbeam_seeker);
+        standby_enable_checkbox = findViewById(R.id.led_setting_standby_check);
+        shuffle_enable_checkbox = findViewById(R.id.led_setting_shuffle_check);
 
         // Aux control assignment spinner
         RGB_type_adapter = new ArrayAdapter<>(this,
@@ -165,9 +169,11 @@ public class LightsConfigActivity extends AppCompatActivity
         editor.putInt("Deadzone", deadzone_seeker.getProgress());
         editor.putInt("BrakeMode", brake_mode_spinner.getSelectedItemPosition());
         editor.putBoolean("BrakeAlwaysOn", brake_always_on_checkbox.isChecked());
-        editor.putBoolean("BrakeAlwaysOn", default_state_checkbox.isChecked());
+        editor.putBoolean("DefaultState", default_state_checkbox.isChecked());
         editor.putBoolean("HighbeamEnable", highbeam_enable_checkbox.isChecked());
         editor.putInt("LowbeamLevel", lowbeam_level_seeker.getProgress());
+        editor.putBoolean("StandbyEnable", standby_enable_checkbox.isChecked());
+        editor.putBoolean("ShuffleEnable", shuffle_enable_checkbox.isChecked());
 
         // Commit the edits!
         editor.commit();
@@ -184,9 +190,11 @@ public class LightsConfigActivity extends AppCompatActivity
         deadzone_seeker.setProgress(settings.getInt("Deadzone", 50));
         brake_mode_spinner.setSelection(settings.getInt("BrakeMode", 0));
         brake_always_on_checkbox.setChecked(settings.getBoolean("BrakeAlwaysOn", false));
-        default_state_checkbox.setChecked(settings.getBoolean("BrakeAlwaysOn", false));
+        default_state_checkbox.setChecked(settings.getBoolean("DefaultState", false));
         highbeam_enable_checkbox.setChecked(settings.getBoolean("HighbeamEnable", false));
         lowbeam_level_seeker.setProgress(settings.getInt("LowbeamLevel", 70));
+        standby_enable_checkbox.setChecked(settings.getBoolean("StandbyEnable", false));
+        shuffle_enable_checkbox.setChecked(settings.getBoolean("ShuffleEnable", false));
     }
 
     public void onButtonClick(View view) {
@@ -212,34 +220,41 @@ public class LightsConfigActivity extends AppCompatActivity
                     //System.out.println("Could not parse " + nfe);
                 }
 
-                byte checks = (byte)((byte)0xFF & (byte)(RGB_sync_checkbox.isChecked() ? 1 : 0) << 7);
-                checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(brake_always_on_checkbox.isChecked() ? 1 : 0) << 6)));
-                checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(default_state_checkbox.isChecked() ? 1 : 0) << 5)));
-                checks = (byte)(checks | ((byte)((byte)0xFF & (byte)(highbeam_enable_checkbox.isChecked() ? 1 : 0) << 4)));
+                if(LEDnum > 72){
+                    Toast.makeText(LightsConfigActivity.this, "LED count too large\nMax LED count is 72", Toast.LENGTH_SHORT).show();
+                } else if(LEDnum != 0){
+                    byte checks = (byte) ((byte) 0xFF & (byte) (RGB_sync_checkbox.isChecked() ? 1 : 0) << 7);
+                    checks = (byte) (checks | ((byte) ((byte) 0xFF & (byte) (brake_always_on_checkbox.isChecked() ? 1 : 0) << 6)));
+                    checks = (byte) (checks | ((byte) ((byte) 0xFF & (byte) (default_state_checkbox.isChecked() ? 1 : 0) << 5)));
+                    checks = (byte) (checks | ((byte) ((byte) 0xFF & (byte) (highbeam_enable_checkbox.isChecked() ? 1 : 0) << 4)));
+                    checks = (byte) (checks | ((byte) ((byte) 0xFF & (byte) (standby_enable_checkbox.isChecked() ? 1 : 0) << 3)));
+                    checks = (byte) (checks | ((byte) ((byte) 0xFF & (byte) (shuffle_enable_checkbox.isChecked() ? 1 : 0) << 2)));
 
-                txbuf = new byte[]{
-                        (byte) 0x0A5,
-                        (byte) 0x005,
-                        (byte) 0x0C5,
-                        (byte) ((RGB_type_spinner.getSelectedItemPosition() << 4) | brake_mode_spinner.getSelectedItemPosition()),
-                        (byte) (deadzone_seeker.getProgress()),
-                        (byte) (LEDnum),
-                        (byte) checks,
-                        (byte) (lowbeam_level_seeker.getProgress()),
-                        (byte) 0x05A
-                };
-                if (!mBluetoothService.writeBytes(txbuf)) {
-                    Toast.makeText(LightsConfigActivity.this, "Couldnt write Light Config\nPlease try again", Toast.LENGTH_SHORT).show();
-                } else {
-                    txbuf = new byte[] {
+                    txbuf = new byte[]{
                             (byte) 0x0A5,
-                            (byte) 0x000,
-                            (byte) 0x0A1,
+                            (byte) 0x005,
+                            (byte) 0x0C5,
+                            (byte) ((RGB_type_spinner.getSelectedItemPosition() << 4) | brake_mode_spinner.getSelectedItemPosition()),
+                            (byte) (deadzone_seeker.getProgress()),
+                            (byte) (LEDnum),
+                            (byte) checks,
+                            (byte) (lowbeam_level_seeker.getProgress()),
                             (byte) 0x05A
                     };
-                    while(!mBluetoothService.writeBytes(txbuf)) {}
-                    CHECK_DATA = true;
-                    applytimer = System.currentTimeMillis();
+                    if (!mBluetoothService.writeBytes(txbuf)) {
+                        Toast.makeText(LightsConfigActivity.this, "Couldnt write Light Config\nPlease try again", Toast.LENGTH_SHORT).show();
+                    } else {
+                        txbuf = new byte[]{
+                                (byte) 0x0A5,
+                                (byte) 0x000,
+                                (byte) 0x0A1,
+                                (byte) 0x05A
+                        };
+                        while (!mBluetoothService.writeBytes(txbuf)) {
+                        }
+                        CHECK_DATA = true;
+                        applytimer = System.currentTimeMillis();
+                    }
                 }
                 break;
         }
@@ -287,6 +302,8 @@ public class LightsConfigActivity extends AppCompatActivity
                                     if(brake_always_on_checkbox.isChecked() && (data[i + 4] & 0x40) != 0x40) dataCorrect = false;
                                     if(default_state_checkbox.isChecked() && (data[i + 4] & 0x20) != 0x20) dataCorrect = false;
                                     if(highbeam_enable_checkbox.isChecked() && (data[i + 4] & 0x10) != 0x10) dataCorrect = false;
+                                    if(standby_enable_checkbox.isChecked() && (data[i + 4] & 0x08) != 0x08) dataCorrect = false;
+                                    if(shuffle_enable_checkbox.isChecked() && (data[i + 4] & 0x04) != 0x04) dataCorrect = false;
                                     if(lowbeam_level_seeker.getProgress() != (data[i + 5] & 0xFF)) dataCorrect = false;
                                     if(dataCorrect){
                                         Toast.makeText(LightsConfigActivity.this, "Lights config applied successfully", Toast.LENGTH_SHORT).show();
@@ -305,6 +322,8 @@ public class LightsConfigActivity extends AppCompatActivity
                                     brake_always_on_checkbox.setChecked((data[i+4] & 0x40) == 0x40);
                                     default_state_checkbox.setChecked((data[i+4] & 0x20) == 0x20);
                                     highbeam_enable_checkbox.setChecked((data[i+4] & 0x10) == 0x10);
+                                    standby_enable_checkbox.setChecked((data[i+4] & 0x08) == 0x08);
+                                    shuffle_enable_checkbox.setChecked((data[i+4] & 0x04) == 0x04);
                                     lowbeam_level_seeker.setProgress(data[i + 5] & 0xFF);
                                 }
                                 i+=5;
@@ -327,23 +346,44 @@ public class LightsConfigActivity extends AppCompatActivity
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         long parent_id = parent.getId();
         if(parent_id == R.id.side_LED_type_spinner){
-            if(IGNORE_SPINNER_CHANGE)
-                IGNORE_SPINNER_CHANGE = false;
-            else
-                Toast.makeText(mBluetoothService, "The board needs to be restarted if a different side LED type is configured", Toast.LENGTH_LONG).show();
+            //if(IGNORE_SPINNER_CHANGE)
+            //    IGNORE_SPINNER_CHANGE = false;
+            //else
+            //    Toast.makeText(mBluetoothService, "The board needs to be restarted if a different side LED type is configured", Toast.LENGTH_LONG).show();
 
             TextView LEDcountText = findViewById(R.id.LED_num_text);
             EditText LEDcountEditText = findViewById(R.id.LED_num_edittext);
+            TextView SyncSidesText = findViewById(R.id.side_sync_text);
+            CheckBox SyncSidesCheck = findViewById(R.id.side_sync_checkbox);
             if(parent.getSelectedItemPosition() == 0){
                 LEDcountText.setEnabled(false);
                 LEDcountEditText.setEnabled(false);
                 LEDcountText.setTextColor(Color.GRAY);
                 LEDcountEditText.setTextColor(Color.GRAY);
-            } else{
+            } else if(parent.getSelectedItemPosition() == 3) {
+                LEDcountText.setEnabled(false);
+                LEDcountEditText.setEnabled(false);
+                LEDcountText.setTextColor(Color.GRAY);
+                LEDcountEditText.setTextColor(Color.GRAY);
+
+                SyncSidesText.setEnabled(false);
+                SyncSidesCheck.setEnabled(false);
+                SyncSidesText.setTextColor(Color.GRAY);
+                SyncSidesCheck.setTextColor(Color.GRAY);
+            } else {
                 LEDcountText.setEnabled(true);
                 LEDcountEditText.setEnabled(true);
                 LEDcountText.setTextColor(Color.WHITE);
                 LEDcountEditText.setTextColor(Color.WHITE);
+
+                SyncSidesText.setEnabled(true);
+                SyncSidesCheck.setEnabled(true);
+                SyncSidesText.setTextColor(Color.WHITE);
+                SyncSidesCheck.setTextColor(Color.WHITE);
+
+                if(parent.getSelectedItemPosition() == 2) {
+                    Toast.makeText(mBluetoothService, "Feature not yet available", Toast.LENGTH_SHORT).show();
+                }
             }
         }
         //String selectedItem = parent.getSelectedItem().toString();
@@ -357,7 +397,7 @@ public class LightsConfigActivity extends AppCompatActivity
         list.clear();
         list.add("Analog");
         list.add("Digital (APA102)");
-        list.add("Digital (SK9822)");
+        //list.add("Digital (WS2815)");
         list.add("None");
     }
 

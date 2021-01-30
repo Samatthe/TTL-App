@@ -4,6 +4,32 @@
     android:layout_height="match_parent"
     android:id="@+id/led_rpm_ui">
 
+    <RelativeLayout
+        android:id="@+id/rpm_shuffle_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/LED_rpm_shuffle_check"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:layout_marginLeft="11dp"
+            android:onClick="onCheckboxClicked"
+            android:buttonTint="#EFEFEF"/>
+
+        <TextView
+            android:id="@+id/LED_rpm_shuffle_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/settings_height"
+            android:gravity="center_vertical"
+            android:text="@string/shuffle_text"
+            android:paddingLeft="17dp"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/settings_text_size"
+            android:layout_toRightOf="@id/LED_rpm_shuffle_check"/>
+
+    </RelativeLayout>
+
     <TextView android:id="@+id/rpm_speed_text"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/led_ui_height"
@@ -11,7 +37,8 @@
         android:textSize="@dimen/settings_text_size"
         android:textColor="@android:color/black"
         android:paddingLeft="@dimen/settings_left_pad"
-        android:text="Cycle Rate:"/>
+        android:text="Cycle Rate:"
+        android:layout_below="@id/rpm_shuffle_layout"/>
 
     <TextView android:id="@+id/rpm_speed_number"
         android:layout_width="wrap_content"
@@ -23,7 +50,8 @@
         android:paddingLeft="@dimen/settings_left_pad"
         android:paddingRight="@dimen/settings_left_pad"
         android:layout_alignParentRight="true"
-        android:text="50"/>
+        android:text="50"
+        android:layout_below="@id/rpm_shuffle_layout"/>
 
     <SeekBar android:id="@+id/rpm_speed_seeker"
         android:layout_width="240dp"
@@ -32,6 +60,7 @@
         android:layout_toLeftOf="@id/rpm_speed_number"
         android:paddingLeft="@dimen/settings_left_pad"
         android:progress="50"
-        android:maxHeight="1000dp"/>
+        android:maxHeight="1000dp"
+        android:layout_below="@id/rpm_shuffle_layout"/>
 
 </RelativeLayout>

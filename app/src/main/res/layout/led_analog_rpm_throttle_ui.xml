@@ -2,15 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/led_digital_compass_wheel_ui">
+    android:id="@+id/led_rpm_accel_ui">
 
     <RelativeLayout
-        android:id="@+id/digital_compass_wheel_shuffle_layout"
+        android:id="@+id/rpm_throttle_shuffle_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <CheckBox
-            android:id="@+id/digital_compass_wheel_shuffle_check"
+            android:id="@+id/LED_rpm_throttle_shuffle_check"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/settings_height"
             android:layout_marginLeft="11dp"
@@ -18,7 +18,7 @@
             android:buttonTint="#EFEFEF"/>
 
         <TextView
-            android:id="@+id/digital_compass_wheel_shuffle_text"
+            android:id="@+id/LED_rpm_throttle_shuffle_text"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/settings_height"
             android:gravity="center_vertical"
@@ -26,7 +26,7 @@
             android:paddingLeft="17dp"
             android:textColor="@android:color/black"
             android:textSize="@dimen/settings_text_size"
-            android:layout_toRightOf="@id/digital_compass_wheel_shuffle_check"/>
+            android:layout_toRightOf="@id/LED_rpm_throttle_shuffle_check"/>
 
     </RelativeLayout>
 
