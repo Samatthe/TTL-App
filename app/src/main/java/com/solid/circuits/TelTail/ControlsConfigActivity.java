@@ -67,7 +67,7 @@ class ControlSort implements Comparator<CharSequence>
 public class ControlsConfigActivity extends AppCompatActivity
         implements SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
     float auxTime = 0;
 
     ArrayAdapter<CharSequence> single_button_config_adapter;

@@ -59,7 +59,7 @@ public class ImportExportSettingsActivity extends AppCompatActivity {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     private static final int MY_REQUEST_IMPORT_PERMISSION = 1000;
     private static final int MY_RESULT_IMPORT_FILECHOOSER = 2000;
@@ -67,7 +67,6 @@ public class ImportExportSettingsActivity extends AppCompatActivity {
     long BLE_WRITE_TIMEOUT = 1000;
 
     FileOutputStream fos = null;
-    FileInputStream fis;
     File ExportFile = null;
     String ImportPath = null;
 
@@ -575,7 +574,7 @@ public class ImportExportSettingsActivity extends AppCompatActivity {
                         CONTROLS_VALUES_READ = false;
                         ORIENTATION_VALUES_READ = false;
 
-                        creatNewEportFile();
+                        creatNewExportFile();
                         if(read_on_export_check.isChecked()){
                             switch (view.getId()) {
                                 case R.id.import_export_led_mode_settings_button:
@@ -963,7 +962,7 @@ public class ImportExportSettingsActivity extends AppCompatActivity {
         }
     }
 
-    void save_ipmorted_setting(String value, String[] setting_info, SharedPreferences.Editor editor){
+    void save_imported_setting(String value, String[] setting_info, SharedPreferences.Editor editor){
         if(setting_info[2].equals("int")){
             editor.putInt(setting_info[1],Integer.parseInt(value));
         } else if(setting_info[2].equals("bool")){
@@ -1052,7 +1051,7 @@ public class ImportExportSettingsActivity extends AppCompatActivity {
                                 for (int k = 0; k < name_value_list.length; k++) {
                                     if (temp_list[j][0].equals(name_value_list[k][0])) {
                                         SETTING_FOUND = true;
-                                        save_ipmorted_setting(name_value_list[k][1], temp_list[j], editor);
+                                        save_imported_setting(name_value_list[k][1], temp_list[j], editor);
                                         imported_setting_count++;
                                         break;
                                         //Toast.makeText(ImportExportSettingsActivity.this, "Match", Toast.LENGTH_SHORT).show();
@@ -1345,7 +1344,7 @@ public class ImportExportSettingsActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-   void creatNewEportFile(){
+   void creatNewExportFile(){
        String filepath = Environment.getExternalStorageDirectory().getPath();
        File dir = new File(filepath+"/TelTail");
        if (!dir.exists()) {

@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -326,6 +326,8 @@ public class MainActivity extends AppCompatActivity
             (byte) 0x05A
     };
 
+    boolean SHOW_SETUP_WIZARD = true;
+
     // Code to manage Service lifecycle.
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -336,7 +338,7 @@ public class MainActivity extends AppCompatActivity
                 mBluetoothService = ((BluetoothService.LocalBinder) service).getService();
 
                 // Automatically connects to the device upon successful start-up initialization
-                if (autoConnect) {                // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
+                if (autoConnect && mBluetoothService.mBluetoothDeviceAddress != null) {                // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
                     // BluetoothAdapter through BluetoothManager.
                     final BluetoothManager bluetoothManager =
                             (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -724,6 +726,38 @@ public class MainActivity extends AppCompatActivity
         Intent LogServiceIntent = new Intent(this, LoggingService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
         bindService(LogServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
+        if(SHOW_SETUP_WIZARD){
+            new AlertDialog.Builder(MainActivity.this)
+                    .setMessage("It appears you have not run the setup wizard yet. Would you like to open the setup wizard to easily configure your TTL system?")
+                    .setTitle("Setup Wizard")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(MainActivity.this, SetupWizardActivity.class);
+                            startActivity(intent);
+                        }
+                    })
+                    .setNeutralButton("Never", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            SHOW_SETUP_WIZARD = false;
+                            savePreferences();
+                            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                            SharedPreferences.Editor editor = settings.edit();
+                            editor.putBoolean("runWizard", SHOW_SETUP_WIZARD);
+                            editor.commit();
+                        }
+                    })
+                    .setNegativeButton("Not Now", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing
+                        }
+                    })
+                    .setCancelable(true)
+                    .show();
+        }
     }
 
     @Override
@@ -815,6 +849,7 @@ public class MainActivity extends AppCompatActivity
         READ_CURRENT_LED_SETTINGS = settings.getBoolean("ReadCurrentLED",false);
         READ_CURRENT_FW = settings.getBoolean("fwAutoCheck",false);
         SHUFFLE_LED_MODES = settings.getBoolean("ShuffleEnable",false);
+        SHOW_SETUP_WIZARD = settings.getBoolean("runWizard",true);
         //led_mode = settings.getInt("LEDmode", 0);
         //led_switch_hb = settings.getBoolean("",false);
 
@@ -2150,7 +2185,26 @@ public class MainActivity extends AppCompatActivity
                                     } else if(Latest_FW == 0){
                                         Toast.makeText(context, "Latest FW Not Read", Toast.LENGTH_SHORT).show();
                                     } else if(TTL_FW != Latest_FW && TTL_FW != 0 && Latest_FW != 0){
-                                        Toast.makeText(context, "TTL FW Out-of-Date", Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(context, "TTL FW Out-of-Date", Toast.LENGTH_SHORT).show();
+                                        new AlertDialog.Builder(MainActivity.this)
+                                                .setMessage("The firmware on your TTL module is out of date. Would you like to update it to the latest version?")
+                                                .setIcon(R.drawable.ic_warning)
+                                                .setTitle("Firmware Out of Date")
+                                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        Intent intent = new Intent(MainActivity.this, FirmwareSettingsActivity.class);
+                                                        startActivity(intent);
+                                                    }
+                                                })
+                                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        // Do nothing
+                                                    }
+                                                })
+                                                .setCancelable(true)
+                                                .show();
                                     } else {
                                         Toast.makeText(context, "TTL FW Up-to-Date", Toast.LENGTH_SHORT).show();
                                     }

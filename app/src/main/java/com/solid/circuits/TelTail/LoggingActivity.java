@@ -38,7 +38,7 @@ public class LoggingActivity extends AppCompatActivity {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     CheckBox enableCheck;
     TextView logSizeText1;

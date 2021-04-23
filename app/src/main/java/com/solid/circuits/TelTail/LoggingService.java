@@ -70,7 +70,7 @@ import java.util.TimeZone;
 public class LoggingService extends Service implements LocationListener{
     private final static String TAG = LoggingService.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     // Registered callbacks
     private ServiceCallbacks serviceCallbacks;

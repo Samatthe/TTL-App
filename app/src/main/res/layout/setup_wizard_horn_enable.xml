@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.solid.circuits.TelTail.SettingsActivity"
+    android:background="@drawable/default_content">
+
+    <Button
+        android:id="@+id/wizard_horn_back_button"
+        android:text="Back"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/wizard_nav_pad"
+        android:layout_marginRight="@dimen/wizard_nav_pad"
+        android:layout_marginBottom="@dimen/wizard_nav_pad"
+        android:layout_marginTop="@dimen/wizard_nav_pad"
+        android:layout_width="125dp"
+        android:layout_height="@dimen/settings_height"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        style="?android:attr/borderlessButtonStyle"
+        android:textColor="@android:color/white"
+        android:onClick="onButtonClick"/>
+
+    <TextView
+        android:id="@+id/wizard_horn_text3"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/settings_height"
+        android:layout_marginLeft="@dimen/wizard_nav_pad"
+        android:layout_marginRight="@dimen/wizard_nav_pad"
+        android:layout_marginBottom="@dimen/wizard_nav_pad"
+        android:layout_marginTop="@dimen/wizard_nav_pad"
+        android:gravity="center_vertical"
+        android:text="8/12"
+        android:textColor="@android:color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:textSize="@dimen/settings_text_size" />
+
+    <Button
+        android:id="@+id/wizard_horn_next_button"
+        android:text="Next"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/wizard_nav_pad"
+        android:layout_marginRight="@dimen/wizard_nav_pad"
+        android:layout_marginBottom="@dimen/wizard_nav_pad"
+        android:layout_marginTop="@dimen/wizard_nav_pad"
+        android:layout_width="125dp"
+        android:layout_height="@dimen/settings_height"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        style="?android:attr/borderlessButtonStyle"
+        android:textColor="@android:color/white"
+        android:onClick="onButtonClick"/>
+
+    <View android:id="@+id/wizard_horn_spacer2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/button_spacer"
+        android:layout_above="@id/wizard_horn_next_button"/>
+
+    <TextView
+        android:id="@+id/wizard_horn_text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_marginTop="30dp"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:textSize="@dimen/wizard_title_text_size"
+        android:text="HORN OUTPUT"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/wizard_horn_image"
+        android:layout_width="375dp"
+        android:layout_height="240dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/wizard_horn_text2"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_horn_foreground"
+        />
+
+    <TextView
+        android:id="@+id/settings_connect_orientation_text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginTop="20dp"
+        android:paddingHorizontal="16dp"
+        android:textColor="@android:color/white"
+        android:layout_below="@id/wizard_horn_image"
+        android:textSize="16dp"
+        android:text="Enabling the horn output will allow the TTL system to sound a connected horn when commanded by the user"
+        />
+
+    <TextView
+        android:id="@+id/wizard_standby_enable_text"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/settings_height"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:text="Enable Horn Output:"
+        android:textColor="@android:color/white"
+        android:layout_above="@id/wizard_horn_spacer2"
+        android:textSize="@dimen/settings_text_size" />
+
+    <CheckBox
+        android:id="@+id/wizard_standby_enable_check"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/settings_height"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:textColor="@android:color/white"
+        android:layout_above="@id/wizard_horn_spacer2"
+        android:layout_toRightOf="@id/wizard_standby_enable_text"
+        android:textSize="@dimen/settings_text_size"
+        android:onClick="onCheckboxClicked"
+        android:checked="false"/>
+
+    <View android:id="@+id/wizard_horn_spacer1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/button_spacer"
+        android:layout_above="@id/wizard_standby_enable_text"/>
+
+</RelativeLayout>

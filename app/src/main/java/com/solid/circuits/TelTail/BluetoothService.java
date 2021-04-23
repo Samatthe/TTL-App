@@ -60,7 +60,7 @@ import java.util.UUID;
 public class BluetoothService extends Service {
     private final static String TAG = BluetoothService.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     static boolean SEND_OK = true;
     static long last_send = 0;
@@ -76,9 +76,9 @@ public class BluetoothService extends Service {
 
     private boolean First_Init = true;
 
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
+    public static final int STATE_DISCONNECTED = 0;
+    public static final int STATE_CONNECTING = 1;
+    public static final int STATE_CONNECTED = 2;
 
     public final static String ACTION_GATT_CONNECTED =
             "com.solid.circuits.TelTail.ACTION_GATT_CONNECTED";

@@ -45,7 +45,7 @@ import java.util.List;
 public class RemoteConfigActivity extends AppCompatActivity
         implements SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
     float Deadzone = 0;
 
     ArrayAdapter<CharSequence> single_button_config_adapter;

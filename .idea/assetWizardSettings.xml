@@ -67,7 +67,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="trimmed" value="true" />
+                                                <entry key="scalingPercent" value="99" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -77,9 +77,8 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="foregroundImage" value="C:\Android\Images\red-warning-white-center-128.png" />
-                                      <entry key="outputName" value="ic_red_warning" />
-                                      <entry key="webIconShape" value="CIRCLE" />
+                                      <entry key="foregroundImage" value="C:\Android\Images\Module connector dir.png" />
+                                      <entry key="outputName" value="image_orientation_connectors" />
                                     </map>
                                   </option>
                                 </PersistentState>

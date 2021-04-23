@@ -78,7 +78,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     private static final int MY_REQUEST_CODE_PERMISSION = 1000;
     private static final int MY_RESULT_CODE_FILECHOOSER = 2000;
@@ -485,7 +485,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity
                 buf.read(FW_Bytes, 0, FW_Bytes.length);
                 buf.close();
             } catch (FileNotFoundException e) {
-                //Toast.makeText(FirmwareSettingsActivity.this, "File not found", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(FirmwareSettingsActivity.this, "Failed to open FW file", Toast.LENGTH_SHORT).show();
                 SendGotoApp(); // Jump to application starting address
 
                 while (!fwUpdateDialog.DialogIsDismissed()) {
@@ -493,7 +493,7 @@ public class FirmwareSettingsActivity extends AppCompatActivity
                 }
                 return;
             } catch (IOException e) {
-                //Toast.makeText(FirmwareSettingsActivity.this, "IO Exception", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(FirmwareSettingsActivity.this, "Failed to open FW file", Toast.LENGTH_SHORT).show();
                 SendGotoApp(); // Jump to application starting address
 
                 while (!fwUpdateDialog.DialogIsDismissed()) {
@@ -543,79 +543,82 @@ public class FirmwareSettingsActivity extends AppCompatActivity
             while ((System.currentTimeMillis() - timer) < 500) {
             }
 
-            // Change the progress bar info for writin FW bytes
-            fwUpdateDialog.fwProgressBar.setMax(fw_size);
-            fwUpdateDialog.fwProgressBar.setProgress(0);
-            publishTitle(fwUpdateDialog, "Writing New FW (" + 1 + "/" + fw_size + ")");
+
+            if(bootloader_response <= 0x338) {
+                // Change the progress bar info for writin FW bytes
+                fwUpdateDialog.fwProgressBar.setMax(fw_size);
+                fwUpdateDialog.fwProgressBar.setProgress(0);
+                publishTitle(fwUpdateDialog, "Writing New FW (" + 1 + "/" + fw_size + ")");
 
 
-            // Write the FW to memory word by word
-            // Also store the FW in a long (word) array for easy comparison during verification
-            byte[] tmp_bytes = new byte[19];
-            FWuploadStart(fw_size);
-            RESPONSE_EXPECTED = true;
-            boolean CATCH_UP = false;
-            int drop_number = 0;
-            int i = fw_size - 1;
-            while ((i + 1) % 64 != 0) {
-                i++;
-            }
-            while (!UPLOAD_COMPLETE && !UPLOAD_FAILED) {
-                if (RESPONSE_RECIEVED = true && RESEND_REQUESTED && !CATCH_UP) {
-                    drop_number = i;
-                    i = bootloader_response + 16;
-                    RESEND_REQUESTED = false;
-                    RESPONSE_RECIEVED = false;
-                    CATCH_UP = true;
+                // Write the FW to memory word by word
+                // Also store the FW in a long (word) array for easy comparison during verification
+                byte[] tmp_bytes = new byte[19];
+                FWuploadStart(fw_size);
+                RESPONSE_EXPECTED = true;
+                boolean CATCH_UP = false;
+                int drop_number = 0;
+                int i = fw_size - 1;
+                while ((i + 1) % 64 != 0) {
+                    i++;
                 }
-                if (i <= fw_size - 1) {
-                    tmp_bytes[15 - (i % 16)] = FW_Bytes[i];
-                } else {
-                    tmp_bytes[15 - (i % 16)] = 0;
-                }
-                if ((i) % 16 == 0) {
-                    tmp_bytes[16] = (byte) (((i) & 0x0FF0000) >> 16);
-                    tmp_bytes[17] = (byte) (((i) & 0x0FF00) >> 8);
-                    tmp_bytes[18] = (byte) ((i) & 0x0FF);
-                    while (!mBluetoothService.writeBytesFast(tmp_bytes)) {
+                while (!UPLOAD_COMPLETE && !UPLOAD_FAILED) {
+                    if (RESPONSE_RECIEVED = true && RESEND_REQUESTED && !CATCH_UP) {
+                        drop_number = i;
+                        i = bootloader_response + 16;
+                        RESEND_REQUESTED = false;
+                        RESPONSE_RECIEVED = false;
+                        CATCH_UP = true;
+                    }
+                    if (i <= fw_size - 1) {
+                        tmp_bytes[15 - (i % 16)] = FW_Bytes[i];
+                    } else {
+                        tmp_bytes[15 - (i % 16)] = 0;
+                    }
+                    if ((i) % 16 == 0) {
+                        tmp_bytes[16] = (byte) (((i) & 0x0FF0000) >> 16);
+                        tmp_bytes[17] = (byte) (((i) & 0x0FF00) >> 8);
+                        tmp_bytes[18] = (byte) ((i) & 0x0FF);
+                        while (!mBluetoothService.writeBytesFast(tmp_bytes)) {
+                        }
+                    }
+                    if (!CATCH_UP) {
+                        publishTitle(fwUpdateDialog, "Writing New FW (" + (fw_size - i) + "/" + fw_size + ")");
+                        fwUpdateDialog.fwProgressBar.setProgress(fw_size - i);
+                    } else if (i == drop_number) {
+                        CATCH_UP = false;
+                    }
+
+                    if (i != 0) {
+                        i--;
+                        timer = System.currentTimeMillis();
+                    } else if (i == 0 && (System.currentTimeMillis() - timer) > 2000) {
+                        break;
                     }
                 }
-                if (!CATCH_UP) {
-                    publishTitle(fwUpdateDialog, "Writing New FW (" + (fw_size - i) + "/" + fw_size + ")");
-                    fwUpdateDialog.fwProgressBar.setProgress(fw_size - i);
-                } else if (i == drop_number) {
-                    CATCH_UP = false;
-                }
+                RESPONSE_EXPECTED = false;
+                RESPONSE_RECIEVED = false;
 
-                if (i != 0) {
-                    i--;
+                if (UPLOAD_COMPLETE) {
+                    publishTitle(fwUpdateDialog, "New FW Uploaded Successfully!");
+
+                    ClearCommandBuff();
+
                     timer = System.currentTimeMillis();
-                } else if (i == 0 && (System.currentTimeMillis() - timer) > 2000) {
-                    break;
+                    while ((System.currentTimeMillis() - timer) < 1000) {
+                    }
+
+                    SendGotoApp(); // Jump to application starting address
+                } else {
+                    publishTitle(fwUpdateDialog, "New FW Failed to Uploaded");
+
+                    timer = System.currentTimeMillis();
+                    while ((System.currentTimeMillis() - timer) < 2000) {
+                    }
                 }
+                UPLOAD_COMPLETE = false;
+                UPLOAD_FAILED = false;
             }
-            RESPONSE_EXPECTED = false;
-            RESPONSE_RECIEVED = false;
-
-            if (UPLOAD_COMPLETE) {
-                publishTitle(fwUpdateDialog, "New FW Uploaded Successfully!");
-
-                ClearCommandBuff();
-
-                timer = System.currentTimeMillis();
-                while ((System.currentTimeMillis() - timer) < 1000) {
-                }
-
-                SendGotoApp(); // Jump to application starting address
-            } else {
-                publishTitle(fwUpdateDialog, "New FW Failed to Uploaded");
-
-                timer = System.currentTimeMillis();
-                while ((System.currentTimeMillis() - timer) < 2000) {
-                }
-            }
-            UPLOAD_COMPLETE = false;
-            UPLOAD_FAILED = false;
 //*/
             timer = System.currentTimeMillis();
             while ((System.currentTimeMillis() - timer) < 100) {

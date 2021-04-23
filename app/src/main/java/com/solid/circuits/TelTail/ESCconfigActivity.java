@@ -45,7 +45,7 @@ import java.util.List;
 public class ESCconfigActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener {
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     //ArrayAdapter<CharSequence> single_button_config_adapter;
     List<CharSequence> esc_fw_list = new ArrayList<CharSequence>();

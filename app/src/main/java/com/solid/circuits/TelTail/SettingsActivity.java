@@ -41,11 +41,11 @@ public class SettingsActivity extends AppCompatActivity{
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     boolean READ_CURRENT = false;
 
-    boolean DispNitifaction = true;
+    boolean DispNotifaction = true;
 
     int TTL_FW = 0;
 
@@ -147,16 +147,20 @@ public class SettingsActivity extends AppCompatActivity{
     void restoresettings(){
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         READ_CURRENT = settings.getBoolean("ReadCurrentLED", false);
-        DispNitifaction = settings.getBoolean("DispNotif", true);
+        DispNotifaction = settings.getBoolean("DispNotif", true);
         CheckBox read_current = findViewById(R.id.settings_read_current_check);
         CheckBox disp_notif = findViewById(R.id.settings_disp_notif_check);
         read_current.setChecked(READ_CURRENT);
-        disp_notif.setChecked(DispNitifaction);
+        disp_notif.setChecked(DispNotifaction);
     }
 
     public void onButtonClick(View view){
         Intent intent;
         switch(view.getId()) {
+            case R.id.run_wizard_button:
+                intent = new Intent(this, SetupWizardActivity.class);
+                startActivity(intent);
+                break;
             case R.id.conf_bluetooth_button:
                 intent = new Intent(this, BluetoothActivity.class);
                 startActivity(intent);
@@ -262,8 +266,8 @@ public class SettingsActivity extends AppCompatActivity{
                 READ_CURRENT = checkbox.isChecked();
                 break;
             case R.id.settings_disp_notif_check:
-                DispNitifaction = checkbox.isChecked();
-                mLoggingService.DispNotifiaction = DispNitifaction;
+                DispNotifaction = checkbox.isChecked();
+                mLoggingService.DispNotifiaction = DispNotifaction;
                 mLoggingService.updateNotification();
                 break;
             case R.id.settings_detect_esc_check:

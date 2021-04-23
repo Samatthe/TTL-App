@@ -19,6 +19,7 @@
     <string name="motor_info_label">Motor Info</string>
     <string name="fw_settings_label">Firmware Settings</string>
     <string name="import_export_settings_label">Import/Export Settings</string>
+    <string name="setup_wizard_label">Setup Wizard</string>
 
     <string name="ble_button">Connect BLE</string>
 
@@ -172,16 +173,52 @@
         <item>Digital (SK9822)</item>
         <item>None</item>
     </string-array>
+    <string-array name="led_strip_type_array">
+        <item>Analog</item>
+        <item>Digital</item>
+        <item>None</item>
+    </string-array>
     <string-array name="brake_mode_array">
         <item>Fade</item>
         <item>Blink</item>
         <item>Fade-Blink</item>
         <item>Blink-Fade</item>
+        <item>Fading Blink</item>
+        <item>Paced Blink</item>
     </string-array>
-
     <string-array name="hardware_array">
         <item>v3.4</item>
         <item>v4.1</item>
+    </string-array>
+    <string-array name="control_scheme_array">
+        <item>Recommended</item>
+        <item>Custom</item>
+    </string-array>
+    <string-array name="write_action_array">
+        <item>Write directly to TTL system</item>
+        <item>Save an settings import file</item>
+        <item>Write to TTL + save import file</item>
+    </string-array>
+    <string-array name="wizard_remote_array">
+        <item>Hoyt Puck</item>
+        <item>Enertion Nano</item>
+        <item>Torque Boards Nano</item>
+        <item>Torque Boards Mini</item>
+        <item>VX1 (using PWM output)</item>
+        <item>VX3 (using PWM output)</item>
+        <item>GT2B</item>
+        <item>APS 2.4GHz</item>
+        <item>Maytech 2.4GHz</item>
+        <item>Maytech Waterproof(using PWM)</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="wizard_orientation_array">
+        <item>Up</item>
+        <item>Down</item>
+        <item>Left</item>
+        <item>Right</item>
+        <item>Rear</item>
+        <item>Front</item>
     </string-array>
 
     <!-- A list of app settings -->

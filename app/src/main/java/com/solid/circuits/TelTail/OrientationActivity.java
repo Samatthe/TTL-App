@@ -41,7 +41,7 @@ public class OrientationActivity extends AppCompatActivity
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     int connector_orientation = 0;
     int power_orientation = 0;

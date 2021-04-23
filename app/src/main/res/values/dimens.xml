@@ -8,8 +8,10 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="settings_vert_pad">12dp</dimen>
     <dimen name="settings_left_pad">6dp</dimen>
+    <dimen name="wizard_nav_pad">10dp</dimen>
     <dimen name="settings_import_sub_left_pad">30dp</dimen>
     <dimen name="settings_text_size">16dp</dimen>
+    <dimen name="wizard_title_text_size">24dp</dimen>
     <dimen name="settings_height">55dp</dimen>
     <dimen name="settings_info_height">40dp</dimen>
     <dimen name="settings_icon_height">45dp</dimen>

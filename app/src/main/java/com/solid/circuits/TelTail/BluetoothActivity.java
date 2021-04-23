@@ -37,7 +37,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     private BluetoothService mBluetoothService;
     private BluetoothAdapter mBluetoothAdapter;

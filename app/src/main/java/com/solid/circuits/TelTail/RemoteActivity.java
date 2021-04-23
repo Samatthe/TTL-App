@@ -49,7 +49,7 @@ public class RemoteActivity extends AppCompatActivity
 
     private final static String TAG = RemoteActivity.class.getSimpleName();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
     boolean AuxEnable = false;
     boolean AUX_PRESSED = false;
 

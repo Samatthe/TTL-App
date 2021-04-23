@@ -167,6 +167,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.solid.circuits.TelTail.SettingsActivity" />
         </activity>
+        <activity
+            android:name="com.solid.circuits.TelTail.SetupWizardActivity"
+            android:label="@string/import_export_settings_label"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.solid.circuits.TelTail.MainActivity" />
+        </activity>
 
         <service
             android:name="com.solid.circuits.TelTail.BluetoothService"

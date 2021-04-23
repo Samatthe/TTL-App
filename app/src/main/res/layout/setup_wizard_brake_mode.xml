@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.solid.circuits.TelTail.SettingsActivity"
+    android:background="@drawable/default_content">
+
+    <Button
+        android:id="@+id/wizard_brake_back_button"
+        android:text="Back"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/wizard_nav_pad"
+        android:layout_marginRight="@dimen/wizard_nav_pad"
+        android:layout_marginBottom="@dimen/wizard_nav_pad"
+        android:layout_marginTop="@dimen/wizard_nav_pad"
+        android:layout_width="125dp"
+        android:layout_height="@dimen/settings_height"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        style="?android:attr/borderlessButtonStyle"
+        android:textColor="@android:color/white"
+        android:onClick="onButtonClick"/>
+
+    <TextView
+        android:id="@+id/wizard_brake_text3"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/settings_height"
+        android:layout_marginLeft="@dimen/wizard_nav_pad"
+        android:layout_marginRight="@dimen/wizard_nav_pad"
+        android:layout_marginBottom="@dimen/wizard_nav_pad"
+        android:layout_marginTop="@dimen/wizard_nav_pad"
+        android:gravity="center_vertical"
+        android:text="8/12"
+        android:textColor="@android:color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:textSize="@dimen/settings_text_size" />
+
+    <Button
+        android:id="@+id/wizard_brake_next_button"
+        android:text="Next"
+        android:textSize="@dimen/settings_text_size"
+        android:layout_marginLeft="@dimen/wizard_nav_pad"
+        android:layout_marginRight="@dimen/wizard_nav_pad"
+        android:layout_marginBottom="@dimen/wizard_nav_pad"
+        android:layout_marginTop="@dimen/wizard_nav_pad"
+        android:layout_width="125dp"
+        android:layout_height="@dimen/settings_height"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        style="?android:attr/borderlessButtonStyle"
+        android:textColor="@android:color/white"
+        android:onClick="onButtonClick"/>
+
+    <View android:id="@+id/wizard_brake_spacer2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/button_spacer"
+        android:layout_above="@id/wizard_brake_next_button"/>
+
+    <TextView
+        android:id="@+id/wizard_brake_text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/settings_left_pad"
+        android:layout_marginRight="@dimen/settings_left_pad"
+        android:layout_marginTop="30dp"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:textSize="@dimen/wizard_title_text_size"
+        android:text="BRAKE LIGHT"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/wizard_brake_image"
+        android:layout_width="300dp"
+        android:layout_height="240dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/wizard_brake_text2"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_brake_foreground"
+        />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/wizard_brake_image"
+        android:layout_above="@id/wizard_brake_spacer3"
+        android:gravity="center_vertical"
+        android:layout_marginTop="20dp">
+            <TextView
+                android:id="@+id/wizard_brake_text4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:textColor="@android:color/white"
+                android:lineSpacingExtra="2dp"
+                android:textSize="13.5dp"
+                android:text="Choose a brake light mode from below\n\nFade:\tGets brighter the more you brake\nBlink:\tBlinks when brakes are applied\nFade-Blink:\tFades with light braking, Blinks with heavy braking\nBlink-Fade:\tBlinks with light braking, Fades with heavy braking\nFading Blink:\tBlinks while fading the brightness\nPaced Blink:\tBlink rate and brightness increases as brakes are applied\n\nIf \''Always on Brake Light\'' is enabled, then the tail light will stay lit even if all lights are commanded off. This can be useful if you want to be discrete but still need to indicate braking."/>
+    </ScrollView>
+
+    <View android:id="@+id/wizard_brake_spacer3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/button_spacer"
+        android:layout_above="@id/wizard_brake_text"/>
+
+    <TextView
+        android:id="@+id/wizard_brake_text"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/settings_height"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:text="Brake Light Mode:"
+        android:textColor="@android:color/white"
+        android:layout_above="@id/wizard_brake_always_on_text"
+        android:textSize="@dimen/settings_text_size" />
+
+    <Spinner
+        android:id="@+id/wizard_brake_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/settings_height"
+        android:gravity="center_vertical"
+        android:layout_toRightOf="@id/wizard_brake_text"
+        android:layout_above="@id/wizard_brake_always_on_text"
+        android:dropDownWidth="wrap_content"
+        android:popupBackground="#383838"/>
+
+    <View android:id="@+id/orientation_spacer1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/button_spacer"
+        android:layout_above="@id/wizard_brake_always_on_text"/>
+
+    <TextView
+        android:id="@+id/wizard_brake_always_on_text"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/settings_height"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:text="Always keep brake light on:"
+        android:textColor="@android:color/white"
+        android:layout_above="@id/wizard_brake_spacer2"
+        android:textSize="@dimen/settings_text_size" />
+
+    <CheckBox
+        android:id="@+id/wizard_brake_always_on_check"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/settings_height"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:textColor="@android:color/white"
+        android:layout_above="@id/wizard_brake_spacer2"
+        android:layout_toRightOf="@id/wizard_brake_always_on_text"
+        android:onClick="onCheckboxClicked"
+        android:textSize="@dimen/settings_text_size" />
+
+</RelativeLayout>

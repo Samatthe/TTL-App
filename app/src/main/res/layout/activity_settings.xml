@@ -38,6 +38,23 @@
             </RelativeLayout>
 
             <Button
+                android:id="@+id/run_wizard_button"
+                android:text="Setup Wizard"
+                android:textSize="@dimen/settings_text_size"
+                android:layout_marginLeft="@dimen/settings_left_pad"
+                android:textAlignment="textStart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/settings_height"
+                android:onClick="onButtonClick"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <View android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/button_spacer" />
+
+            <Button
                 android:id="@+id/conf_bluetooth_button"
                 android:text="Configure Bluetooth"
                 android:textSize="@dimen/settings_text_size"
@@ -155,7 +172,7 @@
 
             <Button
                 android:id="@+id/controls_button"
-                android:text="Configure Control Buttons"
+                android:text="Configure Control Actions"
                 android:textStyle="normal"
                 android:textAlignment="textStart"
                 android:layout_marginLeft="@dimen/settings_left_pad"

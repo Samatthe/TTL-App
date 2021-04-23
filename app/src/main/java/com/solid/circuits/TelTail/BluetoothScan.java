@@ -53,7 +53,7 @@ public class BluetoothScan extends ListActivity {
     private boolean mScanning;
     private Handler mHandler;
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final long SCAN_PERIOD = 10000;
@@ -189,6 +189,8 @@ public class BluetoothScan extends ListActivity {
         editor.commit();
 
         Toast.makeText(BluetoothScan.this, "Selected " + device.getName(), Toast.LENGTH_SHORT).show();
+
+        this.finish();
     }
 
     private void scanLeDevice(final boolean enable) {

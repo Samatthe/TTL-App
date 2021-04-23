@@ -47,7 +47,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class LightsConfigActivity extends AppCompatActivity
         implements SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String PREFS_NAME = "TTLPrefsFile";
     float Deadzone = 0;
     float Lowbeam_Level = 0;
 
