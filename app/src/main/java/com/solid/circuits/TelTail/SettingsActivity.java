@@ -392,6 +392,8 @@ public class SettingsActivity extends AppCompatActivity{
                         }
                     }
                 }
+            } else if (LoggingService.ACTION_CLOSE_APP.equals(action)) {
+                //SettingsActivity.super.finish();
             }
         }
     };
@@ -400,6 +402,7 @@ public class SettingsActivity extends AppCompatActivity{
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothService.ACTION_DATA_AVAILABLE);
         intentFilter.addAction(BluetoothService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(LoggingService.ACTION_CLOSE_APP);
         return intentFilter;
     }
 }

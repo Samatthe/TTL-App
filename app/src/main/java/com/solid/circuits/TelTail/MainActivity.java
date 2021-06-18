@@ -1940,7 +1940,7 @@ public class MainActivity extends AppCompatActivity
                                 if (i + 2 >= data.length)
                                     break;
                                 IMU_temp = (((data[i + 2]) << 8) | (data[i + 1] & 0xFF));
-                                IMU_temp = IMU_temp / 16;
+                                IMU_temp = IMU_temp / 256;
                                 IMU_Temp_LinSeries.appendData(new DataPoint(graph_index, IMU_temp), true, MAX_DATA_POINTS);
                                 IMUtempText.setText("TTL Temp: " + String.format("%.1f", IMU_temp) + " °C");
                                 i += 2;
@@ -2240,7 +2240,10 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     logAction.setTitle("Start Logging");
                 }
-            } else if (LoggingService.ACTION_MAIN_CLOSE.equals(action)) {
+            } else if (LoggingService.ACTION_CLOSE_APP.equals(action)) {
+                Intent close_intent = new Intent(getApplicationContext(), MainActivity.class);
+                close_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(close_intent);
                 MainActivity.super.finish();
             } else if (LoggingService.ACTION_LED_TOGGLE.equals(action)) {
                 //Toast.makeText(MainActivity.this, "toggle", Toast.LENGTH_SHORT).show();
@@ -2310,7 +2313,7 @@ public class MainActivity extends AppCompatActivity
         intentFilter.addAction(LoggingService.ACTION_AUX_TOGGLE);
         intentFilter.addAction(LoggingService.ACTION_LED_MODE_DOWN);
         intentFilter.addAction(LoggingService.ACTION_LED_MODE_UP);
-        intentFilter.addAction(LoggingService.ACTION_MAIN_CLOSE);
+        intentFilter.addAction(LoggingService.ACTION_CLOSE_APP);
         return intentFilter;
     }
 

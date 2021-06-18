@@ -116,8 +116,8 @@ public class LoggingService extends Service implements LocationListener{
             "com.solid.circuits.TelTail.ACTION_LED_MODE_UP";
     public final static String ACTION_LED_MODE_DOWN =
             "com.solid.circuits.TelTail.ACTION_LED_MODE_DOWN";
-    public final static String ACTION_MAIN_CLOSE =
-            "com.solid.circuits.TelTail.ACTION_MAIN_CLOSE";
+    public final static String ACTION_CLOSE_APP =
+            "com.solid.circuits.TelTail.ACTION_CLOSE_APP";
 
     final int FAULT_CODE_NONE = 0;
     final int FAULT_CODE_OVER_VOLTAGE = 1;
@@ -185,7 +185,7 @@ public class LoggingService extends Service implements LocationListener{
         Intent ble_mode_up_intent = new Intent(ACTION_LED_MODE_UP);
         Intent ble_mode_down_intent = new Intent(ACTION_LED_MODE_DOWN);
         Intent log_start_intent = new Intent(ACTION_LOG_TOGGLE);
-        Intent main_close_intent = new Intent(ACTION_MAIN_CLOSE);
+        Intent main_close_intent = new Intent(ACTION_CLOSE_APP);
         Intent main_activity_intent = new Intent(this, MainActivity.class);
         ContentPendingIntent = PendingIntent.getActivity(this, 0, main_activity_intent, PendingIntent.FLAG_UPDATE_CURRENT);
         LEDTogglePendingIntent = PendingIntent.getBroadcast(this, 0, ble_toggle_intent, PendingIntent.FLAG_UPDATE_CURRENT);

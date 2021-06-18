@@ -66,6 +66,7 @@ public class BluetoothService extends Service {
     static long last_send = 0;
     static long send_time = 0;
     static boolean FirstSend = true;
+    byte[] last_sent_data;
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -199,9 +200,10 @@ public class BluetoothService extends Service {
         //Log.v(TAG, "data.length: " + data.length);
 
         if (data != null && data.length > 0) {
-            if(data.length == 1 && data[0] == 0x71)
-                SEND_OK = true;
-            intent.putExtra(EXTRA_DATA, data);
+            if((data[0]&0xFF)==0x91 && (data[1]&0xFF)==0x91){
+                writeBytesFast(last_sent_data);
+            }
+                intent.putExtra(EXTRA_DATA, data);
         }
 
         sendBroadcast(intent);
@@ -508,6 +510,8 @@ public class BluetoothService extends Service {
 
     private void writeBytes_helper(byte[] data){
             //Log.i(TAG, "SENT STUFF");
+            //Toast.makeText(BluetoothService.this, (BluetoothGatt==null)+"", Toast.LENGTH_SHORT).show();
+            last_sent_data = data;
             bluetoothGattCharacteristicHM_10.setValue(data);
             writeCharacteristic(bluetoothGattCharacteristicHM_10);
             setCharacteristicNotification(bluetoothGattCharacteristicHM_10, true);
