@@ -84,8 +84,6 @@ public class FirmwareSettingsActivity extends AppCompatActivity
     private static final int MY_RESULT_CODE_FILECHOOSER = 2000;
 
     private BluetoothService mBluetoothService;
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristicHM_10;
     public boolean autoCheckFW = false;
     //public boolean onStartup = false;
 

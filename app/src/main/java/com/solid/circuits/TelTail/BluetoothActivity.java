@@ -40,8 +40,6 @@ public class BluetoothActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "TTLPrefsFile";
 
     private BluetoothService mBluetoothService;
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothGattCharacteristic bluetoothGattCharacteristicHM_10;
     public boolean autoConnect = false;
     public boolean onStartup = false;
 

@@ -1635,6 +1635,7 @@ public class MainActivity extends AppCompatActivity
                         };
                         mBluetoothService.last_send = System.nanoTime() / 1000000;
                         while (!mBluetoothService.writeBytes(txbuf)) {
+                            //Log.i(TAG, "waiting");
                         }
                         //Toast.makeText(MainActivity.this, "Connect to board and try again", Toast.LENGTH_SHORT).show();
                     }

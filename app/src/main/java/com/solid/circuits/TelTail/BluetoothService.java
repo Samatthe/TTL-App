@@ -107,6 +107,7 @@ public class BluetoothService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
+            //Toast.makeText(getA.this, gatt.toString()+" "+Integer.toString(status), Toast.LENGTH_SHORT).show();
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 intentAction = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
@@ -121,6 +122,8 @@ public class BluetoothService extends Service {
                 mConnectionState = STATE_DISCONNECTED;
                 //Log.i(TAG, "Disconnected from GATT server.");
                 broadcastUpdate(intentAction);
+                close();
+                bluetoothGattCharacteristicHM_10 = null;
             }
         }
 
@@ -140,13 +143,14 @@ public class BluetoothService extends Service {
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                //Log.i(TAG, "Char Read");
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-            //Log.e(TAG, "OnCharacteristicChanged");
+            //Log.i(TAG, "OnCharacteristicChanged");
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
 
@@ -154,7 +158,7 @@ public class BluetoothService extends Service {
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic,
                                           int status)
         {
-            //Log.e(TAG, "OnCharacteristicWrite");
+            //Log.i(TAG, "OnCharacteristicWrite");
         }
 
         @Override
@@ -314,20 +318,6 @@ public class BluetoothService extends Service {
             return false;
         }
 
-        // Previously connected device.  Try to reconnect.
-        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
-                && mBluetoothGatt != null) {
-            //Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-            if (mBluetoothGatt.connect()) {
-                //Log.d(TAG, "SUCCEEDED");
-                mConnectionState = STATE_CONNECTING;
-                return true;
-            } else {
-                //Log.d(TAG, "Failed");
-                return false;
-            }
-        }
-
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
             //Log.w(TAG, "Device not found.  Unable to connect.");
@@ -354,7 +344,6 @@ public class BluetoothService extends Service {
             return;
         }
         mBluetoothGatt.disconnect();
-
         Toast.makeText(BluetoothService.this, "Disconnecting", Toast.LENGTH_SHORT).show();
     }
 
@@ -394,7 +383,7 @@ public class BluetoothService extends Service {
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            //Log.w(TAG, "BluetoothAdapter not initialized");
+            //Log.i(TAG, "BluetoothAdapter not initialized");
             return;
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
@@ -413,6 +402,7 @@ public class BluetoothService extends Service {
     }
 
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        //Log.i(TAG, characteristic.toString());
         mBluetoothGatt.writeCharacteristic(characteristic);
     }
 
@@ -439,6 +429,7 @@ public class BluetoothService extends Service {
                 {
                     if(gattCharacteristic.getUuid().toString().equalsIgnoreCase(UUID_NOTIFY.toString()))
                     {
+                        //Toast.makeText(BluetoothService.this, "services", Toast.LENGTH_SHORT).show();
                         //Log.i(TAG, gattCharacteristic.getUuid().toString());
                         //Log.i(TAG, UUID_NOTIFY.toString());
                         mNotifyCharacteristic = gattCharacteristic;
@@ -475,8 +466,9 @@ public class BluetoothService extends Service {
 
                 //Check if it is "HM_10"
                 if (uuid.equals("0000ffe1-0000-1000-8000-00805f9b34fb")) {
+                    //Log.i(TAG, "HM-11 ----------");
+                    //Toast.makeText(BluetoothService.this, "HM-11", Toast.LENGTH_SHORT).show();
                     bluetoothGattCharacteristicHM_10 = gattService.getCharacteristic(UUID_HM_10);
-
                 }
             }
         }
@@ -510,7 +502,8 @@ public class BluetoothService extends Service {
 
     private void writeBytes_helper(byte[] data){
             //Log.i(TAG, "SENT STUFF");
-            //Toast.makeText(BluetoothService.this, (BluetoothGatt==null)+"", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(BluetoothService.this, (mBluetoothManager==null)+""+(bluetoothGattCharacteristicHM_10==null)+" "+(mBluetoothGatt==null)+" "+(mBluetoothAdapter==null), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, data.toString(), Toast.LENGTH_SHORT).show();
             last_sent_data = data;
             bluetoothGattCharacteristicHM_10.setValue(data);
             writeCharacteristic(bluetoothGattCharacteristicHM_10);
