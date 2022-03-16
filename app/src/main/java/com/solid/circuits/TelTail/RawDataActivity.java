@@ -94,8 +94,8 @@ public class RawDataActivity extends AppCompatActivity {
 
         if(autoConnect) {
             if(mBluetoothService != null) {
-                if (mBluetoothService.mBluetoothDeviceAddress != null) {
-                    final boolean result = mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                if (mBluetoothService.mBluetoothDeviceAddress[0] != null) {
+                    final boolean result = mBluetoothService.connectTTL();
                     //Log.d(TAG, "Connect request result=" + result);
                 }
             }

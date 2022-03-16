@@ -71,6 +71,7 @@ import java.net.URLConnection;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 
 public class FirmwareSettingsActivity extends AppCompatActivity
@@ -459,6 +460,8 @@ public class FirmwareSettingsActivity extends AppCompatActivity
         }
     }
 
+
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     public void upload_fw(LoadingDialog fwUpdateDialog, File FWfile) {
         // Eenter Bootloader Mode
         //int fw_size = (int) FWfile.length();
@@ -479,11 +482,10 @@ public class FirmwareSettingsActivity extends AppCompatActivity
             byte[] FW_Bytes = new byte[fw_size];
             int[] FW_Words = new int[fw_size / 4];
             try {
-                BufferedInputStream buf = new BufferedInputStream(new FileInputStream(FWfile));
-                buf.read(FW_Bytes, 0, FW_Bytes.length);
-                buf.close();
+                    BufferedInputStream buf = new BufferedInputStream(new FileInputStream(FWfile));
+                    buf.read(FW_Bytes, 0, FW_Bytes.length);
+                    buf.close();
             } catch (FileNotFoundException e) {
-                //Toast.makeText(FirmwareSettingsActivity.this, "Failed to open FW file", Toast.LENGTH_SHORT).show();
                 SendGotoApp(); // Jump to application starting address
 
                 while (!fwUpdateDialog.DialogIsDismissed()) {

@@ -50,7 +50,7 @@
                     android:layout_height="@dimen/settings_height"
                     android:gravity="center_vertical"
                     android:paddingLeft="18dp"
-                    android:text="Remote:"
+                    android:text="Throttle Input Type:"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/settings_text_size" />
 

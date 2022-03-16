@@ -62,6 +62,10 @@ public class BluetoothService extends Service {
 
     public static final String PREFS_NAME = "TTLPrefsFile";
 
+    final int BoardConnectLimit = 3;
+    int connectResult = -1;
+    int connectionState = STATE_DISCONNECTED;
+
     static boolean SEND_OK = true;
     static long last_send = 0;
     static long send_time = 0;
@@ -70,7 +74,7 @@ public class BluetoothService extends Service {
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
-    public String mBluetoothDeviceAddress;
+    public String[] mBluetoothDeviceAddress = new String[BoardConnectLimit];
     private BluetoothGatt mBluetoothGatt;
     private BluetoothGattCharacteristic bluetoothGattCharacteristicHM_10;
     public int mConnectionState = STATE_DISCONNECTED;
@@ -109,21 +113,27 @@ public class BluetoothService extends Service {
             String intentAction;
             //Toast.makeText(getA.this, gatt.toString()+" "+Integer.toString(status), Toast.LENGTH_SHORT).show();
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                intentAction = ACTION_GATT_CONNECTED;
-                mConnectionState = STATE_CONNECTED;
+                if(mConnectionState != STATE_CONNECTED) {
+                    intentAction = ACTION_GATT_CONNECTED;
+                    mConnectionState = STATE_CONNECTED;
 
-                broadcastUpdate(intentAction);
-                //Log.i(TAG, "Connected to GATT server.");
-                // Attempts to discover services after successful connection.
-                //Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
-                mBluetoothGatt.discoverServices();
+                    broadcastUpdate(intentAction);
+                    //Log.i(TAG, "Connected to GATT server.");
+                    // Attempts to discover services after successful connection.
+                    //Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
+                    mBluetoothGatt.discoverServices();
+                }
+                connectResult = 1;
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                intentAction = ACTION_GATT_DISCONNECTED;
-                mConnectionState = STATE_DISCONNECTED;
-                //Log.i(TAG, "Disconnected from GATT server.");
-                broadcastUpdate(intentAction);
-                close();
-                bluetoothGattCharacteristicHM_10 = null;
+                if(mConnectionState != STATE_DISCONNECTED) {
+                    intentAction = ACTION_GATT_DISCONNECTED;
+                    mConnectionState = STATE_DISCONNECTED;
+                    //Log.i(TAG, "Disconnected from GATT server.");
+                    broadcastUpdate(intentAction);
+                    close();
+                    bluetoothGattCharacteristicHM_10 = null;
+                }
+                connectResult = 0;
             }
         }
 
@@ -252,7 +262,9 @@ public class BluetoothService extends Service {
         // All objects are from android.context.Context
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("DeviceAddress", mBluetoothDeviceAddress);
+        for(int i = 0; i < BoardConnectLimit; i++) {
+            editor.putString("DeviceAddress"+ i, mBluetoothDeviceAddress[i]);
+        }
         // Commit the edits!
         editor.commit();
         //Toast.makeText(BluetoothService.this, "Saving BLE settings", Toast.LENGTH_SHORT).show();
@@ -261,7 +273,12 @@ public class BluetoothService extends Service {
     private void loadPreferences(){
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        mBluetoothDeviceAddress = settings.getString("DeviceAddress", null);
+        for(int i = 0; i < BoardConnectLimit; i++) {
+            mBluetoothDeviceAddress[i] = settings.getString("DeviceAddress"+i, null);
+        }
+        if(mBluetoothDeviceAddress[0] == null && settings.getString("DeviceAddress", null)!=null) {
+            mBluetoothDeviceAddress[0] = settings.getString("DeviceAddress", null);//This is a patch so that people dont lose existing saved boards. It can be removed in the future
+        }
     }
 
     private final IBinder mBinder = new LocalBinder();
@@ -310,8 +327,7 @@ public class BluetoothService extends Service {
      *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      *         callback.
      */
-    public boolean connect(final String address) {
-        Toast.makeText(BluetoothService.this, "Connecting", Toast.LENGTH_SHORT).show();
+    boolean connect(final String address) {
 
         if (mBluetoothAdapter == null || address == null) {
             //Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
@@ -326,10 +342,48 @@ public class BluetoothService extends Service {
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
-        //Log.d(TAG, "Trying to create a new connection.");
-        mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
         return true;
+    }
+
+    void addAddress(final String address){
+        int index = 2;
+        for(int i = 0; i < BoardConnectLimit; i++){
+            if(mBluetoothDeviceAddress[i] != null && mBluetoothDeviceAddress[i].equals(address)){
+                index = i;
+            }
+        }
+        for(int i = index; i > 0; i--){
+            mBluetoothDeviceAddress[i] = mBluetoothDeviceAddress[i-1];
+        }
+        mBluetoothDeviceAddress[0] = address;
+
+        savePreferences();
+    }
+
+    public boolean connectTTL(){
+        boolean result = false;
+        for(int i = 0; i < BoardConnectLimit; i++) {
+            connectResult = -1;
+            if(mBluetoothDeviceAddress[i] == null){
+                Toast.makeText(this, "Please select a TTL module in settings first", Toast.LENGTH_SHORT).show();
+                break;
+            } else {
+                Toast.makeText(this, "Connecting Board "+i, Toast.LENGTH_SHORT).show();
+                if (connect(mBluetoothDeviceAddress[i]) == true) {
+                    while (connectResult == -1) {
+                    }
+                    if (connectResult == 1) {
+                        result = true;
+                        if (i != 0) {
+                            addAddress(mBluetoothDeviceAddress[i]);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     /**

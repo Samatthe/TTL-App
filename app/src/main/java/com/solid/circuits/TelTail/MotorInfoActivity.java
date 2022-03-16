@@ -68,7 +68,7 @@ public class MotorInfoActivity  extends AppCompatActivity {
                         startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
                     }
 
-                    mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                    mBluetoothService.connectTTL();
                 }
 
                 final byte[] txbuf = new byte[]{

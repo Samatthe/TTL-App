@@ -75,8 +75,8 @@ public class BluetoothScan extends ListActivity {
                     finish();
                 }
                 // Automatically connects to the device upon successful start-up initialization.
-                if (mBluetoothService.mBluetoothDeviceAddress != null && autoConnect)
-                    mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                if (mBluetoothService.mBluetoothDeviceAddress[0] != null && autoConnect)
+                    mBluetoothService.connectTTL();
             }
         }
 
@@ -176,7 +176,7 @@ public class BluetoothScan extends ListActivity {
             ScanButton.setText("Scan");
         }
 
-        mBluetoothService.mBluetoothDeviceAddress = device.getAddress();
+        mBluetoothService.addAddress(device.getAddress());
 
 
         // We need an Editor object to make preference changes.

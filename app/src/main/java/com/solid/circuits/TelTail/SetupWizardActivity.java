@@ -543,7 +543,7 @@ public class SetupWizardActivity extends FragmentActivity {
         //check if connected to TTL
         if(mBluetoothService.mConnectionState != mBluetoothService.STATE_CONNECTED) {
             //If not, check a BLE device is selected
-            if(mBluetoothService.mBluetoothDeviceAddress == null) {
+            if(mBluetoothService.mBluetoothDeviceAddress[0] == null) {
                 //If not, have user select one
                 new AlertDialog.Builder(this)
                         .setMessage("To write the settings, you will need to connect to the TTL system.\n\nMake sure the system is power before continuing.")
@@ -561,7 +561,7 @@ public class SetupWizardActivity extends FragmentActivity {
                         .show();
             } else {
                 SEND_VALUES = true;
-                mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                mBluetoothService.connectTTL();
             }
         } else {
             send_settings_to_TTL(); //Send all settings
@@ -572,7 +572,7 @@ public class SetupWizardActivity extends FragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
             case BLE_SCAN_REQUEST:
-                mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                mBluetoothService.connectTTL();
                 SEND_VALUES = true;
                 break;
         }

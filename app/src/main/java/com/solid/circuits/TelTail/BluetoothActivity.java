@@ -136,9 +136,9 @@ public class BluetoothActivity extends AppCompatActivity {
                 break;
 
             case R.id.connect_button:
-                if(mBluetoothService.mBluetoothDeviceAddress != null) {
+                if(mBluetoothService.mBluetoothDeviceAddress[0] != null) {
                     if(mBluetoothService.mConnectionState == 0) {
-                        mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                        mBluetoothService.connectTTL();
                     } else {
                         mBluetoothService.disconnect();
                     }

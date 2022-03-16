@@ -254,9 +254,9 @@ public class RemoteActivity extends AppCompatActivity
         if (id == R.id.action_remote_help) {
             Toast.makeText(RemoteActivity.this, "Feature not yet available", Toast.LENGTH_SHORT).show();
         } else if(id == R.id.action_remote_connect){
-            if(mBluetoothService.mBluetoothDeviceAddress != null) {
+            if(mBluetoothService.mBluetoothDeviceAddress[0] != null) {
                 if(mBluetoothService.mConnectionState == 0) {
-                    mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                    mBluetoothService.connectTTL();
                 } else if(mBluetoothService.mConnectionState == 2){
                     mBluetoothService.disconnect();
                 }

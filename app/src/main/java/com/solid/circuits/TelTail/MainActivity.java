@@ -338,7 +338,7 @@ public class MainActivity extends AppCompatActivity
                 mBluetoothService = ((BluetoothService.LocalBinder) service).getService();
 
                 // Automatically connects to the device upon successful start-up initialization
-                if (autoConnect && mBluetoothService.mBluetoothDeviceAddress != null) {                // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
+                if (autoConnect && mBluetoothService.mBluetoothDeviceAddress[0] != null) {                // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
                     // BluetoothAdapter through BluetoothManager.
                     final BluetoothManager bluetoothManager =
                             (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -350,7 +350,7 @@ public class MainActivity extends AppCompatActivity
                         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                         startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
                     } else
-                        mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                        mBluetoothService.connectTTL();
                 }
 
             } else if (componentName.getClassName().equals(LoggingService.class.getName())) {
@@ -1086,7 +1086,7 @@ public class MainActivity extends AppCompatActivity
 
             return true;
         } else if (id == R.id.action_ble) {
-            if (mBluetoothService.mBluetoothDeviceAddress != null) {
+            if (mBluetoothService.mBluetoothDeviceAddress[0] != null) {
                 //Log.i(TAG,"CONNECT/DISCONNECT PRESSED");
                 // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
                 // BluetoothAdapter through BluetoothManager.
@@ -1104,7 +1104,7 @@ public class MainActivity extends AppCompatActivity
                         bleAction.setTitle("Connecting BLE");
                         bleAction.setEnabled(false);
                         //Log.i(TAG, "CONNECTING");
-                        mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                        mBluetoothService.connectTTL();
                     }
                 } else if (mBluetoothService.mConnectionState == 2) {
                     bleAction.setTitle("Disconnecting BLE");

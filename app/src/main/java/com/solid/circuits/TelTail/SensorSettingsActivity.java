@@ -73,7 +73,7 @@ public class SensorSettingsActivity extends AppCompatActivity
                         startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
                     }
 
-                    mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+                    mBluetoothService.connectTTL();
                 }
 
                 final byte[] txbuf = new byte[]{
@@ -369,7 +369,7 @@ public class SensorSettingsActivity extends AppCompatActivity
 
         int id = item.getItemId();
         if (id == R.id.action_sensors_connect) {
-            mBluetoothService.connect(mBluetoothService.mBluetoothDeviceAddress);
+            mBluetoothService.connectTTL();
             return true;
         } else if (id == R.id.action_sensor_editable) {
             if(item.isChecked()) {

@@ -8,8 +8,8 @@ android {
         applicationId "com.solid.circuits.TelTail"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 13
-        versionName "0.13"
+        versionCode 15
+        versionName "0.15"
     }
     buildTypes {
         release {

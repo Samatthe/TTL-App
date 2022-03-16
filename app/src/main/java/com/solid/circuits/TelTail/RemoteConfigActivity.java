@@ -274,9 +274,8 @@ public class RemoteConfigActivity extends AppCompatActivity
     void initializeRemoteTypeList(List<CharSequence> list){
         list.clear();
         list.add("PWM");
-        list.add("UART + PWM");
-        list.add("UART Only");//(Chuck Struct) Single Axis");
-        //list.add("UART (Chuck Struct) Dual Axis");
+        list.add("UART");
+        list.add("ADC");
     }
 
     void initializeButtonTypeList(List<CharSequence> list){
